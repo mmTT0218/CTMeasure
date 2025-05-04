@@ -47,10 +47,12 @@
             // 
             // CameraControll
             // 
+            this.CameraControll.BackColor = System.Drawing.Color.Black;
             this.CameraControll.Controls.Add(this.EnlargeButton);
             this.CameraControll.Controls.Add(this.ShrinkButton);
             this.CameraControll.Controls.Add(this.PhotoButton);
             this.CameraControll.Controls.Add(this.CapButton);
+            this.CameraControll.ForeColor = System.Drawing.Color.White;
             this.CameraControll.Location = new System.Drawing.Point(12, 12);
             this.CameraControll.Name = "CameraControll";
             this.CameraControll.Size = new System.Drawing.Size(1880, 200);
@@ -113,6 +115,7 @@
             this.StageControll.Controls.Add(this.Down);
             this.StageControll.Controls.Add(this.Up);
             this.StageControll.Controls.Add(this.ConnectButton);
+            this.StageControll.ForeColor = System.Drawing.Color.White;
             this.StageControll.Location = new System.Drawing.Point(12, 246);
             this.StageControll.Name = "StageControll";
             this.StageControll.Size = new System.Drawing.Size(934, 703);
@@ -195,10 +198,12 @@
             // 
             // CrossTalkMeasure
             // 
+            this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1904, 961);
             this.Controls.Add(this.StreamImage);
             this.Controls.Add(this.StageControll);
             this.Controls.Add(this.CameraControll);
+            this.ForeColor = System.Drawing.Color.Black;
             this.Name = "CrossTalkMeasure";
             this.Text = "CrossTalkMeasure";
             this.Load += new System.EventHandler(this.CrossTalkMeasure_Load);
