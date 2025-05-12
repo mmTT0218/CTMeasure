@@ -63,6 +63,16 @@ namespace CTMeasure.Properties {
         /// <summary>
         ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
         /// </summary>
+        internal static System.Drawing.Bitmap AddCalibList {
+            get {
+                object obj = ResourceManager.GetObject("AddCalibList", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
         internal static System.Drawing.Bitmap ConnectOFF {
             get {
                 object obj = ResourceManager.GetObject("ConnectOFF", resourceCulture);
@@ -126,6 +136,16 @@ namespace CTMeasure.Properties {
         internal static System.Drawing.Bitmap Right {
             get {
                 object obj = ResourceManager.GetObject("Right", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Bitmap RunCalib {
+            get {
+                object obj = ResourceManager.GetObject("RunCalib", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

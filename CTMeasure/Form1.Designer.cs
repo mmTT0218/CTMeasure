@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.CameraControll = new System.Windows.Forms.GroupBox();
+            this.RunCalib = new System.Windows.Forms.Button();
+            this.AddPattern = new System.Windows.Forms.Button();
             this.EnlargeButton = new System.Windows.Forms.Button();
             this.ShrinkButton = new System.Windows.Forms.Button();
             this.PhotoButton = new System.Windows.Forms.Button();
@@ -48,24 +50,51 @@
             // CameraControll
             // 
             this.CameraControll.BackColor = System.Drawing.Color.Black;
+            this.CameraControll.Controls.Add(this.RunCalib);
+            this.CameraControll.Controls.Add(this.AddPattern);
             this.CameraControll.Controls.Add(this.EnlargeButton);
             this.CameraControll.Controls.Add(this.ShrinkButton);
             this.CameraControll.Controls.Add(this.PhotoButton);
             this.CameraControll.Controls.Add(this.CapButton);
             this.CameraControll.ForeColor = System.Drawing.Color.White;
-            this.CameraControll.Location = new System.Drawing.Point(12, 12);
+            this.CameraControll.Location = new System.Drawing.Point(79, 12);
             this.CameraControll.Name = "CameraControll";
-            this.CameraControll.Size = new System.Drawing.Size(1880, 200);
+            this.CameraControll.Size = new System.Drawing.Size(1720, 200);
             this.CameraControll.TabIndex = 0;
             this.CameraControll.TabStop = false;
             this.CameraControll.Text = "CameraControll";
+            // 
+            // RunCalib
+            // 
+            this.RunCalib.BackColor = System.Drawing.Color.Transparent;
+            this.RunCalib.BackgroundImage = global::CTMeasure.Properties.Resources.RunCalib;
+            this.RunCalib.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.RunCalib.ForeColor = System.Drawing.Color.White;
+            this.RunCalib.Location = new System.Drawing.Point(1432, 18);
+            this.RunCalib.Name = "RunCalib";
+            this.RunCalib.Size = new System.Drawing.Size(260, 165);
+            this.RunCalib.TabIndex = 5;
+            this.RunCalib.UseVisualStyleBackColor = false;
+            this.RunCalib.Click += new System.EventHandler(this.RunCalibrationButton_Click);
+            // 
+            // AddPattern
+            // 
+            this.AddPattern.BackColor = System.Drawing.Color.Transparent;
+            this.AddPattern.BackgroundImage = global::CTMeasure.Properties.Resources.AddCalibList;
+            this.AddPattern.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.AddPattern.Location = new System.Drawing.Point(1152, 20);
+            this.AddPattern.Name = "AddPattern";
+            this.AddPattern.Size = new System.Drawing.Size(260, 165);
+            this.AddPattern.TabIndex = 4;
+            this.AddPattern.UseVisualStyleBackColor = false;
+            this.AddPattern.Click += new System.EventHandler(this.AddCurrentFrameToCalibrationList_Click);
             // 
             // EnlargeButton
             // 
             this.EnlargeButton.BackColor = System.Drawing.Color.Transparent;
             this.EnlargeButton.BackgroundImage = global::CTMeasure.Properties.Resources.Enlarge;
             this.EnlargeButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.EnlargeButton.Location = new System.Drawing.Point(846, 20);
+            this.EnlargeButton.Location = new System.Drawing.Point(862, 20);
             this.EnlargeButton.Name = "EnlargeButton";
             this.EnlargeButton.Size = new System.Drawing.Size(260, 165);
             this.EnlargeButton.TabIndex = 3;
@@ -77,7 +106,7 @@
             this.ShrinkButton.BackColor = System.Drawing.Color.Transparent;
             this.ShrinkButton.BackgroundImage = global::CTMeasure.Properties.Resources.Shrink;
             this.ShrinkButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ShrinkButton.Location = new System.Drawing.Point(566, 20);
+            this.ShrinkButton.Location = new System.Drawing.Point(582, 20);
             this.ShrinkButton.Name = "ShrinkButton";
             this.ShrinkButton.Size = new System.Drawing.Size(260, 165);
             this.ShrinkButton.TabIndex = 2;
@@ -89,7 +118,7 @@
             this.PhotoButton.BackColor = System.Drawing.Color.Transparent;
             this.PhotoButton.BackgroundImage = global::CTMeasure.Properties.Resources.Photo;
             this.PhotoButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.PhotoButton.Location = new System.Drawing.Point(286, 20);
+            this.PhotoButton.Location = new System.Drawing.Point(302, 20);
             this.PhotoButton.Name = "PhotoButton";
             this.PhotoButton.Size = new System.Drawing.Size(260, 165);
             this.PhotoButton.TabIndex = 1;
@@ -101,7 +130,7 @@
             this.CapButton.BackColor = System.Drawing.Color.Transparent;
             this.CapButton.BackgroundImage = global::CTMeasure.Properties.Resources.StreamON;
             this.CapButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.CapButton.Location = new System.Drawing.Point(6, 18);
+            this.CapButton.Location = new System.Drawing.Point(22, 18);
             this.CapButton.Name = "CapButton";
             this.CapButton.Size = new System.Drawing.Size(260, 165);
             this.CapButton.TabIndex = 0;
@@ -228,6 +257,8 @@
         private System.Windows.Forms.Button Left;
         private System.Windows.Forms.Button Down;
         private System.Windows.Forms.Button Up;
+        private System.Windows.Forms.Button AddPattern;
+        private System.Windows.Forms.Button RunCalib;
     }
 }
 

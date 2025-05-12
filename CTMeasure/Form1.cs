@@ -7,6 +7,10 @@ using System.IO.Ports;                      // Serial Port
 using System.Security.Policy;
 using System.Windows.Forms;                 // Windows Form Application Component
 using Timer = System.Windows.Forms.Timer;   // Timer
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
+using System.Collections.Generic;
+using Size = OpenCvSharp.Size;
 
 namespace CTMeasure
 {
@@ -19,7 +23,6 @@ namespace CTMeasure
 
         // Spinnaker
         private bool cap = false;        // Cap Start/Stop Flag
-        private bool rec = false;        // rec Start/Stop Flag
         private Bitmap originalBitmap = null;  // capture image
         private float zoomFactor = 1.0f;       // zoom scale
         private ManagedSystem system = null;              // Sipnnaker System Controll
@@ -199,7 +202,7 @@ namespace CTMeasure
 
                 // Create Timer
                 captureTimer = new Timer();        // Timer Initialize
-                captureTimer.Interval = 17;        // 33ms cycle (30fps)
+                captureTimer.Interval = 8;         // 8ms cycle ( ~= 120fps)
                 captureTimer.Tick += CaptureFrame; // Tick Event
                 captureTimer.Start();              // Start captureTimer
             }
@@ -407,5 +410,143 @@ namespace CTMeasure
         }
 
         // --------------------------------------------------------------------------------------------------
+
+        // -------------------------------------   Camera Calibration Method -------------------------------------
+        List<Point2f[]> imagePointsList = new List<Point2f[]>();
+        List<Point3f[]> objectPointsList = new List<Point3f[]>();
+        Size patternSize = new Size(11, 4); // Asymmetry-CircleGrid（rowxcol）
+        float circleSpacing = 20.0f;        // circle space [mm]
+
+        // Add Calibration Image 
+        private void AddCalibrationImageFromBitmap(Bitmap bmp)
+        {
+            if (bmp == null)
+            {
+                MessageBox.Show("画像が読み込まれていません。", "エラー");
+                return;
+            }
+
+            // Bitmap -> Mat 変換
+            Mat mat;
+            try
+            {
+                mat = BitmapConverter.ToMat(bmp);
+                if (mat.Empty())
+                {
+                    MessageBox.Show("画像が正しく読み込めませんでした。", "エラー");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Bitmap → Mat 変換エラー: " + ex.Message, "エラー");
+                return;
+            }
+
+            // グレースケール変換
+            if (mat.Channels() == 3 || mat.Channels() == 4)
+            {
+                Cv2.CvtColor(mat, mat, ColorConversionCodes.BGR2GRAY);
+            }
+
+            // パターン検出
+            Point2f[] corners;
+            bool found = false;
+            try
+            {
+                found = Cv2.FindCirclesGrid(
+                    mat,
+                    patternSize,
+                    out corners,
+                    FindCirclesGridFlags.AsymmetricGrid
+                );
+            }
+            catch (OpenCVException ex)
+            {
+                MessageBox.Show("FindCirclesGridで例外発生: " + ex.Message, "OpenCVエラー");
+                return;
+            }
+
+            if (found)
+            {
+                imagePointsList.Add(corners);
+
+                // 3D座標作成
+                List<Point3f> objPts = new List<Point3f>();
+                for (int i = 0; i < patternSize.Height; i++)
+                {
+                    for (int j = 0; j < patternSize.Width; j++)
+                    {
+                        float x = (2 * j + i % 2) * circleSpacing;
+                        float y = i * circleSpacing;
+                        objPts.Add(new Point3f(x, y, 0));
+                    }
+                }
+                objectPointsList.Add(objPts.ToArray());
+
+                MessageBox.Show("パターン検出に成功し、リストに追加されました。", "成功");
+            }
+            else
+            {
+                MessageBox.Show("パターンが検出できませんでした。", "失敗");
+            }
+        }
+
+
+
+        // Run Camera Calibration
+        private void RunCalibration()
+        {
+            if (imagePointsList.Count < 5)
+            {
+                MessageBox.Show("最低5枚以上の有効なキャリブレーション画像が必要です。", "注意");
+                return;
+            }
+
+            OpenCvSharp.Size imageSize = new OpenCvSharp.Size(originalBitmap.Width, originalBitmap.Height);
+
+            // Point Index → Mat 
+            var objectPointsMatList = new List<Mat>();
+            foreach (var pts in objectPointsList)
+                objectPointsMatList.Add(InputArray.Create(pts).GetMat());
+
+            var imagePointsMatList = new List<Mat>();
+            foreach (var pts in imagePointsList)
+                imagePointsMatList.Add(InputArray.Create(pts).GetMat());
+
+            Mat cameraMatrix = new Mat();
+            Mat distCoeffs = new Mat();
+            Mat[] rvecs, tvecs;
+
+            double error = Cv2.CalibrateCamera(
+                objectPointsMatList,
+                imagePointsMatList,
+                imageSize,
+                cameraMatrix,
+                distCoeffs,
+                out rvecs,
+                out tvecs);
+
+            MessageBox.Show($"キャリブレーション完了: 再投影誤差 = {error:F4}", "結果");
+        }
+
+        // Add CurrentFrame to CalibrationList Click
+        private void AddCurrentFrameToCalibrationList_Click(object sender, EventArgs e)
+        {
+            if (originalBitmap != null)
+            {
+                AddCalibrationImageFromBitmap(originalBitmap);
+            }
+            else
+            {
+                MessageBox.Show("画像が読み込まれていません。", "注意");
+            }
+        }
+
+        // Run Camera Calibration Click
+        private void RunCalibrationButton_Click(object sender, EventArgs e)
+        {
+            RunCalibration();
+        }
     }
 }
