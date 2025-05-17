@@ -175,6 +175,12 @@
   <ItemGroup>
     <None Include="Resources\RunCalib.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PatternON.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PatternOFF.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

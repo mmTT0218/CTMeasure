@@ -19,12 +19,14 @@ namespace CTMeasure
         // Define
         Color Red = Color.Red;
         Color Green = Color.Lime;
-        Color Blue = Color.DeepSkyBlue;
 
         // Spinnaker
-        private bool cap = false;        // Cap Start/Stop Flag
+        private bool cap = false;              // Cap Start/Stop Flag
+        private bool pattern = false;          // pattern drawing ON/OFF
+        private int counter = 0;               // Nframe Counter
+        private const int detectInterval = 2;  // Pattern Drawing Interval
         private Bitmap originalBitmap = null;  // capture image
-        private float zoomFactor = 1.0f;       // zoom scale
+        private float zoomFactor = 0.5f;       // zoom scale
         private ManagedSystem system = null;              // Sipnnaker System Controll
         private IManagedCamera camera = null;             // Camera Controll
         private IManagedImageProcessor processor = null;  // Imaging Processor
@@ -52,7 +54,7 @@ namespace CTMeasure
         {
             Red = Color.Red;
             Green = Color.Lime;
-            Blue = Color.DeepSkyBlue;
+
 
             // Stage Move Timer
             stageMoveTimer = new Timer();
@@ -202,7 +204,7 @@ namespace CTMeasure
 
                 // Create Timer
                 captureTimer = new Timer();        // Timer Initialize
-                captureTimer.Interval = 8;         // 8ms cycle ( ~= 120fps)
+                captureTimer.Interval = 17;        // 17ms cycle ( ~= 90fps)
                 captureTimer.Tick += CaptureFrame; // Tick Event
                 captureTimer.Start();              // Start captureTimer
             }
@@ -216,28 +218,55 @@ namespace CTMeasure
         // Timer Capture Frame
         private void CaptureFrame(object sender, EventArgs e)
         {
-            if (camera == null || !cap) return;   // Check Camera Status
+            if (camera == null || !cap) return;
 
             try
             {
-                using (IManagedImage rawImage = camera.GetNextImage(1000))  // Get Next Frame (wait until 1000ms)
+                using (IManagedImage rawImage = camera.GetNextImage(1000))   // wait until 1000ms
                 {
-                    if (!rawImage.IsIncomplete)  // check rawimage
+                    if (!rawImage.IsIncomplete)
                     {
-                        using (var converted = processor.Convert(rawImage, PixelFormatEnums.Mono8))  // Convert GreyScale
-                        using (var bmp = new Bitmap(converted.bitmap))   // Bitmapping
+                        using (var converted = processor.Convert(rawImage, PixelFormatEnums.Mono8))   // conver grayscale
+                        using (var bmp = new Bitmap(converted.bitmap))    // convert bitmap
                         {
-                            StreamImage.Invoke((MethodInvoker)delegate {  // Invoke : Call UI Thread
+                            StreamImage.Invoke((MethodInvoker)delegate
+                            {
+                                Mat mat = BitmapConverter.ToMat(bmp);   // convert mat from bitmap
+
+                                if (pattern)   // check pattern flag
+                                {
+                                    counter++;
+                                    if (counter % detectInterval == 0)
+                                    {
+                                        counter = 0;
+                                        Mat gray = new Mat();
+                                        if (mat.Channels() == 3 || mat.Channels() == 4)    // check RGN color
+                                            Cv2.CvtColor(mat, gray, ColorConversionCodes.BGR2GRAY);  // convert grayscale
+                                        else
+                                            gray = mat;
+
+                                        Point2f[] corners;
+                                        bool found = Cv2.FindCirclesGrid(
+                                            gray,
+                                            patternSize,
+                                            out corners,
+                                            FindCirclesGridFlags.AsymmetricGrid);
+
+                                        if (found)
+                                        {
+                                            Cv2.DrawChessboardCorners(mat, patternSize, corners, found);
+                                        }
+                                    }
+                                }
+
                                 originalBitmap?.Dispose();
-                                originalBitmap = new Bitmap(bmp);  // renew originalBitmap
-                                StreamImage.Invalidate();          // reDraw
+                                originalBitmap = BitmapConverter.ToBitmap(mat);   // convet bitmap from mat
+                                StreamImage.Invalidate();
                             });
                         }
                     }
                 }
-                // rawImage.Dispose()
             }
-            // Error Process
             catch (SpinnakerException ex)
             {
                 Console.WriteLine("画像取得エラー: " + ex.Message);
@@ -273,6 +302,18 @@ namespace CTMeasure
             }
         }
 
+        // Pattern ON/OFF Button
+        private void TogglePattern(object sender, EventArgs e)
+        {
+            pattern  = !pattern;
+            if (pattern) {
+                PatternDetect.BackgroundImage = Properties.Resources.PatternOFF;
+            }
+            if (!pattern)
+            {
+                PatternDetect.BackgroundImage = Properties.Resources.PatternON;
+            }
+        }
         // --------------------------------------------------------------------------------------------------
 
         // -------------------------------------  Stage Controll Method -------------------------------------
@@ -414,7 +455,7 @@ namespace CTMeasure
         // -------------------------------------   Camera Calibration Method -------------------------------------
         List<Point2f[]> imagePointsList = new List<Point2f[]>();
         List<Point3f[]> objectPointsList = new List<Point3f[]>();
-        Size patternSize = new Size(11, 4); // Asymmetry-CircleGrid（rowxcol）
+        Size patternSize = new Size(11, 4); // Asymmetry-CircleGrid（row x col）
         float circleSpacing = 20.0f;        // circle space [mm]
 
         // Add Calibration Image 
@@ -492,8 +533,6 @@ namespace CTMeasure
             }
         }
 
-
-
         // Run Camera Calibration
         private void RunCalibration()
         {
@@ -548,5 +587,6 @@ namespace CTMeasure
         {
             RunCalibration();
         }
+
     }
 }
