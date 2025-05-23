@@ -491,8 +491,8 @@ namespace CTMeasure
 
 
             // PointList Initialize
-            imagePointsList = new List<Point2f[]>();
-            objectPointsList = new List<Point3f[]>();
+            imagePointsList = new List<Point2f[]>();    // All Pattern Detect Point on Image 2D Coordinate
+            objectPointsList = new List<Point3f[]>();   // True Pattern on 3D Coordinate
 
             // ProgressBar Initialize
             CalibrationProgress.Minimum = 0;
@@ -515,14 +515,16 @@ namespace CTMeasure
                             // pattern detect check & Add corner
                             if (patternFound && latestCorners != null)
                             {
+                                // p → Saved All 2D point
+                                // latestCorners → New 2D point
                                 bool isDuplicate = imagePointsList.Exists(p => Enumerable.SequenceEqual(p, latestCorners));
 
-                                if (!isDuplicate)
+                                if (!isDuplicate)  // prevent duplicate
                                 {
                                     // image coordinate add
                                     imagePointsList.Add((Point2f[])latestCorners.Clone());
 
-                                    // object detect
+                                    // make true 3d coordinate data
                                     Point3f[] objPoints = new Point3f[patternSize.Width * patternSize.Height];
                                     for (int i = 0; i < patternSize.Height; i++)
                                     {
@@ -626,7 +628,7 @@ namespace CTMeasure
             }
         }
 
-        // PatternDetect
+        // PatternDetect ( Get Corner )
         private void StartAsyncPatternDetection(Mat inputGray)
         {
             if (isDetecting) return; // multiple prevent
@@ -665,7 +667,7 @@ namespace CTMeasure
             });
         }
 
-        // Run Calibration
+        // Out Calibration Parameter File
         private void ExecutCalibration()
         {
             try
@@ -711,17 +713,15 @@ namespace CTMeasure
                     }
                 }
 
-                // 2. カメラ画像サイズ（使用しているカメラに合わせてください）
+                // camera resolution
                 Size imageSize = new Size(2048, 1536);
 
-                // 3. キャリブレーション実行
+                // Get Calibration Parameter
                 Mat cameraMatrix = new Mat();
                 Mat distCoeffs = new Mat();
                 Mat[] rvecs, tvecs;
-
                 List<Mat> objectPointsMatList = objectPointsList
                     .Select(pts => InputArray.Create(pts).GetMat()).ToList();
-
                 List<Mat> imagePointsMatList = imagePointsList
                     .Select(pts => InputArray.Create(pts).GetMat()).ToList();
 
@@ -736,7 +736,7 @@ namespace CTMeasure
                     CalibrationFlags.None
                 );
 
-                // 4. 結果保存
+                // Save Result
                 string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
                 string savePath = Path.Combine(folderPath, $"calib_result_{timestamp}.yml");
 
@@ -755,7 +755,7 @@ namespace CTMeasure
             }
         }
 
-        // Read Calibration data
+        // Read Calibration Parameter
         private void ReadCalibrationData(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
@@ -782,11 +782,6 @@ namespace CTMeasure
                     }
                 }
             }
-        }
-
-        private void StreamImage_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }
