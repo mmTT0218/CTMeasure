@@ -11,6 +11,12 @@ using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System.Collections.Generic;
 using Size = OpenCvSharp.Size;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Runtime.InteropServices;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Reflection.Emit;
 
 namespace CTMeasure
 {
@@ -20,33 +26,9 @@ namespace CTMeasure
         Color Red = Color.Red;
         Color Green = Color.Lime;
 
-        // Spinnaker
-        private bool cap = false;              // Cap Start/Stop Flag
-        private bool pattern = false;          // pattern drawing ON/OFF
-        private int counter = 0;               // Nframe Counter
-        private const int detectInterval = 2;  // Pattern Drawing Interval
-        private Bitmap originalBitmap = null;  // capture image
-        private float zoomFactor = 0.5f;       // zoom scale
-        private ManagedSystem system = null;              // Sipnnaker System Controll
-        private IManagedCamera camera = null;             // Camera Controll
-        private IManagedImageProcessor processor = null;  // Imaging Processor
-        private Timer captureTimer = null;                // Framerate
-
-        // Stage
-        private bool isConnect = false;                   // Stage Connect Flag
-        private SerialPort stagePort = null;              // SerialPort Status
-        private const string STAGE_PORT_NAME = "COM2";    // Port Name
-        private const int STAGE_BAUDRATE = 9600;          // BaudRate
-        private const string STAGE_DELIMITER = "\r\n";    // Put "\r\n" Automatically
-        private Timer stageMoveTimer;                     // Long Press 
-        private string currentStageCommand = "";          // Move Direction
-
         public CrossTalkMeasure()
         {
             InitializeComponent();
-            this.KeyPreview = true;
-            this.ActiveControl = null;
-            this.KeyDown += CrossTalkMeasure_KeyDown;
         }
 
         // Initialize
@@ -62,7 +44,19 @@ namespace CTMeasure
             stageMoveTimer.Tick += StageMoveTimer_Tick;
         }
 
-        // -------------------------------------  Camera Controll Method -------------------------------------
+        // -------------------------------------  Camera Controll Method (Spinnaker) -------------------------------------
+        // Spinnaker
+        private bool cap = false;              // Cap Start/Stop Flag
+        private bool pattern = false;          // pattern drawing ON/OFF
+        private int counter = 0;               // Nframe Counter
+        private const int detectInterval = 2;  // Pattern Drawing Interval
+        private Bitmap originalBitmap = null;  // capture image
+        private float zoomFactor = 0.5f;       // zoom scale
+        private ManagedSystem system = null;              // Sipnnaker System Controll
+        private IManagedCamera camera = null;             // Camera Controll
+        private IManagedImageProcessor processor = null;  // Imaging Processor
+        private Timer captureTimer = null;                // Framerate
+        
         // Cap Start/Stop
         private void CapButton_Click(object sender, EventArgs e)
         {
@@ -204,7 +198,7 @@ namespace CTMeasure
 
                 // Create Timer
                 captureTimer = new Timer();        // Timer Initialize
-                captureTimer.Interval = 17;        // 17ms cycle ( ~= 90fps)
+                captureTimer.Interval = 8;        // 8ms cycle ( ~= 120fps)
                 captureTimer.Tick += CaptureFrame; // Tick Event
                 captureTimer.Start();              // Start captureTimer
             }
@@ -226,41 +220,38 @@ namespace CTMeasure
                 {
                     if (!rawImage.IsIncomplete)
                     {
-                        using (var converted = processor.Convert(rawImage, PixelFormatEnums.Mono8))   // conver grayscale
-                        using (var bmp = new Bitmap(converted.bitmap))    // convert bitmap
+                        using (var converted = processor.Convert(rawImage, PixelFormatEnums.Mono8))
+                        using (var bmp = new Bitmap(converted.bitmap))
                         {
                             StreamImage.Invoke((MethodInvoker)delegate
                             {
-                                Mat mat = BitmapConverter.ToMat(bmp);   // convert mat from bitmap
+                                Mat mat = BitmapConverter.ToMat(bmp);
 
-                                if (pattern)   // check pattern flag
+                                // Apply Calibration
+                                if (cameraMatrixUndistort != null && distCoeffsUndistort != null)
                                 {
-                                    counter++;
-                                    if (counter % detectInterval == 0)
+                                    Mat undistorted = new Mat();
+                                    Cv2.Undistort(mat, undistorted, cameraMatrixUndistort, distCoeffsUndistort);
+                                    mat = undistorted;
+                                }
+
+                                // Pattern Drawing
+                                if (pattern)
+                                {
+                                    Mat gray = new Mat();
+                                    Cv2.CvtColor(mat, gray, ColorConversionCodes.BGR2GRAY);
+
+                                    if (!isDetecting)
+                                        StartAsyncPatternDetection(gray.Clone());
+
+                                    if (patternFound && latestCorners != null)
                                     {
-                                        counter = 0;
-                                        Mat gray = new Mat();
-                                        if (mat.Channels() == 3 || mat.Channels() == 4)    // check RGN color
-                                            Cv2.CvtColor(mat, gray, ColorConversionCodes.BGR2GRAY);  // convert grayscale
-                                        else
-                                            gray = mat;
-
-                                        Point2f[] corners;
-                                        bool found = Cv2.FindCirclesGrid(
-                                            gray,
-                                            patternSize,
-                                            out corners,
-                                            FindCirclesGridFlags.AsymmetricGrid);
-
-                                        if (found)
-                                        {
-                                            Cv2.DrawChessboardCorners(mat, patternSize, corners, found);
-                                        }
+                                        Cv2.DrawChessboardCorners(mat, patternSize, latestCorners, patternFound);
                                     }
                                 }
 
                                 originalBitmap?.Dispose();
-                                originalBitmap = BitmapConverter.ToBitmap(mat);   // convet bitmap from mat
+                                originalBitmap = BitmapConverter.ToBitmap(mat);
                                 StreamImage.Invalidate();
                             });
                         }
@@ -270,6 +261,28 @@ namespace CTMeasure
             catch (SpinnakerException ex)
             {
                 Console.WriteLine("画像取得エラー: " + ex.Message);
+            }
+        }
+
+        // Pattern ON/OFF Button
+        private void TogglePattern(object sender, EventArgs e)
+        {   
+            // camera check
+            if (camera == null && !cap)
+            {
+                MessageBox.Show("カメラが接続されていません。", "注意");
+                return;
+            }
+
+            pattern = !pattern; //reverse
+            if (pattern)
+            {
+                PatternDetect.BackgroundImage = Properties.Resources.PatternOFF;
+            }
+            if (!pattern)
+            {
+                PatternDetect.BackgroundImage = Properties.Resources.PatternON;
+                pattern = false;
             }
         }
 
@@ -301,22 +314,17 @@ namespace CTMeasure
                 MessageBox.Show("カメラ停止エラー: " + ex.Message, "エラー");
             }
         }
-
-        // Pattern ON/OFF Button
-        private void TogglePattern(object sender, EventArgs e)
-        {
-            pattern  = !pattern;
-            if (pattern) {
-                PatternDetect.BackgroundImage = Properties.Resources.PatternOFF;
-            }
-            if (!pattern)
-            {
-                PatternDetect.BackgroundImage = Properties.Resources.PatternON;
-            }
-        }
         // --------------------------------------------------------------------------------------------------
 
         // -------------------------------------  Stage Controll Method -------------------------------------
+        // Stage
+        private bool isConnect = false;                   // Stage Connect Flag
+        private SerialPort stagePort = null;              // SerialPort Status
+        private const string STAGE_PORT_NAME = "COM2";    // Port Name
+        private const int STAGE_BAUDRATE = 9600;          // BaudRate
+        private const string STAGE_DELIMITER = "\r\n";    // Put "\r\n" Automatically
+        private Timer stageMoveTimer;                     // Long Press 
+        private string currentStageCommand = "";          // Move Axis
         // Connect Stage
         private void Connect_Stage_Click(object sender, EventArgs e)
         {
@@ -444,149 +452,341 @@ namespace CTMeasure
             this.Right.BackColor = Green;
         }
 
-        // Key Event
-        private void CrossTalkMeasure_KeyDown(object sender, KeyEventArgs e)
-        {
-
-        }
-
         // --------------------------------------------------------------------------------------------------
 
         // -------------------------------------   Camera Calibration Method -------------------------------------
+        // detect pattern
         List<Point2f[]> imagePointsList = new List<Point2f[]>();
         List<Point3f[]> objectPointsList = new List<Point3f[]>();
-        Size patternSize = new Size(11, 4); // Asymmetry-CircleGrid（row x col）
-        float circleSpacing = 20.0f;        // circle space [mm]
+        Size patternSize = new Size(11, 4);                        // Asymmetry-CircleGrid（row x col）
+        float circleSpacing = 20.0f;                               // circle space [mm]
+        private volatile Point2f[] latestCorners = null;
+        private volatile bool patternFound = false;
+        private volatile bool isDetecting = false;
+        private int detectPattenSet = 40;
+        // stage controll
+        private CancellationTokenSource stageIterationCTS = null;
+        private bool isIteration = false;   // Iteration flag
+        private const int MaxRight = 20;    // Max Roght Pos
+        private const int MaxLeft = -20;    // Max Left Pos
+        // calibration data
+        private Mat cameraMatrixUndistort = null;  // camera matrix
+        private Mat distCoeffsUndistort = null;    // distorted matrix
 
-        // Add Calibration Image 
-        private void AddCalibrationImageFromBitmap(Bitmap bmp)
+        // detectPattenSet change
+        private void MaxDetectPatternChanged(object sender, EventArgs e)
         {
-            if (bmp == null)
+            detectPattenSet = int.Parse(MaxDetectSet.Text);
+        }
+
+        // Calibration data Collect Start
+        private void Calibration(object sender, EventArgs e)
+        {
+            // chack stage & camera connect
+            if (!isConnect || stagePort == null || !stagePort.IsOpen || camera == null || !cap)
             {
-                MessageBox.Show("画像が読み込まれていません。", "エラー");
+                MessageBox.Show("ステージまたはカメラが接続されていません。", "注意");
                 return;
             }
 
-            // Bitmap -> Mat 変換
-            Mat mat;
+
+            // PointList Initialize
+            imagePointsList = new List<Point2f[]>();
+            objectPointsList = new List<Point3f[]>();
+
+            // ProgressBar Initialize
+            CalibrationProgress.Minimum = 0;
+            CalibrationProgress.Maximum = detectPattenSet;
+            CalibrationProgress.Value = 0;
+
+            // iteration move start
+            if (!isIteration)
+            {
+                stageIterationCTS = new CancellationTokenSource();
+                var token = stageIterationCTS.Token;
+                int count = 1;
+
+                Task.Run(async () =>
+                {
+                    try
+                    { 
+                        while (!token.IsCancellationRequested)
+                        {
+                            // pattern detect check & Add corner
+                            if (patternFound && latestCorners != null)
+                            {
+                                bool isDuplicate = imagePointsList.Exists(p => Enumerable.SequenceEqual(p, latestCorners));
+
+                                if (!isDuplicate)
+                                {
+                                    // image coordinate add
+                                    imagePointsList.Add((Point2f[])latestCorners.Clone());
+
+                                    // object detect
+                                    Point3f[] objPoints = new Point3f[patternSize.Width * patternSize.Height];
+                                    for (int i = 0; i < patternSize.Height; i++)
+                                    {
+                                        for (int j = 0; j < patternSize.Width; j++)
+                                        {
+                                            objPoints[i * patternSize.Width + j] = new Point3f(
+                                                j * circleSpacing,
+                                                i * circleSpacing,
+                                                0
+                                            );
+                                        }
+                                    }
+                                    objectPointsList.Add(objPoints);
+                                    Console.WriteLine($"検出パターンを追加: {imagePointsList.Count} / {detectPattenSet}");
+                                    CalibrationProgress.Value = imagePointsList.Count;   // renew CalibrationProgress
+
+                                    // End Data Collection & Save Yaml
+                                    if (imagePointsList.Count >= detectPattenSet)
+                                    {
+                                        string saveFolder = @"C:\Users\admin\Documents\GitHub\CTMeasure\CalibrationData";
+                                        Directory.CreateDirectory(saveFolder);
+                                        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                                        string fileName = Path.Combine(saveFolder, $"calibration_{timestamp}.yml");
+
+                                        using (var fs = new FileStorage(fileName, FileStorage.Modes.Write | FileStorage.Modes.FormatYaml))
+                                        {
+                                            fs.Write("image_points_count", imagePointsList.Count);
+                                            for (int i = 0; i < imagePointsList.Count; i++)
+                                            {
+                                                Point2f[] imagePoints = imagePointsList[i];
+                                                Point3f[] objectPoints = objectPointsList[i];
+
+                                                using (var imgMat = Mat.FromArray<Point2f>(imagePoints))
+                                                using (var objMat = Mat.FromArray<Point3f>(objectPoints))
+                                                {
+                                                    fs.Write($"image_points_{i}", imgMat);
+                                                    fs.Write($"object_points_{i}", objMat);
+                                                }
+                                            }
+                                        }
+
+                                        // Stage pause
+                                        Invoke((MethodInvoker)(() =>
+                                        {
+                                            stageIterationCTS.Cancel();
+                                            stageIterationCTS.Dispose();
+                                            stageIterationCTS = null;
+                                            isIteration = false;
+                                            MessageBox.Show($"{detectPattenSet}パターンを取得し、ファイルに保存しました：{fileName}", "完了");
+                                        }));
+
+                                        // Get CameraMatrix & DistortionMatrix by latest data
+                                        ExecutCalibration();
+                                        this.CamCalibration.BackgroundImage = Properties.Resources.Calibration_Start;
+                                        return;
+                                    }
+                                }
+                            }
+
+                            // stage move process
+                            if (count > 0 && count <= MaxRight)
+                            {
+                                SendStageCommand("MGO:A+1000");
+                                count++;
+                                if (count > MaxRight)
+                                {
+                                    count = -1;
+                                }
+                            }
+                            else if (count < 0 && count >= MaxLeft)
+                            {
+                                SendStageCommand("MGO:A-1000");
+                                count--;
+                                if (count < MaxLeft)
+                                {
+                                    count = 1;
+                                }
+                            }
+
+                            await Task.Delay(1000, token);
+                        }
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // Safe stop
+                    }
+                }, token);
+
+                isIteration = true;
+                MessageBox.Show("キャリブレーションを開始しました。", "実行中");
+                this.CamCalibration.BackgroundImage = Properties.Resources.Calibration_Stop;
+            }
+            else
+            {
+                stageIterationCTS.Cancel();
+                stageIterationCTS.Dispose();
+                stageIterationCTS = null;
+                isIteration = false;
+                MessageBox.Show("キャリブレーションを停止しました。", "停止");
+                this.CamCalibration.BackgroundImage = Properties.Resources.Calibration_Start;
+            }
+        }
+
+        // PatternDetect
+        private void StartAsyncPatternDetection(Mat inputGray)
+        {
+            if (isDetecting) return; // multiple prevent
+
+            isDetecting = true;
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    Point2f[] corners;
+                    bool found = Cv2.FindCirclesGrid(
+                        inputGray,
+                        patternSize,
+                        out corners,
+                        FindCirclesGridFlags.AsymmetricGrid);
+
+                    if (found)
+                    {
+                        latestCorners = corners;
+                        patternFound = true;
+                    }
+                    else
+                    {
+                        patternFound = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("パターン検出エラー: " + ex.Message);
+                }
+                finally
+                {
+                    isDetecting = false;
+                }
+            });
+        }
+
+        // Run Calibration
+        private void ExecutCalibration()
+        {
             try
             {
-                mat = BitmapConverter.ToMat(bmp);
-                if (mat.Empty())
+                // YML File Read
+                string folderPath = @"C:\Users\admin\Documents\GitHub\CTMeasure\CalibrationData";
+                string[] files = Directory.GetFiles(folderPath, "calibration_*.yml");
+                if (files.Length == 0)
                 {
-                    MessageBox.Show("画像が正しく読み込めませんでした。", "エラー");
+                    MessageBox.Show("キャリブレーションデータが見つかりませんでした。", "エラー");
                     return;
                 }
+
+                // latest file get
+                string filePath = files.OrderByDescending(f => f).First();
+
+                List<Point2f[]> imagePointsList = new List<Point2f[]>();
+                List<Point3f[]> objectPointsList = new List<Point3f[]>();
+
+                // ProgressBar Initialize
+                CalibrationProgress.Minimum = 0;
+                CalibrationProgress.Maximum = detectPattenSet;
+                CalibrationProgress.Value = 0;
+
+                using (var fs = new FileStorage(filePath, FileStorage.Modes.Read))
+                {
+                    int count = (int)fs["image_points_count"].ReadInt();
+                    for (int i = 0; i < count; i++)
+                    {
+                        Mat imgMat = fs[$"image_points_{i}"].ReadMat();
+                        Mat objMat = fs[$"object_points_{i}"].ReadMat();
+
+                        Point2f[] imagePoints;
+                        Point3f[] objectPoints;
+
+                        imgMat.GetArray(out imagePoints);
+                        objMat.GetArray(out objectPoints);
+
+                        imagePointsList.Add(imagePoints);
+                        objectPointsList.Add(objectPoints);
+
+                        CalibrationProgress.Value = i + 1;
+                    }
+                }
+
+                // 2. カメラ画像サイズ（使用しているカメラに合わせてください）
+                Size imageSize = new Size(2048, 1536);
+
+                // 3. キャリブレーション実行
+                Mat cameraMatrix = new Mat();
+                Mat distCoeffs = new Mat();
+                Mat[] rvecs, tvecs;
+
+                List<Mat> objectPointsMatList = objectPointsList
+                    .Select(pts => InputArray.Create(pts).GetMat()).ToList();
+
+                List<Mat> imagePointsMatList = imagePointsList
+                    .Select(pts => InputArray.Create(pts).GetMat()).ToList();
+
+                double error = Cv2.CalibrateCamera(
+                    objectPointsMatList,     // IEnumerable<Mat>
+                    imagePointsMatList,      // IEnumerable<Mat>
+                    imageSize,
+                    cameraMatrix,
+                    distCoeffs,
+                    out rvecs,
+                    out tvecs,
+                    CalibrationFlags.None
+                );
+
+                // 4. 結果保存
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                string savePath = Path.Combine(folderPath, $"calib_result_{timestamp}.yml");
+
+                using (var fsOut = new FileStorage(savePath, FileStorage.Modes.Write | FileStorage.Modes.FormatYaml))
+                {
+                    fsOut.Write("camera_matrix", cameraMatrix);
+                    fsOut.Write("dist_coeffs", distCoeffs);
+                    fsOut.Write("reprojection_error", error);
+                }
+
+                MessageBox.Show($"キャリブレーション完了！\n誤差: {error:F4}\nファイル保存: {savePath}", "完了");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Bitmap → Mat 変換エラー: " + ex.Message, "エラー");
-                return;
+                MessageBox.Show("キャリブレーション実行中にエラーが発生しました: " + ex.Message, "エラー");
             }
+        }
 
-            // グレースケール変換
-            if (mat.Channels() == 3 || mat.Channels() == 4)
+        // Read Calibration data
+        private void ReadCalibrationData(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                Cv2.CvtColor(mat, mat, ColorConversionCodes.BGR2GRAY);
-            }
+                ofd.Title = "キャリブレーションパラメータを選択";
+                ofd.Filter = "YAMLファイル (*.yml)|*.yml";
 
-            // パターン検出
-            Point2f[] corners;
-            bool found = false;
-            try
-            {
-                found = Cv2.FindCirclesGrid(
-                    mat,
-                    patternSize,
-                    out corners,
-                    FindCirclesGridFlags.AsymmetricGrid
-                );
-            }
-            catch (OpenCVException ex)
-            {
-                MessageBox.Show("FindCirclesGridで例外発生: " + ex.Message, "OpenCVエラー");
-                return;
-            }
-
-            if (found)
-            {
-                imagePointsList.Add(corners);
-
-                // 3D座標作成
-                List<Point3f> objPts = new List<Point3f>();
-                for (int i = 0; i < patternSize.Height; i++)
+                if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    for (int j = 0; j < patternSize.Width; j++)
+                    try
                     {
-                        float x = (2 * j + i % 2) * circleSpacing;
-                        float y = i * circleSpacing;
-                        objPts.Add(new Point3f(x, y, 0));
+                        using (var fs = new FileStorage(ofd.FileName, FileStorage.Modes.Read))
+                        {
+                            cameraMatrixUndistort = fs["camera_matrix"].ReadMat();
+                            distCoeffsUndistort = fs["dist_coeffs"].ReadMat();
+                        }
+
+                        MessageBox.Show("キャリブレーションパラメータを読み込みました。\n" +
+                                        $"ファイル名: {Path.GetFileName(ofd.FileName)}", "読み込み成功");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("読み込みに失敗しました: " + ex.Message, "エラー");
                     }
                 }
-                objectPointsList.Add(objPts.ToArray());
-
-                MessageBox.Show("パターン検出に成功し、リストに追加されました。", "成功");
-            }
-            else
-            {
-                MessageBox.Show("パターンが検出できませんでした。", "失敗");
             }
         }
 
-        // Run Camera Calibration
-        private void RunCalibration()
+        private void StreamImage_Click(object sender, EventArgs e)
         {
-            if (imagePointsList.Count < 5)
-            {
-                MessageBox.Show("最低5枚以上の有効なキャリブレーション画像が必要です。", "注意");
-                return;
-            }
 
-            OpenCvSharp.Size imageSize = new OpenCvSharp.Size(originalBitmap.Width, originalBitmap.Height);
-
-            // Point Index → Mat 
-            var objectPointsMatList = new List<Mat>();
-            foreach (var pts in objectPointsList)
-                objectPointsMatList.Add(InputArray.Create(pts).GetMat());
-
-            var imagePointsMatList = new List<Mat>();
-            foreach (var pts in imagePointsList)
-                imagePointsMatList.Add(InputArray.Create(pts).GetMat());
-
-            Mat cameraMatrix = new Mat();
-            Mat distCoeffs = new Mat();
-            Mat[] rvecs, tvecs;
-
-            double error = Cv2.CalibrateCamera(
-                objectPointsMatList,
-                imagePointsMatList,
-                imageSize,
-                cameraMatrix,
-                distCoeffs,
-                out rvecs,
-                out tvecs);
-
-            MessageBox.Show($"キャリブレーション完了: 再投影誤差 = {error:F4}", "結果");
         }
-
-        // Add CurrentFrame to CalibrationList Click
-        private void AddCurrentFrameToCalibrationList_Click(object sender, EventArgs e)
-        {
-            if (originalBitmap != null)
-            {
-                AddCalibrationImageFromBitmap(originalBitmap);
-            }
-            else
-            {
-                MessageBox.Show("画像が読み込まれていません。", "注意");
-            }
-        }
-
-        // Run Camera Calibration Click
-        private void RunCalibrationButton_Click(object sender, EventArgs e)
-        {
-            RunCalibration();
-        }
-
     }
 }

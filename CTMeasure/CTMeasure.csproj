@@ -40,6 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -180,6 +181,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\PatternOFF.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Calibration_Start.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Calibration_Stop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Calibration_Read.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
