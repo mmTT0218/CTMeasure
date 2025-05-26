@@ -44,15 +44,23 @@
             this.PatternDetect = new System.Windows.Forms.Button();
             this.StreamImage = new System.Windows.Forms.PictureBox();
             this.CalibrationControll = new System.Windows.Forms.GroupBox();
+            this.Pattarn = new System.Windows.Forms.Label();
             this.MaxDetectSet = new System.Windows.Forms.ComboBox();
             this.CalibrationProgress = new System.Windows.Forms.ProgressBar();
-            this.Pattarn = new System.Windows.Forms.Label();
             this.Movie = new System.Windows.Forms.GroupBox();
+            this.CameraPos = new System.Windows.Forms.GroupBox();
+            this.Camera_Roll = new System.Windows.Forms.Label();
+            this.Camera_Pitch = new System.Windows.Forms.Label();
+            this.Camera_Yaw = new System.Windows.Forms.Label();
+            this.Camera_Z = new System.Windows.Forms.Label();
+            this.Camera_Y = new System.Windows.Forms.Label();
+            this.Camera_X = new System.Windows.Forms.Label();
             this.CameraControll.SuspendLayout();
             this.StageControll.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.StreamImage)).BeginInit();
             this.CalibrationControll.SuspendLayout();
             this.Movie.SuspendLayout();
+            this.CameraPos.SuspendLayout();
             this.SuspendLayout();
             // 
             // CameraControll
@@ -64,7 +72,7 @@
             this.CameraControll.Controls.Add(this.CapButton);
             this.CameraControll.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.CameraControll.ForeColor = System.Drawing.Color.White;
-            this.CameraControll.Location = new System.Drawing.Point(18, 12);
+            this.CameraControll.Location = new System.Drawing.Point(12, 12);
             this.CameraControll.Name = "CameraControll";
             this.CameraControll.Size = new System.Drawing.Size(1024, 200);
             this.CameraControll.TabIndex = 0;
@@ -242,7 +250,6 @@
             this.StreamImage.Size = new System.Drawing.Size(899, 460);
             this.StreamImage.TabIndex = 2;
             this.StreamImage.TabStop = false;
-            this.StreamImage.Click += new System.EventHandler(this.StreamImage_Click);
             this.StreamImage.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
             // 
             // CalibrationControll
@@ -256,12 +263,22 @@
             this.CalibrationControll.Controls.Add(this.CamCalibration);
             this.CalibrationControll.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.CalibrationControll.ForeColor = System.Drawing.Color.White;
-            this.CalibrationControll.Location = new System.Drawing.Point(969, 218);
+            this.CalibrationControll.Location = new System.Drawing.Point(969, 233);
             this.CalibrationControll.Name = "CalibrationControll";
             this.CalibrationControll.Size = new System.Drawing.Size(923, 163);
             this.CalibrationControll.TabIndex = 5;
             this.CalibrationControll.TabStop = false;
             this.CalibrationControll.Text = "Calibration";
+            // 
+            // Pattarn
+            // 
+            this.Pattarn.AutoSize = true;
+            this.Pattarn.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Pattarn.Location = new System.Drawing.Point(668, 53);
+            this.Pattarn.Name = "Pattarn";
+            this.Pattarn.Size = new System.Drawing.Size(135, 37);
+            this.Pattarn.TabIndex = 10;
+            this.Pattarn.Text = "Pattern";
             // 
             // MaxDetectSet
             // 
@@ -290,32 +307,100 @@
             this.CalibrationProgress.Size = new System.Drawing.Size(236, 39);
             this.CalibrationProgress.TabIndex = 5;
             // 
-            // Pattarn
-            // 
-            this.Pattarn.AutoSize = true;
-            this.Pattarn.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Pattarn.Location = new System.Drawing.Point(668, 53);
-            this.Pattarn.Name = "Pattarn";
-            this.Pattarn.Size = new System.Drawing.Size(135, 37);
-            this.Pattarn.TabIndex = 10;
-            this.Pattarn.Text = "Pattern";
-            // 
             // Movie
             // 
             this.Movie.Controls.Add(this.StreamImage);
             this.Movie.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Movie.ForeColor = System.Drawing.Color.White;
-            this.Movie.Location = new System.Drawing.Point(969, 409);
+            this.Movie.Location = new System.Drawing.Point(969, 423);
             this.Movie.Name = "Movie";
             this.Movie.Size = new System.Drawing.Size(923, 522);
             this.Movie.TabIndex = 6;
             this.Movie.TabStop = false;
             this.Movie.Text = "Movie";
             // 
+            // CameraPos
+            // 
+            this.CameraPos.Controls.Add(this.Camera_Roll);
+            this.CameraPos.Controls.Add(this.Camera_Pitch);
+            this.CameraPos.Controls.Add(this.Camera_Yaw);
+            this.CameraPos.Controls.Add(this.Camera_Z);
+            this.CameraPos.Controls.Add(this.Camera_Y);
+            this.CameraPos.Controls.Add(this.Camera_X);
+            this.CameraPos.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.CameraPos.ForeColor = System.Drawing.Color.White;
+            this.CameraPos.Location = new System.Drawing.Point(1053, 12);
+            this.CameraPos.Name = "CameraPos";
+            this.CameraPos.Size = new System.Drawing.Size(839, 200);
+            this.CameraPos.TabIndex = 7;
+            this.CameraPos.TabStop = false;
+            this.CameraPos.Text = "CameraPoseEstimate";
+            // 
+            // Camera_Roll
+            // 
+            this.Camera_Roll.AutoSize = true;
+            this.Camera_Roll.Font = new System.Drawing.Font("MS UI Gothic", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Camera_Roll.Location = new System.Drawing.Point(557, 134);
+            this.Camera_Roll.Name = "Camera_Roll";
+            this.Camera_Roll.Size = new System.Drawing.Size(92, 33);
+            this.Camera_Roll.TabIndex = 5;
+            this.Camera_Roll.Text = "Roll : ";
+            // 
+            // Camera_Pitch
+            // 
+            this.Camera_Pitch.AutoSize = true;
+            this.Camera_Pitch.Font = new System.Drawing.Font("MS UI Gothic", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Camera_Pitch.Location = new System.Drawing.Point(292, 134);
+            this.Camera_Pitch.Name = "Camera_Pitch";
+            this.Camera_Pitch.Size = new System.Drawing.Size(112, 33);
+            this.Camera_Pitch.TabIndex = 4;
+            this.Camera_Pitch.Text = "Pitch : ";
+            // 
+            // Camera_Yaw
+            // 
+            this.Camera_Yaw.AutoSize = true;
+            this.Camera_Yaw.Font = new System.Drawing.Font("MS UI Gothic", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Camera_Yaw.Location = new System.Drawing.Point(15, 134);
+            this.Camera_Yaw.Name = "Camera_Yaw";
+            this.Camera_Yaw.Size = new System.Drawing.Size(97, 33);
+            this.Camera_Yaw.TabIndex = 3;
+            this.Camera_Yaw.Text = "Yaw : ";
+            // 
+            // Camera_Z
+            // 
+            this.Camera_Z.AutoSize = true;
+            this.Camera_Z.Font = new System.Drawing.Font("MS UI Gothic", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Camera_Z.Location = new System.Drawing.Point(557, 58);
+            this.Camera_Z.Name = "Camera_Z";
+            this.Camera_Z.Size = new System.Drawing.Size(60, 33);
+            this.Camera_Z.TabIndex = 2;
+            this.Camera_Z.Text = "Z : ";
+            // 
+            // Camera_Y
+            // 
+            this.Camera_Y.AutoSize = true;
+            this.Camera_Y.Font = new System.Drawing.Font("MS UI Gothic", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Camera_Y.Location = new System.Drawing.Point(292, 58);
+            this.Camera_Y.Name = "Camera_Y";
+            this.Camera_Y.Size = new System.Drawing.Size(61, 33);
+            this.Camera_Y.TabIndex = 1;
+            this.Camera_Y.Text = "Y : ";
+            // 
+            // Camera_X
+            // 
+            this.Camera_X.AutoSize = true;
+            this.Camera_X.Font = new System.Drawing.Font("MS UI Gothic", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Camera_X.Location = new System.Drawing.Point(15, 58);
+            this.Camera_X.Name = "Camera_X";
+            this.Camera_X.Size = new System.Drawing.Size(61, 33);
+            this.Camera_X.TabIndex = 0;
+            this.Camera_X.Text = "X : ";
+            // 
             // CrossTalkMeasure
             // 
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1904, 961);
+            this.Controls.Add(this.CameraPos);
             this.Controls.Add(this.Movie);
             this.Controls.Add(this.CalibrationControll);
             this.Controls.Add(this.StageControll);
@@ -330,6 +415,8 @@
             this.CalibrationControll.ResumeLayout(false);
             this.CalibrationControll.PerformLayout();
             this.Movie.ResumeLayout(false);
+            this.CameraPos.ResumeLayout(false);
+            this.CameraPos.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -356,6 +443,13 @@
         private System.Windows.Forms.ComboBox MaxDetectSet;
         private System.Windows.Forms.Label Pattarn;
         private System.Windows.Forms.GroupBox Movie;
+        private System.Windows.Forms.GroupBox CameraPos;
+        private System.Windows.Forms.Label Camera_X;
+        private System.Windows.Forms.Label Camera_Z;
+        private System.Windows.Forms.Label Camera_Y;
+        private System.Windows.Forms.Label Camera_Roll;
+        private System.Windows.Forms.Label Camera_Pitch;
+        private System.Windows.Forms.Label Camera_Yaw;
     }
 }
 

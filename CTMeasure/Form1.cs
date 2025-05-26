@@ -37,7 +37,6 @@ namespace CTMeasure
             Red = Color.Red;
             Green = Color.Lime;
 
-
             // Stage Move Timer
             stageMoveTimer = new Timer();
             stageMoveTimer.Interval = 100; // 100ms
@@ -235,7 +234,7 @@ namespace CTMeasure
                                     mat = undistorted;
                                 }
 
-                                // Pattern Drawing
+                                // Drawing Detect Pattern
                                 if (pattern)
                                 {
                                     Mat gray = new Mat();
@@ -250,10 +249,146 @@ namespace CTMeasure
                                     }
                                 }
 
+                                // === ここから XYZ軸描画 ===
+                                if (currentPose != null && cameraMatrixUndistort != null && distCoeffsUndistort != null)
+                                {
+                                    // 3D空間上の原点とXYZ軸方向ベクトル（単位はmm）
+                                    Point3f[] axisPoints = new Point3f[]
+                                    {
+                                        new Point3f(0, 0, 0),
+                                        new Point3f(50, 0, 0),   // X軸
+                                        new Point3f(0, 50, 0),   // Y軸
+                                        new Point3f(0, 0, 50)    // Z軸
+                                    };
+
+                                    // tvec（カメラ座標）
+                                    Mat tvec = new Mat(3, 1, MatType.CV_64F);
+                                    tvec.Set(0, 0, currentPose.X);
+                                    tvec.Set(1, 0, currentPose.Y);
+                                    tvec.Set(2, 0, currentPose.Z);
+
+                                    // Yaw, Pitch, Roll を回転行列 → Rodrigues で回転ベクトルに変換
+                                    double yaw = currentPose.Yaw * Math.PI / 180.0;
+                                    double pitch = currentPose.Pitch * Math.PI / 180.0;
+                                    double roll = currentPose.Roll * Math.PI / 180.0;
+
+                                    // 回転行列R作成（ZYX順回転: Roll→Pitch→Yaw）
+                                    double cy = Math.Cos(yaw); double sy = Math.Sin(yaw);
+                                    double cp = Math.Cos(pitch); double sp = Math.Sin(pitch);
+                                    double cr = Math.Cos(roll); double sr = Math.Sin(roll);
+
+                                    double[,] R = new double[3, 3]
+                                    {
+                                        { cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr },
+                                        { sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr },
+                                        { -sp,     cp * sr,                cp * cr }
+                                    };
+
+                                    Mat rotMat = new Mat(3, 3, MatType.CV_64F);
+                                    for (int i = 0; i < 3; i++)
+                                        for (int j = 0; j < 3; j++)
+                                            rotMat.Set(i, j, R[i, j]);
+
+                                    Mat rvec = new Mat();
+                                    Cv2.Rodrigues(rotMat, rvec);
+
+                                    // imagePointsMat は ProjectPoints の結果が格納されている
+                                    Mat imagePointsMat = new Mat();
+                                    Cv2.ProjectPoints(
+                                        Mat.FromArray(axisPoints),
+                                        rvec, tvec,
+                                        cameraMatrixUndistort,
+                                        distCoeffsUndistort,
+                                        imagePointsMat
+                                    );
+
+                                    // Point2f[] に変換（手動で）
+                                    Point2f[] imagePoints = new Point2f[imagePointsMat.Rows];
+                                    for (int i = 0; i < imagePointsMat.Rows; i++)
+                                    {
+                                        imagePoints[i] = imagePointsMat.At<Point2f>(i);
+                                    }
+
+                                    // 座標軸描画
+                                    Cv2.Line(mat, imagePoints[0].ToPoint(), imagePoints[1].ToPoint(), Scalar.Red, 2);    // X軸
+                                    Cv2.Line(mat, imagePoints[0].ToPoint(), imagePoints[2].ToPoint(), Scalar.Green, 2);  // Y軸
+                                    Cv2.Line(mat, imagePoints[0].ToPoint(), imagePoints[3].ToPoint(), Scalar.Blue, 2);   // Z軸
+
+                                }
+                                // === ここまで XYZ軸描画 ===
+
                                 originalBitmap?.Dispose();
                                 originalBitmap = BitmapConverter.ToBitmap(mat);
                                 StreamImage.Invalidate();
                             });
+
+                            if (cameraMatrixUndistort != null && distCoeffsUndistort != null && patternFound && latestCorners != null && !isSolvingPnP)
+                            {
+                                isSolvingPnP = true;
+                                var cornersCopy = (Point2f[])latestCorners.Clone();
+
+                                // make true 3D coordinate
+                                List<Point3f> objPointsList = new List<Point3f>();
+
+                                for (int i = 0; i < patternSize.Height; i++) 
+                                {
+                                    for (int j = 0; j < patternSize.Width; j++) 
+                                    {
+                                        float x = j * circleSpacing + (i % 2) * (circleSpacing / 2.0f); // 奇数行ずらす
+                                        float y = i * (circleSpacing / 2.0f); // 行間隔は半分
+                                        objPointsList.Add(new Point3f(x, y, 0));
+                                    }
+                                }
+
+                                Point3f[] objPoints = objPointsList.ToArray();
+
+
+                                Task.Run(() =>
+                                {
+                                    try
+                                    {
+                                        var pose = CameraPose.FromSolvePnP(objPoints, cornersCopy, cameraMatrixUndistort, distCoeffsUndistort);
+                                        if (pose != null)
+                                        {
+                                            currentPose = pose;
+                                            Camera_X.Invoke((MethodInvoker)(() =>
+                                            {
+                                                Camera_X.Text = "X : " + currentPose.X.ToString("F3") + " mm";
+                                            }));
+                                            Camera_Y.Invoke((MethodInvoker)(() =>
+                                            {
+                                                Camera_Y.Text = "Y : " + currentPose.Y.ToString("F3") + " mm";
+                                            }));
+                                            Camera_Z.Invoke((MethodInvoker)(() =>
+                                            {
+                                                Camera_Z.Text = "Z : " + currentPose.Z.ToString("F3") + " mm";
+                                            }));
+
+                                            Camera_Yaw.Invoke((MethodInvoker)(() =>
+                                            {
+                                                Camera_Yaw.Text = "Yaw : " + currentPose.Yaw.ToString("F3") + "°";
+                                            }));
+                                            Camera_Pitch.Invoke((MethodInvoker)(() =>
+                                            {
+                                                Camera_Pitch.Text = "Pitch : " + currentPose.Pitch.ToString("F3") + "°";
+                                            }));
+                                            Camera_Roll.Invoke((MethodInvoker)(() =>
+                                            {
+                                                Camera_Roll.Text = "Roll : " + currentPose.Roll.ToString("F3") + "°";
+                                            }));
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("SolvePnP エラー: " + ex.Message);
+                                    }
+                                    finally
+                                    {
+                                        isSolvingPnP = false;
+                                    }
+                                });
+
+                            }
                         }
                     }
                 }
@@ -261,28 +396,6 @@ namespace CTMeasure
             catch (SpinnakerException ex)
             {
                 Console.WriteLine("画像取得エラー: " + ex.Message);
-            }
-        }
-
-        // Pattern ON/OFF Button
-        private void TogglePattern(object sender, EventArgs e)
-        {   
-            // camera check
-            if (camera == null && !cap)
-            {
-                MessageBox.Show("カメラが接続されていません。", "注意");
-                return;
-            }
-
-            pattern = !pattern; //reverse
-            if (pattern)
-            {
-                PatternDetect.BackgroundImage = Properties.Resources.PatternOFF;
-            }
-            if (!pattern)
-            {
-                PatternDetect.BackgroundImage = Properties.Resources.PatternON;
-                pattern = false;
             }
         }
 
@@ -458,8 +571,8 @@ namespace CTMeasure
         // detect pattern
         List<Point2f[]> imagePointsList = new List<Point2f[]>();
         List<Point3f[]> objectPointsList = new List<Point3f[]>();
-        Size patternSize = new Size(11, 4);                        // Asymmetry-CircleGrid（row x col）
-        float circleSpacing = 20.0f;                               // circle space [mm]
+        Size patternSize = new Size(4, 11);                        // Asymmetry-CircleGrid（row x col）
+        float circleSpacing = 18.0f;                               // circle space [mm]
         private volatile Point2f[] latestCorners = null;
         private volatile bool patternFound = false;
         private volatile bool isDetecting = false;
@@ -472,6 +585,63 @@ namespace CTMeasure
         // calibration data
         private Mat cameraMatrixUndistort = null;  // camera matrix
         private Mat distCoeffsUndistort = null;    // distorted matrix
+        // camera pos
+        private volatile bool isSolvingPnP = false;
+        private CameraPose currentPose = null;
+
+        // camera pos class
+        public class CameraPose
+        {
+            public double X { get; set; }      // mm
+            public double Y { get; set; }
+            public double Z { get; set; }
+
+            public double Yaw { get; set; }    // °
+            public double Pitch { get; set; }
+            public double Roll { get; set; }
+
+            public static CameraPose FromSolvePnP(Point3f[] objectPoints, Point2f[] imagePoints, Mat cameraMatrix, Mat distCoeffs)
+            {
+                CameraPose pose = null;
+
+                using (var objMat = Mat.FromArray(objectPoints))
+                using (var imgMat = Mat.FromArray(imagePoints))
+                {
+                    Mat rvec = new Mat();
+                    Mat tvec = new Mat();
+
+                    Cv2.SolvePnP(objMat, imgMat, cameraMatrix, distCoeffs, rvec, tvec);
+
+                    double x = tvec.At<double>(0);
+                    double y = tvec.At<double>(1);
+                    double z = tvec.At<double>(2);
+
+                    Mat rotMat = new Mat();
+                    Cv2.Rodrigues(rvec, rotMat);
+                    double[,] R = new double[3, 3];
+                    for (int i = 0; i < 3; i++)
+                        for (int j = 0; j < 3; j++)
+                            R[i, j] = rotMat.At<double>(i, j);
+
+                    double yaw = Math.Atan2(R[1, 0], R[0, 0]) * 180.0 / Math.PI;
+                    double pitch = Math.Atan2(-R[2, 0], Math.Sqrt(R[2, 1] * R[2, 1] + R[2, 2] * R[2, 2])) * 180.0 / Math.PI;
+                    double roll = Math.Atan2(R[2, 1], R[2, 2]) * 180.0 / Math.PI;
+
+                    pose = new CameraPose
+                    {
+                        X = x,
+                        Y = y,
+                        Z = z,
+                        Yaw = yaw,
+                        Pitch = pitch,
+                        Roll = roll
+                    };
+                }
+
+                return pose;
+            }
+
+        }
 
         // detectPattenSet change
         private void MaxDetectPatternChanged(object sender, EventArgs e)
@@ -525,19 +695,21 @@ namespace CTMeasure
                                     imagePointsList.Add((Point2f[])latestCorners.Clone());
 
                                     // make true 3d coordinate data
-                                    Point3f[] objPoints = new Point3f[patternSize.Width * patternSize.Height];
-                                    for (int i = 0; i < patternSize.Height; i++)
+                                    List<Point3f> objPointsList = new List<Point3f>();
+
+                                    for (int i = 0; i < patternSize.Height; i++) // 行数 = 11
                                     {
-                                        for (int j = 0; j < patternSize.Width; j++)
+                                        for (int j = 0; j < patternSize.Width; j++) // 列数 = 4
                                         {
-                                            objPoints[i * patternSize.Width + j] = new Point3f(
-                                                j * circleSpacing,
-                                                i * circleSpacing,
-                                                0
-                                            );
+                                            float x = j * circleSpacing + (i % 2) * (circleSpacing / 2.0f); // 奇数行ずらす
+                                            float y = i * (circleSpacing / 2.0f); // 行間隔は半分
+                                            objPointsList.Add(new Point3f(x, y, 0));
                                         }
                                     }
+
+                                    Point3f[] objPoints = objPointsList.ToArray();
                                     objectPointsList.Add(objPoints);
+
                                     Console.WriteLine($"検出パターンを追加: {imagePointsList.Count} / {detectPattenSet}");
                                     CalibrationProgress.Value = imagePointsList.Count;   // renew CalibrationProgress
 
@@ -625,6 +797,29 @@ namespace CTMeasure
                 isIteration = false;
                 MessageBox.Show("キャリブレーションを停止しました。", "停止");
                 this.CamCalibration.BackgroundImage = Properties.Resources.Calibration_Start;
+            }
+            
+        }
+
+        // Pattern ON/OFF Button
+        private void TogglePattern(object sender, EventArgs e)
+        {
+            // camera check
+            if (camera == null && !cap)
+            {
+                MessageBox.Show("カメラが接続されていません。", "注意");
+                return;
+            }
+
+            pattern = !pattern; //reverse
+            if (pattern)
+            {
+                PatternDetect.BackgroundImage = Properties.Resources.PatternOFF;
+            }
+            if (!pattern)
+            {
+                PatternDetect.BackgroundImage = Properties.Resources.PatternON;
+                pattern = false;
             }
         }
 
@@ -714,7 +909,7 @@ namespace CTMeasure
                 }
 
                 // camera resolution
-                Size imageSize = new Size(2048, 1536);
+                Size imageSize = new Size(originalBitmap.Width, originalBitmap.Height);
 
                 // Get Calibration Parameter
                 Mat cameraMatrix = new Mat();
@@ -755,7 +950,7 @@ namespace CTMeasure
             }
         }
 
-        // Read Calibration Parameter
+        // Read Calibration Parameter ( Internal Calibration )
         private void ReadCalibrationData(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
@@ -783,5 +978,7 @@ namespace CTMeasure
                 }
             }
         }
+
+        
     }
 }
