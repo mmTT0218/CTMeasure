@@ -191,6 +191,9 @@
   <ItemGroup>
     <None Include="Resources\Calibration_Read.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CTR.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

@@ -44,11 +44,9 @@ namespace CTMeasure
         }
 
         // -------------------------------------  Camera Controll Method (Spinnaker) -------------------------------------
-        // Spinnaker
+        // Spinnaker Camera
         private bool cap = false;              // Cap Start/Stop Flag
         private bool pattern = false;          // pattern drawing ON/OFF
-        private int counter = 0;               // Nframe Counter
-        private const int detectInterval = 2;  // Pattern Drawing Interval
         private Bitmap originalBitmap = null;  // capture image
         private float zoomFactor = 0.5f;       // zoom scale
         private ManagedSystem system = null;              // Sipnnaker System Controll
@@ -979,6 +977,100 @@ namespace CTMeasure
             }
         }
 
-        
+        // -------------------------------------   CrossTalk Method -------------------------------------
+        public class CTR
+        {
+            private double px_v_b = 0, px_v_w = 0, px_v_bw = 0;
+            private int px_num = 0;
+            private double ctr = 0;
+
+            public void Sum(double b, double w, double bw)
+            {
+                px_v_b += b;
+                px_v_w += w;
+                px_v_bw += bw;
+                px_num++;
+            }
+
+            public double GetCtr()
+            {
+                return ctr;
+            }
+
+            public void CalcCtr(Mat black, Mat white, Mat blackwhite, OpenCvSharp.Point begin, OpenCvSharp.Point end)
+            {
+                for (int y = begin.Y; y <= end.Y; y++)
+                {
+                    for (int x = begin.X; x <= end.X; x++)
+                    {
+                        byte b = black.At<byte>(y, x);
+                        byte w = white.At<byte>(y, x);
+                        byte bw = blackwhite.At<byte>(y, x);
+                        Sum(b, w, bw);
+                    }
+                }
+
+                if (px_v_w == px_v_b) ctr = 0;
+                else ctr = (px_v_bw - px_v_b) / (px_v_w - px_v_b) * 100.0;
+            }
+
+            public override string ToString()
+            {
+                return $"{ctr:F2}";
+            }
+        }
+
+        // ▼ イベントハンドラ（フォームのボタンに割り当て）
+        private void ctrClick(object sender, EventArgs e)
+        {
+            string blackPath = SelectImage("黒画像を選択してください");
+            if (blackPath == null) return;
+
+            string whitePath = SelectImage("白画像を選択してください");
+            if (whitePath == null) return;
+
+            string bwPath = SelectImage("黒白画像を選択してください");
+            if (bwPath == null) return;
+
+            Mat black = Cv2.ImRead(blackPath, ImreadModes.Grayscale);
+            Mat white = Cv2.ImRead(whitePath, ImreadModes.Grayscale);
+            Mat bw = Cv2.ImRead(bwPath, ImreadModes.Grayscale);
+
+            if (black.Empty() || white.Empty() || bw.Empty())
+            {
+                MessageBox.Show("画像の読み込みに失敗しました。", "エラー");
+                return;
+            }
+
+            Rect roi = Cv2.SelectROI("クロストーク領域を選択", bw);
+            if (roi.Width == 0 || roi.Height == 0)
+            {
+                MessageBox.Show("ROIが無効です。", "エラー");
+                return;
+            }
+
+            CTR ctr = new CTR();
+            var tl = new OpenCvSharp.Point(roi.X, roi.Y);
+            var br = new OpenCvSharp.Point(roi.X + roi.Width - 1, roi.Y + roi.Height - 1);
+            ctr.CalcCtr(black, white, bw, tl, br);
+            
+            CrossTalkRatio.Text = "CTR : " + ctr + "     %";
+
+            return;
+        }
+
+        // ▼ 画像選択ダイアログ
+        private string SelectImage(string title)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Title = title;
+                ofd.Filter = "画像ファイル (*.bmp;*.png;*.jpg)|*.bmp;*.png;*.jpg";
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                    return ofd.FileName;
+            }
+            return null;
+        }
     }
 }

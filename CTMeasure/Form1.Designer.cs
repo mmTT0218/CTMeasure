@@ -39,15 +39,15 @@
             this.Down = new System.Windows.Forms.Button();
             this.Up = new System.Windows.Forms.Button();
             this.ConnectButton = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.CamCalibration = new System.Windows.Forms.Button();
-            this.PatternDetect = new System.Windows.Forms.Button();
-            this.StreamImage = new System.Windows.Forms.PictureBox();
             this.CalibrationControll = new System.Windows.Forms.GroupBox();
             this.Pattarn = new System.Windows.Forms.Label();
             this.MaxDetectSet = new System.Windows.Forms.ComboBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.PatternDetect = new System.Windows.Forms.Button();
             this.CalibrationProgress = new System.Windows.Forms.ProgressBar();
+            this.CamCalibration = new System.Windows.Forms.Button();
             this.Movie = new System.Windows.Forms.GroupBox();
+            this.StreamImage = new System.Windows.Forms.PictureBox();
             this.CameraPos = new System.Windows.Forms.GroupBox();
             this.Camera_Roll = new System.Windows.Forms.Label();
             this.Camera_Pitch = new System.Windows.Forms.Label();
@@ -55,12 +55,16 @@
             this.Camera_Z = new System.Windows.Forms.Label();
             this.Camera_Y = new System.Windows.Forms.Label();
             this.Camera_X = new System.Windows.Forms.Label();
+            this.CrossTalk = new System.Windows.Forms.GroupBox();
+            this.CrossTalkRatio = new System.Windows.Forms.Label();
+            this.CTR_Calculate = new System.Windows.Forms.Button();
             this.CameraControll.SuspendLayout();
             this.StageControll.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.StreamImage)).BeginInit();
             this.CalibrationControll.SuspendLayout();
             this.Movie.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.StreamImage)).BeginInit();
             this.CameraPos.SuspendLayout();
+            this.CrossTalk.SuspendLayout();
             this.SuspendLayout();
             // 
             // CameraControll
@@ -138,7 +142,7 @@
             this.StageControll.ForeColor = System.Drawing.Color.White;
             this.StageControll.Location = new System.Drawing.Point(12, 218);
             this.StageControll.Name = "StageControll";
-            this.StageControll.Size = new System.Drawing.Size(934, 731);
+            this.StageControll.Size = new System.Drawing.Size(870, 468);
             this.StageControll.TabIndex = 1;
             this.StageControll.TabStop = false;
             this.StageControll.Text = "StageControll";
@@ -148,9 +152,9 @@
             this.Right.BackColor = System.Drawing.Color.Lime;
             this.Right.BackgroundImage = global::CTMeasure.Properties.Resources.Right;
             this.Right.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.Right.Location = new System.Drawing.Point(550, 360);
+            this.Right.Location = new System.Drawing.Point(522, 176);
             this.Right.Name = "Right";
-            this.Right.Size = new System.Drawing.Size(220, 149);
+            this.Right.Size = new System.Drawing.Size(100, 170);
             this.Right.TabIndex = 4;
             this.Right.UseVisualStyleBackColor = false;
             this.Right.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Stage_Right_MouseDown);
@@ -161,9 +165,9 @@
             this.Left.BackColor = System.Drawing.Color.Lime;
             this.Left.BackgroundImage = global::CTMeasure.Properties.Resources.Left;
             this.Left.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.Left.Location = new System.Drawing.Point(97, 360);
+            this.Left.Location = new System.Drawing.Point(244, 176);
             this.Left.Name = "Left";
-            this.Left.Size = new System.Drawing.Size(220, 149);
+            this.Left.Size = new System.Drawing.Size(100, 170);
             this.Left.TabIndex = 3;
             this.Left.UseVisualStyleBackColor = false;
             this.Left.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Stage_Left_MouseDown);
@@ -174,9 +178,9 @@
             this.Down.BackColor = System.Drawing.Color.Lime;
             this.Down.BackgroundImage = global::CTMeasure.Properties.Resources.Down;
             this.Down.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.Down.Location = new System.Drawing.Point(326, 529);
+            this.Down.Location = new System.Drawing.Point(350, 352);
             this.Down.Name = "Down";
-            this.Down.Size = new System.Drawing.Size(220, 149);
+            this.Down.Size = new System.Drawing.Size(170, 100);
             this.Down.TabIndex = 2;
             this.Down.UseVisualStyleBackColor = false;
             this.Down.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Stage_Down_MouseDown);
@@ -187,9 +191,9 @@
             this.Up.BackColor = System.Drawing.Color.Lime;
             this.Up.BackgroundImage = global::CTMeasure.Properties.Resources.Up;
             this.Up.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.Up.Location = new System.Drawing.Point(326, 190);
+            this.Up.Location = new System.Drawing.Point(350, 80);
             this.Up.Name = "Up";
-            this.Up.Size = new System.Drawing.Size(220, 149);
+            this.Up.Size = new System.Drawing.Size(170, 100);
             this.Up.TabIndex = 1;
             this.Up.UseVisualStyleBackColor = false;
             this.Up.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Stage_Up_MouseDown);
@@ -199,58 +203,12 @@
             // 
             this.ConnectButton.BackgroundImage = global::CTMeasure.Properties.Resources.ConnectON;
             this.ConnectButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ConnectButton.Location = new System.Drawing.Point(20, 52);
+            this.ConnectButton.Location = new System.Drawing.Point(6, 41);
             this.ConnectButton.Name = "ConnectButton";
-            this.ConnectButton.Size = new System.Drawing.Size(220, 149);
+            this.ConnectButton.Size = new System.Drawing.Size(186, 110);
             this.ConnectButton.TabIndex = 0;
             this.ConnectButton.UseVisualStyleBackColor = true;
             this.ConnectButton.Click += new System.EventHandler(this.Connect_Stage_Click);
-            // 
-            // button1
-            // 
-            this.button1.BackColor = System.Drawing.Color.Transparent;
-            this.button1.BackgroundImage = global::CTMeasure.Properties.Resources.Calibration_Read;
-            this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.button1.Location = new System.Drawing.Point(30, 45);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(170, 102);
-            this.button1.TabIndex = 9;
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.ReadCalibrationData);
-            // 
-            // CamCalibration
-            // 
-            this.CamCalibration.BackColor = System.Drawing.Color.Transparent;
-            this.CamCalibration.BackgroundImage = global::CTMeasure.Properties.Resources.Calibration_Start;
-            this.CamCalibration.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.CamCalibration.Location = new System.Drawing.Point(430, 45);
-            this.CamCalibration.Name = "CamCalibration";
-            this.CamCalibration.Size = new System.Drawing.Size(170, 102);
-            this.CamCalibration.TabIndex = 7;
-            this.CamCalibration.UseVisualStyleBackColor = false;
-            this.CamCalibration.Click += new System.EventHandler(this.Calibration);
-            // 
-            // PatternDetect
-            // 
-            this.PatternDetect.BackColor = System.Drawing.Color.Transparent;
-            this.PatternDetect.BackgroundImage = global::CTMeasure.Properties.Resources.PatternON;
-            this.PatternDetect.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.PatternDetect.Location = new System.Drawing.Point(230, 45);
-            this.PatternDetect.Name = "PatternDetect";
-            this.PatternDetect.Size = new System.Drawing.Size(170, 102);
-            this.PatternDetect.TabIndex = 6;
-            this.PatternDetect.UseVisualStyleBackColor = false;
-            this.PatternDetect.Click += new System.EventHandler(this.TogglePattern);
-            // 
-            // StreamImage
-            // 
-            this.StreamImage.BackColor = System.Drawing.Color.Transparent;
-            this.StreamImage.Location = new System.Drawing.Point(12, 41);
-            this.StreamImage.Name = "StreamImage";
-            this.StreamImage.Size = new System.Drawing.Size(899, 460);
-            this.StreamImage.TabIndex = 2;
-            this.StreamImage.TabStop = false;
-            this.StreamImage.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
             // 
             // CalibrationControll
             // 
@@ -263,9 +221,9 @@
             this.CalibrationControll.Controls.Add(this.CamCalibration);
             this.CalibrationControll.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.CalibrationControll.ForeColor = System.Drawing.Color.White;
-            this.CalibrationControll.Location = new System.Drawing.Point(969, 233);
+            this.CalibrationControll.Location = new System.Drawing.Point(915, 233);
             this.CalibrationControll.Name = "CalibrationControll";
-            this.CalibrationControll.Size = new System.Drawing.Size(923, 163);
+            this.CalibrationControll.Size = new System.Drawing.Size(977, 163);
             this.CalibrationControll.TabIndex = 5;
             this.CalibrationControll.TabStop = false;
             this.CalibrationControll.Text = "Calibration";
@@ -274,7 +232,7 @@
             // 
             this.Pattarn.AutoSize = true;
             this.Pattarn.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Pattarn.Location = new System.Drawing.Point(668, 53);
+            this.Pattarn.Location = new System.Drawing.Point(664, 59);
             this.Pattarn.Name = "Pattarn";
             this.Pattarn.Size = new System.Drawing.Size(135, 37);
             this.Pattarn.TabIndex = 10;
@@ -293,12 +251,36 @@
             "60",
             "70",
             "80"});
-            this.MaxDetectSet.Location = new System.Drawing.Point(809, 52);
+            this.MaxDetectSet.Location = new System.Drawing.Point(821, 53);
             this.MaxDetectSet.Name = "MaxDetectSet";
             this.MaxDetectSet.Size = new System.Drawing.Size(72, 43);
             this.MaxDetectSet.TabIndex = 5;
             this.MaxDetectSet.Text = "40";
             this.MaxDetectSet.SelectedIndexChanged += new System.EventHandler(this.MaxDetectPatternChanged);
+            // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.Transparent;
+            this.button1.BackgroundImage = global::CTMeasure.Properties.Resources.Calibration_Read;
+            this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.button1.Location = new System.Drawing.Point(52, 45);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(170, 102);
+            this.button1.TabIndex = 9;
+            this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.ReadCalibrationData);
+            // 
+            // PatternDetect
+            // 
+            this.PatternDetect.BackColor = System.Drawing.Color.Transparent;
+            this.PatternDetect.BackgroundImage = global::CTMeasure.Properties.Resources.PatternON;
+            this.PatternDetect.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.PatternDetect.Location = new System.Drawing.Point(252, 45);
+            this.PatternDetect.Name = "PatternDetect";
+            this.PatternDetect.Size = new System.Drawing.Size(170, 102);
+            this.PatternDetect.TabIndex = 6;
+            this.PatternDetect.UseVisualStyleBackColor = false;
+            this.PatternDetect.Click += new System.EventHandler(this.TogglePattern);
             // 
             // CalibrationProgress
             // 
@@ -307,17 +289,39 @@
             this.CalibrationProgress.Size = new System.Drawing.Size(236, 39);
             this.CalibrationProgress.TabIndex = 5;
             // 
+            // CamCalibration
+            // 
+            this.CamCalibration.BackColor = System.Drawing.Color.Transparent;
+            this.CamCalibration.BackgroundImage = global::CTMeasure.Properties.Resources.Calibration_Start;
+            this.CamCalibration.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.CamCalibration.Location = new System.Drawing.Point(452, 45);
+            this.CamCalibration.Name = "CamCalibration";
+            this.CamCalibration.Size = new System.Drawing.Size(170, 102);
+            this.CamCalibration.TabIndex = 7;
+            this.CamCalibration.UseVisualStyleBackColor = false;
+            this.CamCalibration.Click += new System.EventHandler(this.Calibration);
+            // 
             // Movie
             // 
             this.Movie.Controls.Add(this.StreamImage);
             this.Movie.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Movie.ForeColor = System.Drawing.Color.White;
-            this.Movie.Location = new System.Drawing.Point(969, 423);
+            this.Movie.Location = new System.Drawing.Point(915, 421);
             this.Movie.Name = "Movie";
-            this.Movie.Size = new System.Drawing.Size(923, 522);
+            this.Movie.Size = new System.Drawing.Size(977, 524);
             this.Movie.TabIndex = 6;
             this.Movie.TabStop = false;
             this.Movie.Text = "Movie";
+            // 
+            // StreamImage
+            // 
+            this.StreamImage.BackColor = System.Drawing.Color.Transparent;
+            this.StreamImage.Location = new System.Drawing.Point(12, 41);
+            this.StreamImage.Name = "StreamImage";
+            this.StreamImage.Size = new System.Drawing.Size(948, 460);
+            this.StreamImage.TabIndex = 2;
+            this.StreamImage.TabStop = false;
+            this.StreamImage.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
             // 
             // CameraPos
             // 
@@ -396,10 +400,48 @@
             this.Camera_X.TabIndex = 0;
             this.Camera_X.Text = "X : ";
             // 
+            // CrossTalk
+            // 
+            this.CrossTalk.Controls.Add(this.CrossTalkRatio);
+            this.CrossTalk.Controls.Add(this.CTR_Calculate);
+            this.CrossTalk.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.CrossTalk.ForeColor = System.Drawing.Color.White;
+            this.CrossTalk.Location = new System.Drawing.Point(18, 692);
+            this.CrossTalk.Name = "CrossTalk";
+            this.CrossTalk.Size = new System.Drawing.Size(864, 253);
+            this.CrossTalk.TabIndex = 8;
+            this.CrossTalk.TabStop = false;
+            this.CrossTalk.Text = "CrossTalk";
+            // 
+            // CrossTalkRatio
+            // 
+            this.CrossTalkRatio.AutoSize = true;
+            this.CrossTalkRatio.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.CrossTalkRatio.Location = new System.Drawing.Point(367, 124);
+            this.CrossTalkRatio.Name = "CrossTalkRatio";
+            this.CrossTalkRatio.Size = new System.Drawing.Size(323, 37);
+            this.CrossTalkRatio.TabIndex = 11;
+            this.CrossTalkRatio.Text = "CTR :                  %";
+            // 
+            // CTR_Calculate
+            // 
+            this.CTR_Calculate.BackColor = System.Drawing.Color.Transparent;
+            this.CTR_Calculate.BackgroundImage = global::CTMeasure.Properties.Resources.CTR;
+            this.CTR_Calculate.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.CTR_Calculate.ForeColor = System.Drawing.Color.White;
+            this.CTR_Calculate.Location = new System.Drawing.Point(38, 64);
+            this.CTR_Calculate.Name = "CTR_Calculate";
+            this.CTR_Calculate.Size = new System.Drawing.Size(232, 159);
+            this.CTR_Calculate.TabIndex = 7;
+            this.CTR_Calculate.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.CTR_Calculate.UseVisualStyleBackColor = false;
+            this.CTR_Calculate.Click += new System.EventHandler(this.ctrClick);
+            // 
             // CrossTalkMeasure
             // 
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1904, 961);
+            this.Controls.Add(this.CrossTalk);
             this.Controls.Add(this.CameraPos);
             this.Controls.Add(this.Movie);
             this.Controls.Add(this.CalibrationControll);
@@ -411,12 +453,14 @@
             this.Load += new System.EventHandler(this.CrossTalkMeasure_Load);
             this.CameraControll.ResumeLayout(false);
             this.StageControll.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.StreamImage)).EndInit();
             this.CalibrationControll.ResumeLayout(false);
             this.CalibrationControll.PerformLayout();
             this.Movie.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.StreamImage)).EndInit();
             this.CameraPos.ResumeLayout(false);
             this.CameraPos.PerformLayout();
+            this.CrossTalk.ResumeLayout(false);
+            this.CrossTalk.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -450,6 +494,9 @@
         private System.Windows.Forms.Label Camera_Roll;
         private System.Windows.Forms.Label Camera_Pitch;
         private System.Windows.Forms.Label Camera_Yaw;
+        private System.Windows.Forms.GroupBox CrossTalk;
+        private System.Windows.Forms.Label CrossTalkRatio;
+        private System.Windows.Forms.Button CTR_Calculate;
     }
 }
 
