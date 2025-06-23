@@ -163,6 +163,16 @@ namespace CTMeasure.Properties {
         /// <summary>
         ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
         /// </summary>
+        internal static System.Drawing.Bitmap Luminance {
+            get {
+                object obj = ResourceManager.GetObject("Luminance", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
         internal static System.Drawing.Bitmap PatternOFF {
             get {
                 object obj = ResourceManager.GetObject("PatternOFF", resourceCulture);

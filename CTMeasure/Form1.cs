@@ -17,6 +17,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Reflection.Emit;
+using static CTMeasure.CrossTalkMeasure;
 
 namespace CTMeasure
 {
@@ -168,10 +169,67 @@ namespace CTMeasure
                 camera = camList[0];  // First Camera Get
                 camera.Init();        // Camera Initialize
 
-                // Mode Setting
-                var acquisitionMode = camera.GetNodeMap().GetNode<IEnum>("AcquisitionMode"); // Set AcquisitionMode
-                var continuous = acquisitionMode.GetEntryByName("Continuous");               // Continuos Image
-                acquisitionMode.Value = continuous.Symbolic;                    // Apply Continuos Mode
+                var nodeMap = camera.GetNodeMap();
+
+                // ① AcquisitionModeを先に設定
+                var acquisitionMode = nodeMap.GetNode<IEnum>("AcquisitionMode");
+                var continuous = acquisitionMode.GetEntryByName("Continuous");
+                acquisitionMode.Value = continuous.Symbolic;
+
+                // ② ExposureAutoをOFF
+                var exposureAuto = nodeMap.GetNode<IEnum>("ExposureAuto");
+                if (exposureAuto != null && exposureAuto.IsWritable)
+                {
+                    exposureAuto.Value = exposureAuto.GetEntryByName("Off").Value;
+                }
+
+                // ③ ExposureTime 設定
+                var exposureTimeNode = nodeMap.GetNode<IFloat>("ExposureTime");
+                if (exposureTimeNode != null && exposureTimeNode.IsWritable)
+                {
+                    Console.WriteLine("Exposure Range: {0} - {1} μs", exposureTimeNode.Min, exposureTimeNode.Max);
+
+                    double targetExposure = 100000.0;
+                    if (targetExposure > exposureTimeNode.Max)
+                    {
+                        targetExposure = exposureTimeNode.Max;
+                    }
+                    exposureTimeNode.Value = targetExposure;
+                }
+
+                // ④ GainAutoをOFF
+                var gainAuto = nodeMap.GetNode<IEnum>("GainAuto");
+                if (gainAuto != null && gainAuto.IsWritable)
+                {
+                    gainAuto.Value = gainAuto.GetEntryByName("Off").Value;
+                }
+
+                // ⑤ Gainを設定
+                var gainNode = nodeMap.GetNode<IFloat>("Gain");
+                if (gainNode != null && gainNode.IsWritable)
+                {
+                    gainNode.Value = 0.0;
+                }
+
+                // Width
+                var widthNode = nodeMap.GetNode<IInteger>("Width");
+                if (widthNode != null && widthNode.IsWritable)
+                {
+                    widthNode.Value = widthNode.Max;
+                }
+
+                // Height
+                var heightNode = nodeMap.GetNode<IInteger>("Height");
+                if (heightNode != null && heightNode.IsWritable)
+                {
+                    heightNode.Value = heightNode.Max;
+                }
+
+                // (Optional) Offset を 0 に戻しておく
+                var offsetXNode = nodeMap.GetNode<IInteger>("OffsetX");
+                var offsetYNode = nodeMap.GetNode<IInteger>("OffsetY");
+                if (offsetXNode != null && offsetXNode.IsWritable) offsetXNode.Value = 0;
+                if (offsetYNode != null && offsetYNode.IsWritable) offsetYNode.Value = 0;
 
                 camera.BeginAcquisition();   // Begin Capture
 
@@ -436,6 +494,7 @@ namespace CTMeasure
         private const string STAGE_DELIMITER = "\r\n";    // Put "\r\n" Automatically
         private Timer stageMoveTimer;                     // Long Press 
         private string currentStageCommand = "";          // Move Axis
+        private float MoveResolution = 0.004f;            // Min Move value
         // Connect Stage
         private void Connect_Stage_Click(object sender, EventArgs e)
         {
@@ -506,7 +565,8 @@ namespace CTMeasure
         // UP
         private void Stage_Up_MouseDown(object sender, MouseEventArgs e)
         {
-            currentStageCommand = "MGO:B-1000";
+            float value = int.Parse(YAxis_Value.Text) / MoveResolution;
+            currentStageCommand = "MGO:B-" + value.ToString();
             stageMoveTimer.Start();
             this.Up.BackColor = Red;
         }
@@ -521,7 +581,8 @@ namespace CTMeasure
         // DOWN
         private void Stage_Down_MouseDown(object sender, MouseEventArgs e)
         {
-            currentStageCommand = "MGO:B+1000";
+            float value = int.Parse(YAxis_Value.Text) / MoveResolution;
+            currentStageCommand = "MGO:B+" + value.ToString();
             stageMoveTimer.Start();
             this.Down.BackColor = Red;
         }
@@ -536,7 +597,8 @@ namespace CTMeasure
         // LEFT
         private void Stage_Left_MouseDown(object sender, MouseEventArgs e)
         {
-            currentStageCommand = "MGO:A-1000";
+            float value = int.Parse(XAxis_Value.Text) / MoveResolution;
+            currentStageCommand = "MGO:A-" + value.ToString();
             stageMoveTimer.Start();
             this.Left.BackColor = Red;
         }
@@ -551,7 +613,8 @@ namespace CTMeasure
         // RIGHT
         private void Stage_Right_MouseDown(object sender, MouseEventArgs e)
         {
-            currentStageCommand = "MGO:A+1000";
+            float value = int.Parse(XAxis_Value.Text) / MoveResolution;
+            currentStageCommand = "MGO:A+" + value.ToString();
             stageMoveTimer.Start();
             this.Right.BackColor = Red;
         }
@@ -978,85 +1041,96 @@ namespace CTMeasure
         }
 
         // -------------------------------------   CrossTalk Method -------------------------------------
-        public class CTR
+        private void CalcCrosstalkButton_Click(object sender, EventArgs e)
         {
-            private double px_v_b = 0, px_v_w = 0, px_v_bw = 0;
-            private int px_num = 0;
-            private double ctr = 0;
-
-            public void Sum(double b, double w, double bw)
+            try
             {
-                px_v_b += b;
-                px_v_w += w;
-                px_v_bw += bw;
-                px_num++;
-            }
+                // 画像ファイル選択
+                string blackPath = SelectImage("黒画像を選択してください");
+                if (blackPath == null) return;
 
-            public double GetCtr()
-            {
-                return ctr;
-            }
+                string whitePath = SelectImage("白画像を選択してください");
+                if (whitePath == null) return;
 
-            public void CalcCtr(Mat black, Mat white, Mat blackwhite, OpenCvSharp.Point begin, OpenCvSharp.Point end)
-            {
-                for (int y = begin.Y; y <= end.Y; y++)
+                string bwPath = SelectImage("黒白画像を選択してください");
+                if (bwPath == null) return;
+
+                // 画像読み込み
+                Mat black = Cv2.ImRead(blackPath, ImreadModes.Grayscale);
+                Mat white = Cv2.ImRead(whitePath, ImreadModes.Grayscale);
+                Mat bw = Cv2.ImRead(bwPath, ImreadModes.Grayscale);
+
+                if (black.Empty() || white.Empty() || bw.Empty())
                 {
-                    for (int x = begin.X; x <= end.X; x++)
+                    MessageBox.Show("画像の読み込みに失敗しました。", "エラー");
+                    return;
+                }
+
+                // ROI選択
+                Rect roi = Cv2.SelectROI("クロストーク領域選択", bw);
+                if (roi.Width == 0 || roi.Height == 0)
+                {
+                    MessageBox.Show("ROIが無効です。", "エラー");
+                    return;
+                }
+
+                // ROI画像を保存
+                try
+                {
+                    string saveFolder = @"C:\Users\admin\Documents\GitHub\CTMeasure\ROI_Data";
+                    Directory.CreateDirectory(saveFolder);
+                    string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+                    Mat blackROI = new Mat(black, roi);
+                    Mat whiteROI = new Mat(white, roi);
+                    Mat bwROI = new Mat(bw, roi);
+
+                    Cv2.ImWrite(Path.Combine(saveFolder, $"black_roi_{timestamp}.png"), blackROI);
+                    Cv2.ImWrite(Path.Combine(saveFolder, $"white_roi_{timestamp}.png"), whiteROI);
+                    Cv2.ImWrite(Path.Combine(saveFolder, $"bw_roi_{timestamp}.png"), bwROI);
+
+                    MessageBox.Show($"ROI領域の画像を保存しました。\n保存先: {saveFolder}", "保存完了");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("ROI画像保存中にエラーが発生しました: " + ex.Message, "エラー");
+                }
+
+                // クロストーク計算
+                double px_v_b = 0, px_v_w = 0, px_v_bw = 0;
+                int px_num = 0;
+
+                for (int y = roi.Top; y < roi.Bottom; y++)
+                {
+                    for (int x = roi.Left; x < roi.Right; x++)
                     {
-                        byte b = black.At<byte>(y, x);
-                        byte w = white.At<byte>(y, x);
-                        byte bw = blackwhite.At<byte>(y, x);
-                        Sum(b, w, bw);
+                        px_v_b += black.At<byte>(y, x);
+                        px_v_w += white.At<byte>(y, x);
+                        px_v_bw += bw.At<byte>(y, x);
+                        px_num++;
                     }
                 }
 
-                if (px_v_w == px_v_b) ctr = 0;
-                else ctr = (px_v_bw - px_v_b) / (px_v_w - px_v_b) * 100.0;
-            }
+                double ctr = 0;
 
-            public override string ToString()
+                double ave_b = px_v_b / px_num;
+                double ave_w = px_v_w / px_num;
+                double ave_bw = px_v_bw / px_num;
+
+                if (px_v_w != px_v_b)
+                    ctr = (ave_bw - ave_b) / (ave_w - ave_b) * 100.0;
+
+                string result = $"クロストーク率: {ctr:F2} %\n"
+                               + $"黒画像平均: {ave_b:F2}\n"
+                               + $"白画像平均: {ave_w:F2}\n"
+                               + $"黒白画像平均: {ave_bw:F2}";
+
+                MessageBox.Show(result, "計算結果");
+            }
+            catch (Exception ex)
             {
-                return $"{ctr:F2}";
+                MessageBox.Show("計算中にエラーが発生しました: " + ex.Message);
             }
-        }
-
-        // ▼ イベントハンドラ（フォームのボタンに割り当て）
-        private void ctrClick(object sender, EventArgs e)
-        {
-            string blackPath = SelectImage("黒画像を選択してください");
-            if (blackPath == null) return;
-
-            string whitePath = SelectImage("白画像を選択してください");
-            if (whitePath == null) return;
-
-            string bwPath = SelectImage("黒白画像を選択してください");
-            if (bwPath == null) return;
-
-            Mat black = Cv2.ImRead(blackPath, ImreadModes.Grayscale);
-            Mat white = Cv2.ImRead(whitePath, ImreadModes.Grayscale);
-            Mat bw = Cv2.ImRead(bwPath, ImreadModes.Grayscale);
-
-            if (black.Empty() || white.Empty() || bw.Empty())
-            {
-                MessageBox.Show("画像の読み込みに失敗しました。", "エラー");
-                return;
-            }
-
-            Rect roi = Cv2.SelectROI("クロストーク領域を選択", bw);
-            if (roi.Width == 0 || roi.Height == 0)
-            {
-                MessageBox.Show("ROIが無効です。", "エラー");
-                return;
-            }
-
-            CTR ctr = new CTR();
-            var tl = new OpenCvSharp.Point(roi.X, roi.Y);
-            var br = new OpenCvSharp.Point(roi.X + roi.Width - 1, roi.Y + roi.Height - 1);
-            ctr.CalcCtr(black, white, bw, tl, br);
-            
-            CrossTalkRatio.Text = "CTR : " + ctr + "     %";
-
-            return;
         }
 
         // ▼ 画像選択ダイアログ
@@ -1071,6 +1145,40 @@ namespace CTMeasure
                     return ofd.FileName;
             }
             return null;
+        }
+
+        // ------------------------------------   Luminance Method -------------------------------------
+        // 輝度測定用（既存のSelectImage()は共通利用）
+        private void LuminanceMeasure_Click(object sender, EventArgs e)
+        {
+            string imagePath = SelectImage("輝度を測定する画像を選択してください");
+            if (imagePath == null) return;
+
+            try
+            {
+                // 画像読み込み（グレースケールとして読み込む）
+                Mat img = Cv2.ImRead(imagePath, ImreadModes.Grayscale);
+                if (img.Empty())
+                {
+                    MessageBox.Show("画像の読み込みに失敗しました。", "エラー");
+                    return;
+                }
+
+                // 輝度統計計算
+                Scalar meanScalar = Cv2.Mean(img);
+                double meanLuminance = meanScalar.Val0;
+
+                double minLuminance, maxLuminance;
+                Cv2.MinMaxLoc(img, out minLuminance, out maxLuminance);
+
+                Mean.Text = "Mean : " + meanLuminance.ToString("F2");
+                Min.Text = "Min : " + minLuminance.ToString("F2");
+                Max.Text = "Max : " + maxLuminance.ToString("F2");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("輝度測定中にエラーが発生しました: " + ex.Message, "エラー");
+            }
         }
     }
 }

@@ -34,6 +34,12 @@
             this.PhotoButton = new System.Windows.Forms.Button();
             this.CapButton = new System.Windows.Forms.Button();
             this.StageControll = new System.Windows.Forms.GroupBox();
+            this.YAxis_Value = new System.Windows.Forms.TextBox();
+            this.XAxis_Value = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.Right = new System.Windows.Forms.Button();
             this.Left = new System.Windows.Forms.Button();
             this.Down = new System.Windows.Forms.Button();
@@ -55,7 +61,11 @@
             this.Camera_Z = new System.Windows.Forms.Label();
             this.Camera_Y = new System.Windows.Forms.Label();
             this.Camera_X = new System.Windows.Forms.Label();
-            this.CrossTalk = new System.Windows.Forms.GroupBox();
+            this.Measurement = new System.Windows.Forms.GroupBox();
+            this.Max = new System.Windows.Forms.Label();
+            this.Min = new System.Windows.Forms.Label();
+            this.Mean = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
             this.CrossTalkRatio = new System.Windows.Forms.Label();
             this.CTR_Calculate = new System.Windows.Forms.Button();
             this.CameraControll.SuspendLayout();
@@ -64,7 +74,7 @@
             this.Movie.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.StreamImage)).BeginInit();
             this.CameraPos.SuspendLayout();
-            this.CrossTalk.SuspendLayout();
+            this.Measurement.SuspendLayout();
             this.SuspendLayout();
             // 
             // CameraControll
@@ -133,6 +143,12 @@
             // 
             // StageControll
             // 
+            this.StageControll.Controls.Add(this.YAxis_Value);
+            this.StageControll.Controls.Add(this.XAxis_Value);
+            this.StageControll.Controls.Add(this.label3);
+            this.StageControll.Controls.Add(this.label4);
+            this.StageControll.Controls.Add(this.label2);
+            this.StageControll.Controls.Add(this.label1);
             this.StageControll.Controls.Add(this.Right);
             this.StageControll.Controls.Add(this.Left);
             this.StageControll.Controls.Add(this.Down);
@@ -146,6 +162,64 @@
             this.StageControll.TabIndex = 1;
             this.StageControll.TabStop = false;
             this.StageControll.Text = "StageControll";
+            // 
+            // YAxis_Value
+            // 
+            this.YAxis_Value.Location = new System.Drawing.Point(685, 113);
+            this.YAxis_Value.Name = "YAxis_Value";
+            this.YAxis_Value.Size = new System.Drawing.Size(100, 42);
+            this.YAxis_Value.TabIndex = 17;
+            this.YAxis_Value.Text = "1";
+            this.YAxis_Value.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // XAxis_Value
+            // 
+            this.XAxis_Value.Location = new System.Drawing.Point(685, 46);
+            this.XAxis_Value.Name = "XAxis_Value";
+            this.XAxis_Value.Size = new System.Drawing.Size(100, 42);
+            this.XAxis_Value.TabIndex = 16;
+            this.XAxis_Value.Text = "1";
+            this.XAxis_Value.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label3.Location = new System.Drawing.Point(791, 114);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(71, 37);
+            this.label3.TabIndex = 15;
+            this.label3.Text = "mm";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label4.Location = new System.Drawing.Point(627, 114);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(58, 37);
+            this.label4.TabIndex = 14;
+            this.label4.Text = "Y :";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label2.Location = new System.Drawing.Point(791, 47);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(71, 37);
+            this.label2.TabIndex = 12;
+            this.label2.Text = "mm";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label1.Location = new System.Drawing.Point(627, 47);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(58, 37);
+            this.label1.TabIndex = 11;
+            this.label1.Text = "X :";
             // 
             // Right
             // 
@@ -400,24 +474,72 @@
             this.Camera_X.TabIndex = 0;
             this.Camera_X.Text = "X : ";
             // 
-            // CrossTalk
+            // Measurement
             // 
-            this.CrossTalk.Controls.Add(this.CrossTalkRatio);
-            this.CrossTalk.Controls.Add(this.CTR_Calculate);
-            this.CrossTalk.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.CrossTalk.ForeColor = System.Drawing.Color.White;
-            this.CrossTalk.Location = new System.Drawing.Point(18, 692);
-            this.CrossTalk.Name = "CrossTalk";
-            this.CrossTalk.Size = new System.Drawing.Size(864, 253);
-            this.CrossTalk.TabIndex = 8;
-            this.CrossTalk.TabStop = false;
-            this.CrossTalk.Text = "CrossTalk";
+            this.Measurement.Controls.Add(this.Max);
+            this.Measurement.Controls.Add(this.Min);
+            this.Measurement.Controls.Add(this.Mean);
+            this.Measurement.Controls.Add(this.button2);
+            this.Measurement.Controls.Add(this.CrossTalkRatio);
+            this.Measurement.Controls.Add(this.CTR_Calculate);
+            this.Measurement.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Measurement.ForeColor = System.Drawing.Color.White;
+            this.Measurement.Location = new System.Drawing.Point(18, 692);
+            this.Measurement.Name = "Measurement";
+            this.Measurement.Size = new System.Drawing.Size(864, 253);
+            this.Measurement.TabIndex = 8;
+            this.Measurement.TabStop = false;
+            this.Measurement.Text = "Measure";
+            // 
+            // Max
+            // 
+            this.Max.AutoSize = true;
+            this.Max.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Max.Location = new System.Drawing.Point(621, 168);
+            this.Max.Name = "Max";
+            this.Max.Size = new System.Drawing.Size(183, 37);
+            this.Max.TabIndex = 15;
+            this.Max.Text = ", Max :      ";
+            // 
+            // Min
+            // 
+            this.Min.AutoSize = true;
+            this.Min.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Min.Location = new System.Drawing.Point(409, 168);
+            this.Min.Name = "Min";
+            this.Min.Size = new System.Drawing.Size(175, 37);
+            this.Min.TabIndex = 14;
+            this.Min.Text = ", Min :      ";
+            // 
+            // Mean
+            // 
+            this.Mean.AutoSize = true;
+            this.Mean.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Mean.Location = new System.Drawing.Point(191, 168);
+            this.Mean.Name = "Mean";
+            this.Mean.Size = new System.Drawing.Size(185, 37);
+            this.Mean.TabIndex = 13;
+            this.Mean.Text = "Mean :      ";
+            // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.Color.Transparent;
+            this.button2.BackgroundImage = global::CTMeasure.Properties.Resources.Luminance;
+            this.button2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.button2.ForeColor = System.Drawing.Color.White;
+            this.button2.Location = new System.Drawing.Point(29, 145);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(128, 85);
+            this.button2.TabIndex = 12;
+            this.button2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.button2.UseVisualStyleBackColor = false;
+            this.button2.Click += new System.EventHandler(this.LuminanceMeasure_Click);
             // 
             // CrossTalkRatio
             // 
             this.CrossTalkRatio.AutoSize = true;
             this.CrossTalkRatio.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.CrossTalkRatio.Location = new System.Drawing.Point(367, 124);
+            this.CrossTalkRatio.Location = new System.Drawing.Point(191, 74);
             this.CrossTalkRatio.Name = "CrossTalkRatio";
             this.CrossTalkRatio.Size = new System.Drawing.Size(323, 37);
             this.CrossTalkRatio.TabIndex = 11;
@@ -429,19 +551,19 @@
             this.CTR_Calculate.BackgroundImage = global::CTMeasure.Properties.Resources.CTR;
             this.CTR_Calculate.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.CTR_Calculate.ForeColor = System.Drawing.Color.White;
-            this.CTR_Calculate.Location = new System.Drawing.Point(38, 64);
+            this.CTR_Calculate.Location = new System.Drawing.Point(29, 51);
             this.CTR_Calculate.Name = "CTR_Calculate";
-            this.CTR_Calculate.Size = new System.Drawing.Size(232, 159);
+            this.CTR_Calculate.Size = new System.Drawing.Size(128, 85);
             this.CTR_Calculate.TabIndex = 7;
             this.CTR_Calculate.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.CTR_Calculate.UseVisualStyleBackColor = false;
-            this.CTR_Calculate.Click += new System.EventHandler(this.ctrClick);
+            this.CTR_Calculate.Click += new System.EventHandler(this.CalcCrosstalkButton_Click);
             // 
             // CrossTalkMeasure
             // 
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1904, 961);
-            this.Controls.Add(this.CrossTalk);
+            this.Controls.Add(this.Measurement);
             this.Controls.Add(this.CameraPos);
             this.Controls.Add(this.Movie);
             this.Controls.Add(this.CalibrationControll);
@@ -453,14 +575,15 @@
             this.Load += new System.EventHandler(this.CrossTalkMeasure_Load);
             this.CameraControll.ResumeLayout(false);
             this.StageControll.ResumeLayout(false);
+            this.StageControll.PerformLayout();
             this.CalibrationControll.ResumeLayout(false);
             this.CalibrationControll.PerformLayout();
             this.Movie.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.StreamImage)).EndInit();
             this.CameraPos.ResumeLayout(false);
             this.CameraPos.PerformLayout();
-            this.CrossTalk.ResumeLayout(false);
-            this.CrossTalk.PerformLayout();
+            this.Measurement.ResumeLayout(false);
+            this.Measurement.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -494,9 +617,19 @@
         private System.Windows.Forms.Label Camera_Roll;
         private System.Windows.Forms.Label Camera_Pitch;
         private System.Windows.Forms.Label Camera_Yaw;
-        private System.Windows.Forms.GroupBox CrossTalk;
+        private System.Windows.Forms.GroupBox Measurement;
         private System.Windows.Forms.Label CrossTalkRatio;
         private System.Windows.Forms.Button CTR_Calculate;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox YAxis_Value;
+        private System.Windows.Forms.TextBox XAxis_Value;
+        private System.Windows.Forms.Label Mean;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label Min;
+        private System.Windows.Forms.Label Max;
     }
 }
 
