@@ -1,12 +1,8 @@
-﻿using SpinnakerNET;
-using SpinnakerNET.GenApi;                  // Camera Controll Class
-using System;
+﻿using System;
 using System.Drawing;                       // Bitmap or Color imaging
 using System.IO;
 using System.IO.Ports;                      // Serial Port 
-using System.Security.Policy;
 using System.Windows.Forms;                 // Windows Form Application Component
-using Timer = System.Windows.Forms.Timer;   // Timer
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System.Collections.Generic;
@@ -14,18 +10,15 @@ using Size = OpenCvSharp.Size;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Runtime.InteropServices;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using System.Reflection.Emit;
-using static CTMeasure.CrossTalkMeasure;
 
 namespace CTMeasure
 {
     public partial class CrossTalkMeasure : Form
     {
-        // Define
-        Color Red = Color.Red;
-        Color Green = Color.Lime;
+        // Library import
+        private CameraManager camera;
+        private StageController stage;
+        private CalkCrossTalk ctr;
 
         public CrossTalkMeasure()
         {
@@ -35,104 +28,88 @@ namespace CTMeasure
         // Initialize
         private void CrossTalkMeasure_Load(object sender, EventArgs e)
         {
-            Red = Color.Red;
-            Green = Color.Lime;
-
-            // Stage Move Timer
-            stageMoveTimer = new Timer();
-            stageMoveTimer.Interval = 100; // 100ms
-            stageMoveTimer.Tick += StageMoveTimer_Tick;
+            // CameraManager
+            camera = new CameraManager(StreamImage);
+            camera.OnImageCaptured += mat => {
+                originalBitmap?.Dispose();
+                originalBitmap = BitmapConverter.ToBitmap(mat);
+                StreamImage.Invalidate();
+            };
+            camera.OnPoseUpdated += pose =>
+            {
+                Camera_X.Text = $"X : {pose.X:F3} mm";
+                Camera_Y.Text = $"Y : {pose.Y:F3} mm";
+                Camera_Z.Text = $"Z : {pose.Z:F3} mm";
+                Camera_Yaw.Text = $"Yaw : {pose.Yaw:F3}°";
+                Camera_Pitch.Text = $"Pitch : {pose.Pitch:F3}°";
+                Camera_Roll.Text = $"Roll : {pose.Roll:F3}°";
+            };
+            camera.OnError += msg => MessageBox.Show(msg);
+            // StageController
+            stage = new StageController();
+            stage.OnStatusChanged += (status) =>
+            {
+                // UI反映
+                if (status == "connected")
+                {
+                    ConnectButton.BackgroundImage = Properties.Resources.ConnectOFF;
+                }
+                else
+                {
+                    ConnectButton.BackgroundImage = Properties.Resources.ConnectON;
+                }
+            };
+            // CalkCrossTalk
+            ctr = new CalkCrossTalk();
         }
 
         // -------------------------------------  Camera Controll Method (Spinnaker) -------------------------------------
         // Spinnaker Camera
         private bool cap = false;              // Cap Start/Stop Flag
-        private bool pattern = false;          // pattern drawing ON/OFF
         private Bitmap originalBitmap = null;  // capture image
         private float zoomFactor = 0.5f;       // zoom scale
-        private ManagedSystem system = null;              // Sipnnaker System Controll
-        private IManagedCamera camera = null;             // Camera Controll
-        private IManagedImageProcessor processor = null;  // Imaging Processor
-        private Timer captureTimer = null;                // Framerate
-        
+
         // Cap Start/Stop
         private void CapButton_Click(object sender, EventArgs e)
         {
             // Cap Start
             if (!cap)
             {
-                this.CapButton.BackgroundImage = Properties.Resources.StreamOFF;
+                camera.StartCamera();
                 cap = true;
-                startCam();
+                this.CapButton.BackgroundImage = Properties.Resources.StreamOFF;
             }
             // Cap Stop
             else
             {
-                this.CapButton.BackgroundImage = Properties.Resources.StreamON;
+                camera.StopCamera();
                 cap = false;
-                stopCam();
+                this.CapButton.BackgroundImage = Properties.Resources.StreamON;                
             }
         }
 
         // Photo Shot
         private void PhotoButton_Click(object sender, EventArgs e)
         {
-            // Camera check
-            if (camera == null || !cap)
-            {
-                MessageBox.Show("カメラが起動していません。", "注意");
-                return;
-            }
-            // try process
-            try
-            {
-                using (IManagedImage rawImage = camera.GetNextImage(1000)) // 1 frame get (wait 1000ms)
-                {
-                    if (!rawImage.IsIncomplete)  // image Check
-                    {
-                        using (var converted = processor.Convert(rawImage, PixelFormatEnums.Mono8))  // convert Mono8 format
-                        using (var bmp = new Bitmap(converted.bitmap))   // convert bitmap
-                        {
-                            // named photo file
-                            string saveFolder = @"C:\Users\admin\Documents\GitHub\CTMeasure\PhotoData";  // save to folder
-                            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");         // time stamp
-                            string filename = Path.Combine(saveFolder, $"photo_{timestamp}.jpg");
-
-                            // save file
-                            bmp.Save(filename, System.Drawing.Imaging.ImageFormat.Jpeg);
-                            MessageBox.Show($"画像を保存しました: {filename}", "保存成功");
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("画像が不完全のため、保存されませんでした。", "警告");
-                    }
-                }
-                // rawimage.Dispose() called
-            }
-            // Error process
-            catch (SpinnakerException ex)
-            {
-                MessageBox.Show("写真保存中にエラーが発生しました: " + ex.Message, "エラー");
-            }
+            camera.SaveImage();
         }
 
         // Image Shrink
         private void ShrinkButton_Click(object sender, EventArgs e)
         {
             zoomFactor = Math.Max(0.5f, zoomFactor - 0.1f);
-            StreamImage.Invalidate(); // call pictureBox1_Paint
+            StreamImage.Invalidate(); // call StreamImage_Paint
         }
 
         // Image Enlarge
         private void EnlargeButton_Click(object sender, EventArgs e)
         {
             zoomFactor = Math.Min(5.0f, zoomFactor + 0.1f);
-            StreamImage.Invalidate(); // call pictureBox1_Paint
+            StreamImage.Invalidate(); // call StreamImage_Paint
         }
 
-        // shrink/enlarge method
-        private void pictureBox1_Paint(object sender, PaintEventArgs e)
+        // Paint method
+        private void StreamImage_Paint(object sender, PaintEventArgs e)
         {
 
             if (originalBitmap == null) return;   // originImage check
@@ -150,480 +127,71 @@ namespace CTMeasure
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic; // Interpolatopn
             e.Graphics.DrawImage(originalBitmap, new Rectangle(x, y, newWidth, newHeight)); // Draw center position
         }
-
-        // Cam Start Method
-        private void startCam()
-        {
-            try
-            {
-                system = new ManagedSystem();
-                var camList = system.GetCameras();  // Get Camera List through ManagedSystem
-
-                // Cam Check
-                if (camList.Count == 0)
-                {
-                    MessageBox.Show("カメラが検出されませんでした。", "エラー");
-                    return;
-                }
-
-                camera = camList[0];  // First Camera Get
-                camera.Init();        // Camera Initialize
-
-                var nodeMap = camera.GetNodeMap();
-
-                // ① AcquisitionModeを先に設定
-                var acquisitionMode = nodeMap.GetNode<IEnum>("AcquisitionMode");
-                var continuous = acquisitionMode.GetEntryByName("Continuous");
-                acquisitionMode.Value = continuous.Symbolic;
-
-                // ② ExposureAutoをOFF
-                var exposureAuto = nodeMap.GetNode<IEnum>("ExposureAuto");
-                if (exposureAuto != null && exposureAuto.IsWritable)
-                {
-                    exposureAuto.Value = exposureAuto.GetEntryByName("Off").Value;
-                }
-
-                // ③ ExposureTime 設定
-                var exposureTimeNode = nodeMap.GetNode<IFloat>("ExposureTime");
-                if (exposureTimeNode != null && exposureTimeNode.IsWritable)
-                {
-                    Console.WriteLine("Exposure Range: {0} - {1} μs", exposureTimeNode.Min, exposureTimeNode.Max);
-
-                    double targetExposure = 100000.0;
-                    if (targetExposure > exposureTimeNode.Max)
-                    {
-                        targetExposure = exposureTimeNode.Max;
-                    }
-                    exposureTimeNode.Value = targetExposure;
-                }
-
-                // ④ GainAutoをOFF
-                var gainAuto = nodeMap.GetNode<IEnum>("GainAuto");
-                if (gainAuto != null && gainAuto.IsWritable)
-                {
-                    gainAuto.Value = gainAuto.GetEntryByName("Off").Value;
-                }
-
-                // ⑤ Gainを設定
-                var gainNode = nodeMap.GetNode<IFloat>("Gain");
-                if (gainNode != null && gainNode.IsWritable)
-                {
-                    gainNode.Value = 0.0;
-                }
-
-                // Width
-                var widthNode = nodeMap.GetNode<IInteger>("Width");
-                if (widthNode != null && widthNode.IsWritable)
-                {
-                    widthNode.Value = widthNode.Max;
-                }
-
-                // Height
-                var heightNode = nodeMap.GetNode<IInteger>("Height");
-                if (heightNode != null && heightNode.IsWritable)
-                {
-                    heightNode.Value = heightNode.Max;
-                }
-
-                // (Optional) Offset を 0 に戻しておく
-                var offsetXNode = nodeMap.GetNode<IInteger>("OffsetX");
-                var offsetYNode = nodeMap.GetNode<IInteger>("OffsetY");
-                if (offsetXNode != null && offsetXNode.IsWritable) offsetXNode.Value = 0;
-                if (offsetYNode != null && offsetYNode.IsWritable) offsetYNode.Value = 0;
-
-                camera.BeginAcquisition();   // Begin Capture
-
-                // Create Imaging Processor 
-                processor = new ManagedImageProcessor();
-                processor.SetColorProcessing(ColorProcessingAlgorithm.HQ_LINEAR); // Linear Interpolation Processing
-
-                // ColorProcessingAlgorithm
-                //{
-                //    NONE,
-                //    NEAREST_NEIGHBOR,
-                //    NEAREST_NEIGHBOR_AVG,
-                //    BILINEAR,
-                //    EDGE_SENSING,
-                //    HQ_LINEAR,
-                //    IPP,
-                //    DIRECTIONAL_FILTER,
-                //    RIGOROUS,
-                //    WEIGHTED_DIRECTIONAL_FILTER 
-                //}
-
-                // Create Timer
-                captureTimer = new Timer();        // Timer Initialize
-                captureTimer.Interval = 8;        // 8ms cycle ( ~= 120fps)
-                captureTimer.Tick += CaptureFrame; // Tick Event
-                captureTimer.Start();              // Start captureTimer
-            }
-            // Error Process
-            catch (SpinnakerException ex)
-            {
-                MessageBox.Show("カメラ初期化エラー: " + ex.Message, "エラー");
-            }
-        }
-
-        // Timer Capture Frame
-        private void CaptureFrame(object sender, EventArgs e)
-        {
-            if (camera == null || !cap) return;
-
-            try
-            {
-                using (IManagedImage rawImage = camera.GetNextImage(1000))   // wait until 1000ms
-                {
-                    if (!rawImage.IsIncomplete)
-                    {
-                        using (var converted = processor.Convert(rawImage, PixelFormatEnums.Mono8))
-                        using (var bmp = new Bitmap(converted.bitmap))
-                        {
-                            StreamImage.Invoke((MethodInvoker)delegate
-                            {
-                                Mat mat = BitmapConverter.ToMat(bmp);
-
-                                // Apply Calibration
-                                if (cameraMatrixUndistort != null && distCoeffsUndistort != null)
-                                {
-                                    Mat undistorted = new Mat();
-                                    Cv2.Undistort(mat, undistorted, cameraMatrixUndistort, distCoeffsUndistort);
-                                    mat = undistorted;
-                                }
-
-                                // Drawing Detect Pattern
-                                if (pattern)
-                                {
-                                    Mat gray = new Mat();
-                                    Cv2.CvtColor(mat, gray, ColorConversionCodes.BGR2GRAY);
-
-                                    if (!isDetecting)
-                                        StartAsyncPatternDetection(gray.Clone());
-
-                                    if (patternFound && latestCorners != null)
-                                    {
-                                        Cv2.DrawChessboardCorners(mat, patternSize, latestCorners, patternFound);
-                                    }
-                                }
-
-                                // === ここから XYZ軸描画 ===
-                                if (currentPose != null && cameraMatrixUndistort != null && distCoeffsUndistort != null)
-                                {
-                                    // 3D空間上の原点とXYZ軸方向ベクトル（単位はmm）
-                                    Point3f[] axisPoints = new Point3f[]
-                                    {
-                                        new Point3f(0, 0, 0),
-                                        new Point3f(50, 0, 0),   // X軸
-                                        new Point3f(0, 50, 0),   // Y軸
-                                        new Point3f(0, 0, 50)    // Z軸
-                                    };
-
-                                    // tvec（カメラ座標）
-                                    Mat tvec = new Mat(3, 1, MatType.CV_64F);
-                                    tvec.Set(0, 0, currentPose.X);
-                                    tvec.Set(1, 0, currentPose.Y);
-                                    tvec.Set(2, 0, currentPose.Z);
-
-                                    // Yaw, Pitch, Roll を回転行列 → Rodrigues で回転ベクトルに変換
-                                    double yaw = currentPose.Yaw * Math.PI / 180.0;
-                                    double pitch = currentPose.Pitch * Math.PI / 180.0;
-                                    double roll = currentPose.Roll * Math.PI / 180.0;
-
-                                    // 回転行列R作成（ZYX順回転: Roll→Pitch→Yaw）
-                                    double cy = Math.Cos(yaw); double sy = Math.Sin(yaw);
-                                    double cp = Math.Cos(pitch); double sp = Math.Sin(pitch);
-                                    double cr = Math.Cos(roll); double sr = Math.Sin(roll);
-
-                                    double[,] R = new double[3, 3]
-                                    {
-                                        { cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr },
-                                        { sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr },
-                                        { -sp,     cp * sr,                cp * cr }
-                                    };
-
-                                    Mat rotMat = new Mat(3, 3, MatType.CV_64F);
-                                    for (int i = 0; i < 3; i++)
-                                        for (int j = 0; j < 3; j++)
-                                            rotMat.Set(i, j, R[i, j]);
-
-                                    Mat rvec = new Mat();
-                                    Cv2.Rodrigues(rotMat, rvec);
-
-                                    // imagePointsMat は ProjectPoints の結果が格納されている
-                                    Mat imagePointsMat = new Mat();
-                                    Cv2.ProjectPoints(
-                                        Mat.FromArray(axisPoints),
-                                        rvec, tvec,
-                                        cameraMatrixUndistort,
-                                        distCoeffsUndistort,
-                                        imagePointsMat
-                                    );
-
-                                    // Point2f[] に変換（手動で）
-                                    Point2f[] imagePoints = new Point2f[imagePointsMat.Rows];
-                                    for (int i = 0; i < imagePointsMat.Rows; i++)
-                                    {
-                                        imagePoints[i] = imagePointsMat.At<Point2f>(i);
-                                    }
-
-                                    // 座標軸描画
-                                    Cv2.Line(mat, imagePoints[0].ToPoint(), imagePoints[1].ToPoint(), Scalar.Red, 2);    // X軸
-                                    Cv2.Line(mat, imagePoints[0].ToPoint(), imagePoints[2].ToPoint(), Scalar.Green, 2);  // Y軸
-                                    Cv2.Line(mat, imagePoints[0].ToPoint(), imagePoints[3].ToPoint(), Scalar.Blue, 2);   // Z軸
-
-                                }
-                                // === ここまで XYZ軸描画 ===
-
-                                originalBitmap?.Dispose();
-                                originalBitmap = BitmapConverter.ToBitmap(mat);
-                                StreamImage.Invalidate();
-                            });
-
-                            if (cameraMatrixUndistort != null && distCoeffsUndistort != null && patternFound && latestCorners != null && !isSolvingPnP)
-                            {
-                                isSolvingPnP = true;
-                                var cornersCopy = (Point2f[])latestCorners.Clone();
-
-                                // make true 3D coordinate
-                                List<Point3f> objPointsList = new List<Point3f>();
-
-                                for (int i = 0; i < patternSize.Height; i++) 
-                                {
-                                    for (int j = 0; j < patternSize.Width; j++) 
-                                    {
-                                        float x = j * circleSpacing + (i % 2) * (circleSpacing / 2.0f); // 奇数行ずらす
-                                        float y = i * (circleSpacing / 2.0f); // 行間隔は半分
-                                        objPointsList.Add(new Point3f(x, y, 0));
-                                    }
-                                }
-
-                                Point3f[] objPoints = objPointsList.ToArray();
-
-
-                                Task.Run(() =>
-                                {
-                                    try
-                                    {
-                                        var pose = CameraPose.FromSolvePnP(objPoints, cornersCopy, cameraMatrixUndistort, distCoeffsUndistort);
-                                        if (pose != null)
-                                        {
-                                            currentPose = pose;
-                                            Camera_X.Invoke((MethodInvoker)(() =>
-                                            {
-                                                Camera_X.Text = "X : " + currentPose.X.ToString("F3") + " mm";
-                                            }));
-                                            Camera_Y.Invoke((MethodInvoker)(() =>
-                                            {
-                                                Camera_Y.Text = "Y : " + currentPose.Y.ToString("F3") + " mm";
-                                            }));
-                                            Camera_Z.Invoke((MethodInvoker)(() =>
-                                            {
-                                                Camera_Z.Text = "Z : " + currentPose.Z.ToString("F3") + " mm";
-                                            }));
-
-                                            Camera_Yaw.Invoke((MethodInvoker)(() =>
-                                            {
-                                                Camera_Yaw.Text = "Yaw : " + currentPose.Yaw.ToString("F3") + "°";
-                                            }));
-                                            Camera_Pitch.Invoke((MethodInvoker)(() =>
-                                            {
-                                                Camera_Pitch.Text = "Pitch : " + currentPose.Pitch.ToString("F3") + "°";
-                                            }));
-                                            Camera_Roll.Invoke((MethodInvoker)(() =>
-                                            {
-                                                Camera_Roll.Text = "Roll : " + currentPose.Roll.ToString("F3") + "°";
-                                            }));
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Console.WriteLine("SolvePnP エラー: " + ex.Message);
-                                    }
-                                    finally
-                                    {
-                                        isSolvingPnP = false;
-                                    }
-                                });
-
-                            }
-                        }
-                    }
-                }
-            }
-            catch (SpinnakerException ex)
-            {
-                Console.WriteLine("画像取得エラー: " + ex.Message);
-            }
-        }
-
-        // Cap Stop Method
-        private void stopCam()
-        {
-            try
-            {
-                captureTimer?.Stop();     // captureTimer stop
-                captureTimer?.Dispose();  // resource release
-                captureTimer = null;
-
-                // camera stop process
-                if (camera != null)
-                {
-                    camera.EndAcquisition();  // end image acquisition
-                    camera.DeInit();          // initialize release
-                    camera.Dispose();         // resource release
-                    camera = null;
-                }
-
-                // Spinnaker system resource release
-                system?.Dispose();
-                system = null;
-            }
-            // Erroe process
-            catch (SpinnakerException ex)
-            {
-                MessageBox.Show("カメラ停止エラー: " + ex.Message, "エラー");
-            }
-        }
         // --------------------------------------------------------------------------------------------------
 
-        // -------------------------------------  Stage Controll Method -------------------------------------
-        // Stage
-        private bool isConnect = false;                   // Stage Connect Flag
-        private SerialPort stagePort = null;              // SerialPort Status
-        private const string STAGE_PORT_NAME = "COM2";    // Port Name
-        private const int STAGE_BAUDRATE = 9600;          // BaudRate
-        private const string STAGE_DELIMITER = "\r\n";    // Put "\r\n" Automatically
-        private Timer stageMoveTimer;                     // Long Press 
-        private string currentStageCommand = "";          // Move Axis
-        private float MoveResolution = 0.004f;            // Min Move value
-        // Connect Stage
+        // -------------------------------------  Stage Controll Method -------------------------------------        // Connect/DisConnect Stage
         private void Connect_Stage_Click(object sender, EventArgs e)
         {
-            // Connect Stage
-            if (!isConnect)
-            {
-                try
-                {
-                    stagePort = new SerialPort(STAGE_PORT_NAME, STAGE_BAUDRATE, Parity.None, 8, StopBits.One);
-                    stagePort.NewLine = STAGE_DELIMITER;
-                    stagePort.ReadTimeout = 1000;
-                    stagePort.WriteTimeout = 1000;
-                    stagePort.Open();
-                    MessageBox.Show($"ステージに接続しました: {STAGE_PORT_NAME}");
-
-                    isConnect = true;
-                    this.ConnectButton.BackColor = Red;
-                    this.ConnectButton.BackgroundImage = Properties.Resources.ConnectOFF;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("ステージ接続エラー: " + ex.Message);
-                }
-            }
-            // DisConnect Stage
+            if (!stage.IsConnected)
+                stage.Connect();
             else
-            {
-                try
-                {
-                    stagePort?.Close();
-                    stagePort = null;
-
-                    MessageBox.Show("ステージとの接続を解除しました。");
-
-                    isConnect = false;
-                    this.ConnectButton.BackColor = Green;
-                    this.ConnectButton.BackgroundImage = Properties.Resources.ConnectON;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("ステージ切断エラー: " + ex.Message);
-                }
-            }
-        }
-
-        // Send Command to Stage
-        private void SendStageCommand(string cmd)
-        {
-            if (stagePort == null || !stagePort.IsOpen) return;
-            try
-            {
-                stagePort.WriteLine(cmd);
-                Console.WriteLine($"送信: {cmd}");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("コマンド送信エラー: " + ex.Message, "エラー");
-            }
-        }
-
-        // Stage Move Timer
-        private void StageMoveTimer_Tick(object sender, EventArgs e)
-        {
-            if (!string.IsNullOrEmpty(currentStageCommand))
-                SendStageCommand(currentStageCommand);
+                stage.Disconnect();
         }
 
         // UP
         private void Stage_Up_MouseDown(object sender, MouseEventArgs e)
         {
-            float value = int.Parse(YAxis_Value.Text) / MoveResolution;
-            currentStageCommand = "MGO:B-" + value.ToString();
-            stageMoveTimer.Start();
-            this.Up.BackColor = Red;
+            float value = float.Parse(YAxis_Value.Text);
+            stage.StartMove("B", value, true);
+            Up.BackColor = Color.Red;
         }
 
         private void Stage_Up_MouseUp(object sender, MouseEventArgs e)
         {
-            stageMoveTimer.Stop();
-            currentStageCommand = "";
-            this.Up.BackColor = Green;
+            stage.StopMove();
+            Up.BackColor = Color.Lime;
         }
 
         // DOWN
         private void Stage_Down_MouseDown(object sender, MouseEventArgs e)
         {
-            float value = int.Parse(YAxis_Value.Text) / MoveResolution;
-            currentStageCommand = "MGO:B+" + value.ToString();
-            stageMoveTimer.Start();
-            this.Down.BackColor = Red;
+            float value = float.Parse(YAxis_Value.Text);
+            stage.StartMove("B", value, false);
+            Down.BackColor = Color.Red;
         }
 
         private void Stage_Down_MouseUp(object sender, MouseEventArgs e)
         {
-            stageMoveTimer.Stop();
-            currentStageCommand = "";
-            this.Down.BackColor = Green;
+            stage.StopMove();
+            Down.BackColor = Color.Lime;
         }
 
         // LEFT
         private void Stage_Left_MouseDown(object sender, MouseEventArgs e)
         {
-            float value = int.Parse(XAxis_Value.Text) / MoveResolution;
-            currentStageCommand = "MGO:A-" + value.ToString();
-            stageMoveTimer.Start();
-            this.Left.BackColor = Red;
+            float value = float.Parse(XAxis_Value.Text);
+            stage.StartMove("A", value, true);
+            Left.BackColor = Color.Red;
         }
 
         private void Stage_Left_MouseUp(object sender, MouseEventArgs e)
         {
-            stageMoveTimer.Stop();
-            currentStageCommand = "";
-            this.Left.BackColor = Green;
+            stage.StopMove();
+            Left.BackColor = Color.Lime;
         }
 
         // RIGHT
         private void Stage_Right_MouseDown(object sender, MouseEventArgs e)
         {
-            float value = int.Parse(XAxis_Value.Text) / MoveResolution;
-            currentStageCommand = "MGO:A+" + value.ToString();
-            stageMoveTimer.Start();
-            this.Right.BackColor = Red;
+            float value = float.Parse(XAxis_Value.Text);
+            stage.StartMove("A", value, false);
+            Right.BackColor = Color.Red;
         }
 
         private void Stage_Right_MouseUp(object sender, MouseEventArgs e)
         {
-            stageMoveTimer.Stop();
-            currentStageCommand = "";
-            this.Right.BackColor = Green;
+            stage.StopMove();
+            Right.BackColor = Color.Lime;
         }
 
         // --------------------------------------------------------------------------------------------------
@@ -632,76 +200,35 @@ namespace CTMeasure
         // detect pattern
         List<Point2f[]> imagePointsList = new List<Point2f[]>();
         List<Point3f[]> objectPointsList = new List<Point3f[]>();
-        Size patternSize = new Size(4, 11);                        // Asymmetry-CircleGrid（row x col）
-        float circleSpacing = 18.0f;                               // circle space [mm]
-        private volatile Point2f[] latestCorners = null;
-        private volatile bool patternFound = false;
-        private volatile bool isDetecting = false;
         private int detectPattenSet = 40;
         // stage controll
         private CancellationTokenSource stageIterationCTS = null;
         private bool isIteration = false;   // Iteration flag
         private const int MaxRight = 20;    // Max Roght Pos
         private const int MaxLeft = -20;    // Max Left Pos
-        // calibration data
-        private Mat cameraMatrixUndistort = null;  // camera matrix
-        private Mat distCoeffsUndistort = null;    // distorted matrix
-        // camera pos
-        private volatile bool isSolvingPnP = false;
-        private CameraPose currentPose = null;
 
-        // camera pos class
-        public class CameraPose
+        // Pattern ON/OFF Button
+        private void TogglePattern(object sender, EventArgs e)
         {
-            public double X { get; set; }      // mm
-            public double Y { get; set; }
-            public double Z { get; set; }
-
-            public double Yaw { get; set; }    // °
-            public double Pitch { get; set; }
-            public double Roll { get; set; }
-
-            public static CameraPose FromSolvePnP(Point3f[] objectPoints, Point2f[] imagePoints, Mat cameraMatrix, Mat distCoeffs)
+            // カメラ接続確認
+            if (!cap)
             {
-                CameraPose pose = null;
-
-                using (var objMat = Mat.FromArray(objectPoints))
-                using (var imgMat = Mat.FromArray(imagePoints))
-                {
-                    Mat rvec = new Mat();
-                    Mat tvec = new Mat();
-
-                    Cv2.SolvePnP(objMat, imgMat, cameraMatrix, distCoeffs, rvec, tvec);
-
-                    double x = tvec.At<double>(0);
-                    double y = tvec.At<double>(1);
-                    double z = tvec.At<double>(2);
-
-                    Mat rotMat = new Mat();
-                    Cv2.Rodrigues(rvec, rotMat);
-                    double[,] R = new double[3, 3];
-                    for (int i = 0; i < 3; i++)
-                        for (int j = 0; j < 3; j++)
-                            R[i, j] = rotMat.At<double>(i, j);
-
-                    double yaw = Math.Atan2(R[1, 0], R[0, 0]) * 180.0 / Math.PI;
-                    double pitch = Math.Atan2(-R[2, 0], Math.Sqrt(R[2, 1] * R[2, 1] + R[2, 2] * R[2, 2])) * 180.0 / Math.PI;
-                    double roll = Math.Atan2(R[2, 1], R[2, 2]) * 180.0 / Math.PI;
-
-                    pose = new CameraPose
-                    {
-                        X = x,
-                        Y = y,
-                        Z = z,
-                        Yaw = yaw,
-                        Pitch = pitch,
-                        Roll = roll
-                    };
-                }
-
-                return pose;
+                MessageBox.Show("カメラが接続されていません。", "注意");
+                return;
             }
 
+            // 状態反転
+            camera.pattern = !camera.pattern;
+
+            // ボタンの見た目を切り替え
+            if (camera.pattern)
+            {
+                PatternDetect.BackgroundImage = Properties.Resources.PatternOFF;
+            }
+            else
+            {
+                PatternDetect.BackgroundImage = Properties.Resources.PatternON;
+            }
         }
 
         // detectPattenSet change
@@ -710,20 +237,26 @@ namespace CTMeasure
             detectPattenSet = int.Parse(MaxDetectSet.Text);
         }
 
+        // 使いまわす3Dパターン
+        private Point3f[] objectPoints = null;
+
         // Calibration data Collect Start
         private void Calibration(object sender, EventArgs e)
         {
             // chack stage & camera connect
-            if (!isConnect || stagePort == null || !stagePort.IsOpen || camera == null || !cap)
+            if (!stage.IsConnected || !cap)
             {
                 MessageBox.Show("ステージまたはカメラが接続されていません。", "注意");
                 return;
             }
 
-
             // PointList Initialize
             imagePointsList = new List<Point2f[]>();    // All Pattern Detect Point on Image 2D Coordinate
             objectPointsList = new List<Point3f[]>();   // True Pattern on 3D Coordinate
+
+            // 初回のみ3D点を生成
+            if (objectPoints == null)
+                objectPoints = camera.Generate3DPatternPoints();   // True Pattern on 3D Coordinate
 
             // ProgressBar Initialize
             CalibrationProgress.Minimum = 0;
@@ -740,36 +273,23 @@ namespace CTMeasure
                 Task.Run(async () =>
                 {
                     try
-                    { 
+                    {
                         while (!token.IsCancellationRequested)
                         {
                             // pattern detect check & Add corner
-                            if (patternFound && latestCorners != null)
+                            if (camera.patternFound && camera.latestCorners != null)
                             {
                                 // p → Saved All 2D point
                                 // latestCorners → New 2D point
-                                bool isDuplicate = imagePointsList.Exists(p => Enumerable.SequenceEqual(p, latestCorners));
+                                bool isDuplicate = imagePointsList.Exists(p => Enumerable.SequenceEqual(p, camera.latestCorners));
 
                                 if (!isDuplicate)  // prevent duplicate
                                 {
                                     // image coordinate add
-                                    imagePointsList.Add((Point2f[])latestCorners.Clone());
+                                    imagePointsList.Add((Point2f[])camera.latestCorners.Clone());
 
                                     // make true 3d coordinate data
-                                    List<Point3f> objPointsList = new List<Point3f>();
-
-                                    for (int i = 0; i < patternSize.Height; i++) // 行数 = 11
-                                    {
-                                        for (int j = 0; j < patternSize.Width; j++) // 列数 = 4
-                                        {
-                                            float x = j * circleSpacing + (i % 2) * (circleSpacing / 2.0f); // 奇数行ずらす
-                                            float y = i * (circleSpacing / 2.0f); // 行間隔は半分
-                                            objPointsList.Add(new Point3f(x, y, 0));
-                                        }
-                                    }
-
-                                    Point3f[] objPoints = objPointsList.ToArray();
-                                    objectPointsList.Add(objPoints);
+                                    objectPointsList.Add(objectPoints);
 
                                     Console.WriteLine($"検出パターンを追加: {imagePointsList.Count} / {detectPattenSet}");
                                     CalibrationProgress.Value = imagePointsList.Count;   // renew CalibrationProgress
@@ -807,12 +327,20 @@ namespace CTMeasure
                                             stageIterationCTS = null;
                                             isIteration = false;
                                             MessageBox.Show($"{detectPattenSet}パターンを取得し、ファイルに保存しました：{fileName}", "完了");
-                                        }));
 
-                                        // Get CameraMatrix & DistortionMatrix by latest data
-                                        ExecutCalibration();
-                                        this.CamCalibration.BackgroundImage = Properties.Resources.Calibration_Start;
-                                        return;
+                                            // Calibration 実行
+                                            try
+                                            {
+                                                var result = camera.ExecuteCalibration(saveFolder);
+                                                MessageBox.Show($"キャリブレーション完了！\n誤差: {result.ReprojectionError:F4}\nファイル保存: {result.SavedFilePath}", "完了");
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                MessageBox.Show("キャリブレーション実行中にエラーが発生しました: " + ex.Message, "エラー");
+                                            }
+
+                                            this.CamCalibration.BackgroundImage = Properties.Resources.Calibration_Start;
+                                        }));
                                     }
                                 }
                             }
@@ -820,7 +348,7 @@ namespace CTMeasure
                             // stage move process
                             if (count > 0 && count <= MaxRight)
                             {
-                                SendStageCommand("MGO:A+1000");
+                                stage.StartMove("A", 1000, false);
                                 count++;
                                 if (count > MaxRight)
                                 {
@@ -829,7 +357,7 @@ namespace CTMeasure
                             }
                             else if (count < 0 && count >= MaxLeft)
                             {
-                                SendStageCommand("MGO:A-1000");
+                                stage.StartMove("A", 1000, true);
                                 count--;
                                 if (count < MaxLeft)
                                 {
@@ -859,156 +387,7 @@ namespace CTMeasure
                 MessageBox.Show("キャリブレーションを停止しました。", "停止");
                 this.CamCalibration.BackgroundImage = Properties.Resources.Calibration_Start;
             }
-            
-        }
 
-        // Pattern ON/OFF Button
-        private void TogglePattern(object sender, EventArgs e)
-        {
-            // camera check
-            if (camera == null && !cap)
-            {
-                MessageBox.Show("カメラが接続されていません。", "注意");
-                return;
-            }
-
-            pattern = !pattern; //reverse
-            if (pattern)
-            {
-                PatternDetect.BackgroundImage = Properties.Resources.PatternOFF;
-            }
-            if (!pattern)
-            {
-                PatternDetect.BackgroundImage = Properties.Resources.PatternON;
-                pattern = false;
-            }
-        }
-
-        // PatternDetect ( Get Corner )
-        private void StartAsyncPatternDetection(Mat inputGray)
-        {
-            if (isDetecting) return; // multiple prevent
-
-            isDetecting = true;
-
-            Task.Run(() =>
-            {
-                try
-                {
-                    Point2f[] corners;
-                    bool found = Cv2.FindCirclesGrid(
-                        inputGray,
-                        patternSize,
-                        out corners,
-                        FindCirclesGridFlags.AsymmetricGrid);
-
-                    if (found)
-                    {
-                        latestCorners = corners;
-                        patternFound = true;
-                    }
-                    else
-                    {
-                        patternFound = false;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("パターン検出エラー: " + ex.Message);
-                }
-                finally
-                {
-                    isDetecting = false;
-                }
-            });
-        }
-
-        // Out Calibration Parameter File
-        private void ExecutCalibration()
-        {
-            try
-            {
-                // YML File Read
-                string folderPath = @"C:\Users\admin\Documents\GitHub\CTMeasure\CalibrationData";
-                string[] files = Directory.GetFiles(folderPath, "calibration_*.yml");
-                if (files.Length == 0)
-                {
-                    MessageBox.Show("キャリブレーションデータが見つかりませんでした。", "エラー");
-                    return;
-                }
-
-                // latest file get
-                string filePath = files.OrderByDescending(f => f).First();
-
-                List<Point2f[]> imagePointsList = new List<Point2f[]>();
-                List<Point3f[]> objectPointsList = new List<Point3f[]>();
-
-                // ProgressBar Initialize
-                CalibrationProgress.Minimum = 0;
-                CalibrationProgress.Maximum = detectPattenSet;
-                CalibrationProgress.Value = 0;
-
-                using (var fs = new FileStorage(filePath, FileStorage.Modes.Read))
-                {
-                    int count = (int)fs["image_points_count"].ReadInt();
-                    for (int i = 0; i < count; i++)
-                    {
-                        Mat imgMat = fs[$"image_points_{i}"].ReadMat();
-                        Mat objMat = fs[$"object_points_{i}"].ReadMat();
-
-                        Point2f[] imagePoints;
-                        Point3f[] objectPoints;
-
-                        imgMat.GetArray(out imagePoints);
-                        objMat.GetArray(out objectPoints);
-
-                        imagePointsList.Add(imagePoints);
-                        objectPointsList.Add(objectPoints);
-
-                        CalibrationProgress.Value = i + 1;
-                    }
-                }
-
-                // camera resolution
-                Size imageSize = new Size(originalBitmap.Width, originalBitmap.Height);
-
-                // Get Calibration Parameter
-                Mat cameraMatrix = new Mat();
-                Mat distCoeffs = new Mat();
-                Mat[] rvecs, tvecs;
-                List<Mat> objectPointsMatList = objectPointsList
-                    .Select(pts => InputArray.Create(pts).GetMat()).ToList();
-                List<Mat> imagePointsMatList = imagePointsList
-                    .Select(pts => InputArray.Create(pts).GetMat()).ToList();
-
-                double error = Cv2.CalibrateCamera(
-                    objectPointsMatList,     // IEnumerable<Mat>
-                    imagePointsMatList,      // IEnumerable<Mat>
-                    imageSize,
-                    cameraMatrix,
-                    distCoeffs,
-                    out rvecs,
-                    out tvecs,
-                    CalibrationFlags.None
-                );
-
-                // Save Result
-                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                string savePath = Path.Combine(folderPath, $"calib_result_{timestamp}.yml");
-
-                using (var fsOut = new FileStorage(savePath, FileStorage.Modes.Write | FileStorage.Modes.FormatYaml))
-                {
-                    fsOut.Write("camera_matrix", cameraMatrix);
-                    fsOut.Write("dist_coeffs", distCoeffs);
-                    fsOut.Write("reprojection_error", error);
-                }
-
-                MessageBox.Show($"キャリブレーション完了！\n誤差: {error:F4}\nファイル保存: {savePath}", "完了");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("キャリブレーション実行中にエラーが発生しました: " + ex.Message, "エラー");
-            }
         }
 
         // Read Calibration Parameter ( Internal Calibration )
@@ -1025,8 +404,8 @@ namespace CTMeasure
                     {
                         using (var fs = new FileStorage(ofd.FileName, FileStorage.Modes.Read))
                         {
-                            cameraMatrixUndistort = fs["camera_matrix"].ReadMat();
-                            distCoeffsUndistort = fs["dist_coeffs"].ReadMat();
+                            camera.cameraMatrixUndistort = fs["camera_matrix"].ReadMat();
+                            camera.distCoeffsUndistort = fs["dist_coeffs"].ReadMat();
                         }
 
                         MessageBox.Show("キャリブレーションパラメータを読み込みました。\n" +
@@ -1073,59 +452,41 @@ namespace CTMeasure
                     MessageBox.Show("ROIが無効です。", "エラー");
                     return;
                 }
+                Mat blackROI = new Mat(black, roi);
+                Mat whiteROI = new Mat(white, roi);
+                Mat bwROI = new Mat(bw, roi);
 
                 // ROI画像を保存
-                try
-                {
-                    string saveFolder = @"C:\Users\admin\Documents\GitHub\CTMeasure\ROI_Data";
-                    Directory.CreateDirectory(saveFolder);
-                    string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                //try
+                //{
+                //    string saveFolder = @"C:\Users\admin\Documents\GitHub\CTMeasure\ROI_Data";
+                //    Directory.CreateDirectory(saveFolder);
+                //    string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
 
-                    Mat blackROI = new Mat(black, roi);
-                    Mat whiteROI = new Mat(white, roi);
-                    Mat bwROI = new Mat(bw, roi);
+                //    Mat blackROI = new Mat(black, roi);
+                //    Mat whiteROI = new Mat(white, roi);
+                //    Mat bwROI = new Mat(bw, roi);
 
-                    Cv2.ImWrite(Path.Combine(saveFolder, $"black_roi_{timestamp}.png"), blackROI);
-                    Cv2.ImWrite(Path.Combine(saveFolder, $"white_roi_{timestamp}.png"), whiteROI);
-                    Cv2.ImWrite(Path.Combine(saveFolder, $"bw_roi_{timestamp}.png"), bwROI);
+                //    Cv2.ImWrite(Path.Combine(saveFolder, $"black_roi_{timestamp}.png"), blackROI);
+                //    Cv2.ImWrite(Path.Combine(saveFolder, $"white_roi_{timestamp}.png"), whiteROI);
+                //    Cv2.ImWrite(Path.Combine(saveFolder, $"bw_roi_{timestamp}.png"), bwROI);
 
-                    MessageBox.Show($"ROI領域の画像を保存しました。\n保存先: {saveFolder}", "保存完了");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("ROI画像保存中にエラーが発生しました: " + ex.Message, "エラー");
-                }
+                //    MessageBox.Show($"ROI領域の画像を保存しました。\n保存先: {saveFolder}", "保存完了");
+                //}
+                //catch (Exception ex)
+                //{
+                //    MessageBox.Show("ROI画像保存中にエラーが発生しました: " + ex.Message, "エラー");
+                //}
 
                 // クロストーク計算
-                double px_v_b = 0, px_v_w = 0, px_v_bw = 0;
-                int px_num = 0;
+                var results = ctr.calcCTR(roi, black, white, bw);
 
-                for (int y = roi.Top; y < roi.Bottom; y++)
-                {
-                    for (int x = roi.Left; x < roi.Right; x++)
-                    {
-                        px_v_b += black.At<byte>(y, x);
-                        px_v_w += white.At<byte>(y, x);
-                        px_v_bw += bw.At<byte>(y, x);
-                        px_num++;
-                    }
-                }
+                string message = $"クロストーク率: {results.ctr:F2} %\n"
+                               + $"黒画像平均: {results.ave_b:F2}\n"
+                               + $"白画像平均: {results.ave_w:F2}\n"
+                               + $"黒白画像平均: {results.ave_bw:F2}";
 
-                double ctr = 0;
-
-                double ave_b = px_v_b / px_num;
-                double ave_w = px_v_w / px_num;
-                double ave_bw = px_v_bw / px_num;
-
-                if (px_v_w != px_v_b)
-                    ctr = (ave_bw - ave_b) / (ave_w - ave_b) * 100.0;
-
-                string result = $"クロストーク率: {ctr:F2} %\n"
-                               + $"黒画像平均: {ave_b:F2}\n"
-                               + $"白画像平均: {ave_w:F2}\n"
-                               + $"黒白画像平均: {ave_bw:F2}";
-
-                MessageBox.Show(result, "計算結果");
+                MessageBox.Show(message, "計算結果");
             }
             catch (Exception ex)
             {
@@ -1133,7 +494,7 @@ namespace CTMeasure
             }
         }
 
-        // ▼ 画像選択ダイアログ
+        // 画像選択ダイアログ
         private string SelectImage(string title)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())

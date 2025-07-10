@@ -395,7 +395,7 @@
             this.StreamImage.Size = new System.Drawing.Size(948, 460);
             this.StreamImage.TabIndex = 2;
             this.StreamImage.TabStop = false;
-            this.StreamImage.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
+            this.StreamImage.Paint += new System.Windows.Forms.PaintEventHandler(this.StreamImage_Paint);
             // 
             // CameraPos
             // 
