@@ -280,7 +280,8 @@ namespace CTMeasure
             {
                 stageIterationCTS = new CancellationTokenSource();
                 var token = stageIterationCTS.Token;
-                int count = 1;
+                int count = 0;
+                bool moveRight = true;
 
                 Task.Run(async () =>
                 {
@@ -358,22 +359,22 @@ namespace CTMeasure
                             }
 
                             // stage move process
-                            if (count > 0 && count <= MaxRight)
+                            if (moveRight)
                             {
-                                stage.StartMove("A", 1000, false);
+                                stage.StartMove("A", 1000, false); // 正方向
                                 count++;
-                                if (count > MaxRight)
+                                if (count >= MaxRight)
                                 {
-                                    count = -1;
+                                    moveRight = false;
                                 }
                             }
-                            else if (count < 0 && count >= MaxLeft)
+                            else
                             {
-                                stage.StartMove("A", 1000, true);
+                                stage.StartMove("A", 1000, true); // 負方向
                                 count--;
-                                if (count < MaxLeft)
+                                if (count <= MaxLeft)
                                 {
-                                    count = 1;
+                                    moveRight = true;
                                 }
                             }
 

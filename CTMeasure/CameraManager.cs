@@ -332,17 +332,18 @@ namespace CTMeasure
         public Point3f[] Generate3DPatternPoints()
         {
             var list = new List<Point3f>();
-            for (int col = 0; col < patternSize.Width; col++) // Col（横方向）
+            for (int i = 0; i < patternSize.Height; i++)  // 行（縦）
             {
-                for (int row = 0; row < patternSize.Height; row++) // Row（縦方向）
+                for (int j = 0; j < patternSize.Width; j++)  // 列（横）
                 {
-                    float x = col * circleSpacing_x + ((row % 2 != 0) ? circleSpacing_y : 0.0f);
-                    float y = row * circleSpacing_y;
+                    float x = j * circleSpacing_x + (i % 2) * (circleSpacing_x / 2.0f);
+                    float y = i * circleSpacing_y;
                     list.Add(new Point3f(x, y, 0));
                 }
             }
             return list.ToArray();
         }
+
 
         // XYZ 軸描画処理
         private void DrawXYZAxes(ref Mat mat)
