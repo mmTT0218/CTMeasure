@@ -123,9 +123,29 @@ namespace CTMeasure.Properties {
         /// <summary>
         ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
         /// </summary>
+        internal static System.Drawing.Bitmap ConnectTCP {
+            get {
+                object obj = ResourceManager.GetObject("ConnectTCP", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
         internal static System.Drawing.Bitmap CTR {
             get {
                 object obj = ResourceManager.GetObject("CTR", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Bitmap DisConnectTCP {
+            get {
+                object obj = ResourceManager.GetObject("DisConnectTCP", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -246,6 +266,26 @@ namespace CTMeasure.Properties {
         internal static System.Drawing.Bitmap StreamON {
             get {
                 object obj = ResourceManager.GetObject("StreamON", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Bitmap UIctrlForm {
+            get {
+                object obj = ResourceManager.GetObject("UIctrlForm", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Bitmap UIForm {
+            get {
+                object obj = ResourceManager.GetObject("UIForm", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
