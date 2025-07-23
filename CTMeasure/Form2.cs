@@ -7,12 +7,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace CTMeasure
 {
     public partial class UIctrl : Form
     {
         public string _ClientInfo;
+
+        // Reset の値
+        float lxVal;
+        float lyVal;
+        float lzVal;
+        float rxVal;
+        float ryVal;
+        float rzVal;
+        int picVal;
+        int matVal;
+        int oriVal;
 
         // トラックバー値
         public string _Lx_value;
@@ -42,16 +54,16 @@ namespace CTMeasure
             _ClientInfo = clientInfo;
 
             // 実数
-            float.TryParse(lx, out float lxVal);
-            float.TryParse(ly, out float lyVal);
-            float.TryParse(lz, out float lzVal);
-            float.TryParse(rx, out float rxVal);
-            float.TryParse(ry, out float ryVal);
-            float.TryParse(rz, out float rzVal);
+            float.TryParse(lx, out lxVal);
+            float.TryParse(ly, out lyVal);
+            float.TryParse(lz, out lzVal);
+            float.TryParse(rx, out rxVal);
+            float.TryParse(ry, out ryVal);
+            float.TryParse(rz, out rzVal);
             // 整数
-            int.TryParse(pic, out int picVal);
-            int.TryParse(mat, out int matVal);
-            int.TryParse(ori, out int oriVal);
+            int.TryParse(pic, out picVal);
+            int.TryParse(mat, out matVal);
+            int.TryParse(ori, out oriVal);
             // 真偽（"1" / "0" → true / false）
             bool lx_intVal = lx_int == "1";
             bool ly_intVal = ly_int == "1";
@@ -110,37 +122,85 @@ namespace CTMeasure
         // -------------- トラックバーイベント ------------------
         private void Lx_Bar_Scroll(object sender, EventArgs e)
         {
-            Lx_Box.Text = ((double)Lx_Bar.Value / 10).ToString();
+            if (Lx_Int.Checked)
+            {
+                Lx_Box.Text = ((int)Lx_Bar.Value / 10).ToString();
+
+            }
+            else
+            {
+                Lx_Box.Text = ((double)Lx_Bar.Value / 10).ToString();
+            }   
             SendToClient();
         }
 
         private void Ly_Bar_Scroll(object sender, EventArgs e)
         {
-            Ly_Box.Text = ((double)Ly_Bar.Value / 10).ToString();
+            if (Ly_Int.Checked)
+            {
+                Ly_Box.Text = ((int)Ly_Bar.Value / 10).ToString();
+
+            }
+            else
+            {
+                Ly_Box.Text = ((double)Ly_Bar.Value / 10).ToString();
+            }
             SendToClient();
         }
 
         private void Lz_Bar_Scroll(object sender, EventArgs e)
         {
-            Lz_Box.Text = ((double)Lz_Bar.Value / 10).ToString();
+            if (Lz_Int.Checked)
+            {
+                Lz_Box.Text = ((int)Lz_Bar.Value / 10).ToString();
+
+            }
+            else
+            {
+                Lz_Box.Text = ((double)Lz_Bar.Value / 10).ToString();
+            }
             SendToClient();
         }
 
         private void Rx_Bar_Scroll(object sender, EventArgs e)
         {
-            Rx_Box.Text = ((double)Rx_Bar.Value / 10).ToString();
+            if (Rx_Int.Checked)
+            {
+                Rx_Box.Text = ((int)Rx_Bar.Value / 10).ToString();
+
+            }
+            else
+            {
+                Rx_Box.Text = ((double)Rx_Bar.Value / 10).ToString();
+            }
             SendToClient();
         }
 
         private void Ry_Bar_Scroll(object sender, EventArgs e)
         {
-            Ry_Box.Text = ((double)Ry_Bar.Value / 10).ToString();
+            if (Ry_Int.Checked)
+            {
+                Ry_Box.Text = ((int)Ry_Bar.Value / 10).ToString();
+
+            }
+            else
+            {
+                Ry_Box.Text = ((double)Ry_Bar.Value / 10).ToString();
+            }
             SendToClient();
         }
 
         private void Rz_Bar_Scroll(object sender, EventArgs e)
         {
-            Rz_Box.Text = ((double)Rz_Bar.Value / 10).ToString();
+            if (Rz_Int.Checked)
+            {
+                Rz_Box.Text = ((int)Rz_Bar.Value / 10).ToString();
+
+            }
+            else
+            {
+                Rz_Box.Text = ((double)Rz_Bar.Value / 10).ToString();
+            }
             SendToClient();
         }
 
@@ -162,6 +222,226 @@ namespace CTMeasure
             SendToClient();
         }
 
+        // トグルイベント
+        private void UI_toggle_CheckedChanged(object sender, EventArgs e)
+        {
+            SendToClient();
+        }
+
+        private void Lx_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Lx_Int.Checked)
+            {
+                // 1刻み = 10単位で動かす（10 = 1.0）
+                Lx_Bar.SmallChange = 10;
+                Lx_Bar.LargeChange = 10;
+
+                // 端数がある場合は丸める
+                Lx_Bar.Value = (int)(Math.Round(Lx_Bar.Value / 10.0) * 10);
+            }
+            else
+            {
+                // 0.1刻み = 1単位で動かす（1 = 0.1）
+                Lx_Bar.SmallChange = 1;
+                Lx_Bar.LargeChange = 1;
+            }
+            SendToClient();
+        }
+
+        private void Ly_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Ly_Int.Checked)
+            {
+                // 1刻み = 10単位で動かす（10 = 1.0）
+                Ly_Bar.SmallChange = 10;
+                Ly_Bar.LargeChange = 10;
+
+                // 端数がある場合は丸める
+                Ly_Bar.Value = (int)(Math.Round(Ly_Bar.Value / 10.0) * 10);
+            }
+            else
+            {
+                // 0.1刻み = 1単位で動かす（1 = 0.1）
+                Ly_Bar.SmallChange = 1;
+                Ly_Bar.LargeChange = 1;
+            }
+            SendToClient();
+        }
+
+        private void Lz_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Lz_Int.Checked)
+            {
+                // 1刻み = 10単位で動かす（10 = 1.0）
+                Lz_Bar.SmallChange = 10;
+                Lz_Bar.LargeChange = 10;
+
+                // 端数がある場合は丸める
+                Lz_Bar.Value = (int)(Math.Round(Lz_Bar.Value / 10.0) * 10);
+            }
+            else
+            {
+                // 0.1刻み = 1単位で動かす（1 = 0.1）
+                Lz_Bar.SmallChange = 1;
+                Lz_Bar.LargeChange = 1;
+            }
+            SendToClient();
+        }
+
+        private void Rx_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Rx_Int.Checked)
+            {
+                // 1刻み = 10単位で動かす（10 = 1.0）
+                Rx_Bar.SmallChange = 10;
+                Rx_Bar.LargeChange = 10;
+
+                // 端数がある場合は丸める
+                Rx_Bar.Value = (int)(Math.Round(Rx_Bar.Value / 10.0) * 10);
+            }
+            else
+            {
+                // 0.1刻み = 1単位で動かす（1 = 0.1）
+                Rx_Bar.SmallChange = 1;
+                Rx_Bar.LargeChange = 1;
+            }
+            SendToClient();
+        }
+
+        private void Ry_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Ry_Int.Checked)
+            {
+                // 1刻み = 10単位で動かす（10 = 1.0）
+                Ry_Bar.SmallChange = 10;
+                Ry_Bar.LargeChange = 10;
+
+                // 端数がある場合は丸める
+                Ry_Bar.Value = (int)(Math.Round(Ry_Bar.Value / 10.0) * 10);
+            }
+            else
+            {
+                // 0.1刻み = 1単位で動かす（1 = 0.1）
+                Ry_Bar.SmallChange = 1;
+                Ry_Bar.LargeChange = 1;
+            }
+            SendToClient();
+        }
+
+        private void Rz_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Rz_Int.Checked)
+            {
+                // 1刻み = 10単位で動かす（10 = 1.0）
+                Rz_Bar.SmallChange = 10;
+                Rz_Bar.LargeChange = 10;
+
+                // 端数がある場合は丸める
+                Rz_Bar.Value = (int)(Math.Round(Rz_Bar.Value / 10.0) * 10);
+            }
+            else
+            {
+                // 0.1刻み = 1単位で動かす（1 = 0.1）
+                Rz_Bar.SmallChange = 1;
+                Rz_Bar.LargeChange = 1;
+            }
+            SendToClient();
+        }
+
+        private void Picture_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            SendToClient();
+        }
+
+        private void Material_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            SendToClient();
+        }
+
+        private void Origin_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            SendToClient();
+        }
+
+        // リセットボタン イベント
+        private void Lx_Reset_Click(object sender, EventArgs e)
+        {
+            Lx_Bar.Value = (int)Math.Round(lxVal * 10);
+            Lx_Box.Text = ((double)lxVal).ToString();
+
+            SendToClient();
+        }
+
+        private void Ly_Reset_Click(object sender, EventArgs e)
+        {
+            Ly_Bar.Value = (int)Math.Round(lyVal * 10);
+            Ly_Box.Text = ((double)lyVal).ToString();
+
+            SendToClient();
+        }
+
+        private void Lz_Reset_Click(object sender, EventArgs e)
+        {
+            Lz_Bar.Value = (int)Math.Round(lzVal * 10);
+            Lz_Box.Text = ((double)lzVal).ToString();
+
+            SendToClient();
+        }
+
+        private void Rx_Reset_Click(object sender, EventArgs e)
+        {
+            Rx_Bar.Value = (int)Math.Round(rxVal * 10);
+            Rx_Box.Text = ((double)rxVal).ToString();
+
+            SendToClient();
+        }
+
+        private void Ry_Reset_Click(object sender, EventArgs e)
+        {
+            Ry_Bar.Value = (int)Math.Round(ryVal * 10);
+            Ry_Box.Text = ((double)ryVal).ToString();
+
+            SendToClient();
+        }
+
+        private void Rz_Reset_Click(object sender, EventArgs e)
+        {
+            Rz_Bar.Value = (int)Math.Round(rzVal * 10);
+            Rz_Box.Text = ((double)rzVal).ToString();
+
+            SendToClient();
+        }
+
+        private void Picture_Reset_Click(object sender, EventArgs e)
+        {
+            Picture_Bar.Value = picVal;
+            Picture_Box.Text = picVal.ToString();
+
+            SendToClient();
+        }
+
+        private void Material_Reset_Click(object sender, EventArgs e)
+        {
+            Material_Bar.Value = matVal;
+            Material_Box.Text = matVal.ToString();
+
+            SendToClient();
+        }
+
+        private void Origin_Reset_Click(object sender, EventArgs e)
+        {
+            Origin_Bar.Value = oriVal;
+            Origin_Box.Text = oriVal.ToString();
+
+            SendToClient();
+        }
+
+        // テキストボックス イベント
+        private void Lx_Box_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
         // パラメータ送信
         private void SendToClient()
         {
@@ -176,7 +456,8 @@ namespace CTMeasure
                     + Rz_Box.Text + "/" + (Rz_Int.Checked ? "1" : "0") + "/"
                     + Picture_Box.Text + "/" + (Picture_Int.Checked ? "1" : "0") + "/"
                     + Material_Box.Text + "/" + (Material_Int.Checked ? "1" : "0") + "/"
-                    + Origin_Box.Text + "/" + (Origin_Int.Checked ? "1" : "0") + "/\n";
+                    + Origin_Box.Text + "/" + (Origin_Int.Checked ? "1" : "0") + "/"
+                    + (UI_toggle.Checked ? "1" : "0") + "/\n";
 
                 CrossTalkMeasure.lastClient.ReplyLine(message);
             }

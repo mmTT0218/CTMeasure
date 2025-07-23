@@ -73,7 +73,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.StreamImage)).BeginInit();
             this.Measurement.SuspendLayout();
             this.Server.SuspendLayout();
-            this.CameraPose.SuspendLayout();
             this.SuspendLayout();
             // 
             // CameraControll
@@ -395,9 +394,6 @@
             this.StreamImage.TabIndex = 2;
             this.StreamImage.TabStop = false;
             this.StreamImage.Paint += new System.Windows.Forms.PaintEventHandler(this.StreamImage_Paint);
-            
-            
-            
             // 
             // Measurement
             // 
@@ -482,7 +478,7 @@
             this.CTR_Calculate.TabIndex = 7;
             this.CTR_Calculate.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.CTR_Calculate.UseVisualStyleBackColor = false;
-            this.CTR_Calculate.Click += new System.EventHandler(this.CalcCrosstalkButton_Click);
+            this.CTR_Calculate.Click += new System.EventHandler(this.CTR_Calculate_Click);
             // 
             // Server
             // 
@@ -569,8 +565,6 @@
             this.Measurement.ResumeLayout(false);
             this.Measurement.PerformLayout();
             this.Server.ResumeLayout(false);
-            this.CameraPose.ResumeLayout(false);
-            this.CameraPose.PerformLayout();
             this.ResumeLayout(false);
 
         }

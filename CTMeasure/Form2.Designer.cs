@@ -77,6 +77,7 @@
             this.Picture = new System.Windows.Forms.Label();
             this.Picture_Bar = new System.Windows.Forms.TrackBar();
             this.ClientInfo = new System.Windows.Forms.Label();
+            this.UI_toggle = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.Lx_Bar)).BeginInit();
             this.LeftEye.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Lz_Bar)).BeginInit();
@@ -135,6 +136,7 @@
             this.Lz_Int.TabIndex = 14;
             this.Lz_Int.Text = "Int";
             this.Lz_Int.UseVisualStyleBackColor = true;
+            this.Lz_Int.CheckedChanged += new System.EventHandler(this.Lz_Int_CheckedChanged);
             // 
             // Lz_Reset
             // 
@@ -144,6 +146,7 @@
             this.Lz_Reset.TabIndex = 13;
             this.Lz_Reset.Text = "Reset";
             this.Lz_Reset.UseVisualStyleBackColor = true;
+            this.Lz_Reset.Click += new System.EventHandler(this.Lz_Reset_Click);
             // 
             // Lz_Box
             // 
@@ -180,6 +183,7 @@
             this.Ly_Int.TabIndex = 9;
             this.Ly_Int.Text = "Int";
             this.Ly_Int.UseVisualStyleBackColor = true;
+            this.Ly_Int.CheckedChanged += new System.EventHandler(this.Ly_Int_CheckedChanged);
             // 
             // Ly_Reset
             // 
@@ -189,6 +193,7 @@
             this.Ly_Reset.TabIndex = 8;
             this.Ly_Reset.Text = "Reset";
             this.Ly_Reset.UseVisualStyleBackColor = true;
+            this.Ly_Reset.Click += new System.EventHandler(this.Ly_Reset_Click);
             // 
             // Ly_Box
             // 
@@ -226,6 +231,7 @@
             this.Lx_Int.TabIndex = 4;
             this.Lx_Int.Text = "Int";
             this.Lx_Int.UseVisualStyleBackColor = true;
+            this.Lx_Int.CheckedChanged += new System.EventHandler(this.Lx_Int_CheckedChanged);
             // 
             // Lx_Reset
             // 
@@ -235,6 +241,7 @@
             this.Lx_Reset.TabIndex = 3;
             this.Lx_Reset.Text = "Reset";
             this.Lx_Reset.UseVisualStyleBackColor = true;
+            this.Lx_Reset.Click += new System.EventHandler(this.Lx_Reset_Click);
             // 
             // Lx_Box
             // 
@@ -243,6 +250,7 @@
             this.Lx_Box.Name = "Lx_Box";
             this.Lx_Box.Size = new System.Drawing.Size(92, 28);
             this.Lx_Box.TabIndex = 2;
+            this.Lx_Box.TextChanged += new System.EventHandler(this.Lx_Box_TextChanged);
             // 
             // Lx
             // 
@@ -287,6 +295,7 @@
             this.Rz_Int.TabIndex = 14;
             this.Rz_Int.Text = "Int";
             this.Rz_Int.UseVisualStyleBackColor = true;
+            this.Rz_Int.CheckedChanged += new System.EventHandler(this.Rz_Int_CheckedChanged);
             // 
             // Rz_Reset
             // 
@@ -296,6 +305,7 @@
             this.Rz_Reset.TabIndex = 13;
             this.Rz_Reset.Text = "Reset";
             this.Rz_Reset.UseVisualStyleBackColor = true;
+            this.Rz_Reset.Click += new System.EventHandler(this.Rz_Reset_Click);
             // 
             // Rz_Box
             // 
@@ -332,6 +342,7 @@
             this.Ry_Int.TabIndex = 9;
             this.Ry_Int.Text = "Int";
             this.Ry_Int.UseVisualStyleBackColor = true;
+            this.Ry_Int.CheckedChanged += new System.EventHandler(this.Ry_Int_CheckedChanged);
             // 
             // Ry_Reset
             // 
@@ -341,6 +352,7 @@
             this.Ry_Reset.TabIndex = 8;
             this.Ry_Reset.Text = "Reset";
             this.Ry_Reset.UseVisualStyleBackColor = true;
+            this.Ry_Reset.Click += new System.EventHandler(this.Ry_Reset_Click);
             // 
             // Ry_Box
             // 
@@ -378,6 +390,7 @@
             this.Rx_Int.TabIndex = 4;
             this.Rx_Int.Text = "Int";
             this.Rx_Int.UseVisualStyleBackColor = true;
+            this.Rx_Int.CheckedChanged += new System.EventHandler(this.Rx_Int_CheckedChanged);
             // 
             // Rx_Reset
             // 
@@ -387,6 +400,7 @@
             this.Rx_Reset.TabIndex = 3;
             this.Rx_Reset.Text = "Reset";
             this.Rx_Reset.UseVisualStyleBackColor = true;
+            this.Rx_Reset.Click += new System.EventHandler(this.Rx_Reset_Click);
             // 
             // Rx_Box
             // 
@@ -449,6 +463,7 @@
             this.Origin_Int.TabIndex = 14;
             this.Origin_Int.Text = "Int";
             this.Origin_Int.UseVisualStyleBackColor = true;
+            this.Origin_Int.CheckedChanged += new System.EventHandler(this.Origin_Int_CheckedChanged);
             // 
             // Origin_Reset
             // 
@@ -458,6 +473,7 @@
             this.Origin_Reset.TabIndex = 13;
             this.Origin_Reset.Text = "Reset";
             this.Origin_Reset.UseVisualStyleBackColor = true;
+            this.Origin_Reset.Click += new System.EventHandler(this.Origin_Reset_Click);
             // 
             // Origin_Box
             // 
@@ -495,6 +511,7 @@
             this.Material_Int.TabIndex = 9;
             this.Material_Int.Text = "Int";
             this.Material_Int.UseVisualStyleBackColor = true;
+            this.Material_Int.CheckedChanged += new System.EventHandler(this.Material_Int_CheckedChanged);
             // 
             // Material_Reset
             // 
@@ -504,6 +521,7 @@
             this.Material_Reset.TabIndex = 8;
             this.Material_Reset.Text = "Reset";
             this.Material_Reset.UseVisualStyleBackColor = true;
+            this.Material_Reset.Click += new System.EventHandler(this.Material_Reset_Click);
             // 
             // Material_Box
             // 
@@ -539,6 +557,7 @@
             this.Picture_Int.TabIndex = 4;
             this.Picture_Int.Text = "Int";
             this.Picture_Int.UseVisualStyleBackColor = true;
+            this.Picture_Int.CheckedChanged += new System.EventHandler(this.Picture_Int_CheckedChanged);
             // 
             // Picture_Reset
             // 
@@ -548,6 +567,7 @@
             this.Picture_Reset.TabIndex = 3;
             this.Picture_Reset.Text = "Reset";
             this.Picture_Reset.UseVisualStyleBackColor = true;
+            this.Picture_Reset.Click += new System.EventHandler(this.Picture_Reset_Click);
             // 
             // Picture_Box
             // 
@@ -584,11 +604,26 @@
             this.ClientInfo.TabIndex = 17;
             this.ClientInfo.Text = "ClientInfo";
             // 
+            // UI_toggle
+            // 
+            this.UI_toggle.AutoSize = true;
+            this.UI_toggle.Checked = true;
+            this.UI_toggle.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.UI_toggle.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.UI_toggle.Location = new System.Drawing.Point(582, 37);
+            this.UI_toggle.Name = "UI_toggle";
+            this.UI_toggle.Size = new System.Drawing.Size(69, 41);
+            this.UI_toggle.TabIndex = 19;
+            this.UI_toggle.Text = "UI";
+            this.UI_toggle.UseVisualStyleBackColor = true;
+            this.UI_toggle.CheckedChanged += new System.EventHandler(this.UI_toggle_CheckedChanged);
+            // 
             // UIctrl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(706, 650);
+            this.Controls.Add(this.UI_toggle);
             this.Controls.Add(this.ClientInfo);
             this.Controls.Add(this.Ex);
             this.Controls.Add(this.RightEye);
@@ -666,5 +701,6 @@
         private System.Windows.Forms.Label Picture;
         private System.Windows.Forms.TrackBar Picture_Bar;
         private System.Windows.Forms.Label ClientInfo;
+        private System.Windows.Forms.CheckBox UI_toggle;
     }
 }

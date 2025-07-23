@@ -1,22 +1,13 @@
-﻿using SpinnakerNET;
-using SpinnakerNET.GenApi;                  // Camera Controll Class
-using System;
+﻿using System;
 using System.Drawing;                       // Bitmap or Color imaging
 using System.IO;
-using System.IO.Ports;                      // Serial Port 
-using System.Security.Policy;
 using System.Windows.Forms;                 // Windows Form Application Component
-using Timer = System.Windows.Forms.Timer;   // Timer
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Runtime.InteropServices;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using System.Reflection.Emit;
-using static CTMeasure.CrossTalkMeasure;
 using SimpleTCP;
 using System.Net;
 using System.Text;
@@ -432,6 +423,21 @@ namespace CTMeasure
         }
 
         // -------------------------------------   CrossTalk Method -------------------------------------
+        private void CTR_Calculate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // パラメータを渡してUIフォームを生成・表示
+                CrosstalkEvaluation ctr = new CrosstalkEvaluation();
+
+                ctr.Show();         // モードレス表示
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("UIの初期化中にエラーが発生しました: " + ex.Message, "エラー");
+            }
+        }
+
         private void CalcCrosstalkButton_Click(object sender, EventArgs e)
         {
             try
@@ -721,5 +727,7 @@ namespace CTMeasure
                 MessageBox.Show("UIの初期化中にエラーが発生しました: " + ex.Message, "エラー");
             }
         }
+
+        
     }
 }

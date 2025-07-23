@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO.Ports;
+using System.Threading.Tasks;
+using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
 using TimersTimer = System.Timers.Timer;
