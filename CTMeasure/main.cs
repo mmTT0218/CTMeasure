@@ -428,10 +428,9 @@ namespace CTMeasure
         {
             try
             {
-                // パラメータを渡してUIフォームを生成・表示
                 CrosstalkEvaluation ctr = new CrosstalkEvaluation();
-
-                ctr.Show();         // モードレス表示
+                ctr.CameraRef = camera;  // CameraManagerインスタンスを渡す
+                ctr.Show();
             }
             catch (Exception ex)
             {
@@ -550,10 +549,6 @@ namespace CTMeasure
 
                 double minLuminance, maxLuminance;
                 Cv2.MinMaxLoc(img, out minLuminance, out maxLuminance);
-
-                Mean.Text = "Mean : " + meanLuminance.ToString("F2");
-                Min.Text = "Min : " + minLuminance.ToString("F2");
-                Max.Text = "Max : " + maxLuminance.ToString("F2");
             }
             catch (Exception ex)
             {

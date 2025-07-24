@@ -16,6 +16,7 @@ namespace CTMeasure
 {
     public class CameraManager : IDisposable
     {
+        public Mat LatestFrame { get; private set; } = null;
         // Spinnaker 管理
         private ManagedSystem system = null;
         private IManagedCamera camera = null;
@@ -139,6 +140,7 @@ namespace CTMeasure
                             StreamImage.Invalidate();
 
                             // フレーム更新
+                            LatestFrame = mat.Clone();
                             OnImageCaptured?.Invoke(mat);
                         }));
 
@@ -226,7 +228,7 @@ namespace CTMeasure
                             }
 
                             // 保存処理
-                            string folder = @"C:\Users\teamy\Documents\Github\CTMeasure\PhotoData";
+                            string folder = @"C:\Users\admin\Documents\GitHub\CTMeasure\PhotoData";
                             Directory.CreateDirectory(folder);
                             string filename = Path.Combine(folder, $"photo_{DateTime.Now:yyyyMMdd_HHmmss_fff}.jpg");
 

@@ -193,6 +193,16 @@ namespace CTMeasure.Properties {
         /// <summary>
         ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
         /// </summary>
+        internal static System.Drawing.Bitmap Measure {
+            get {
+                object obj = ResourceManager.GetObject("Measure", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
         internal static System.Drawing.Bitmap PatternOFF {
             get {
                 object obj = ResourceManager.GetObject("PatternOFF", resourceCulture);
