@@ -28,16 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.Luminance_Start = new System.Windows.Forms.Button();
             this.Luminance_Save = new System.Windows.Forms.Button();
-            this.chart2 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.Crosstalk_Save = new System.Windows.Forms.Button();
             this.Crosstalk_Start = new System.Windows.Forms.Button();
             this.ROI_start = new System.Windows.Forms.Button();
@@ -46,34 +38,17 @@
             this.StepRange = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.ROI = new System.Windows.Forms.Label();
-            this.deltaROI = new System.Windows.Forms.TextBox();
+            this.deltaROI_X = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.deltaROI_Y = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
+            this.LuminanceChart = new LiveCharts.WinForms.CartesianChart();
             this.SuspendLayout();
-            // 
-            // chart1
-            // 
-            chartArea3.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.chart1.Legends.Add(legend3);
-            this.chart1.Location = new System.Drawing.Point(251, 99);
-            this.chart1.Name = "chart1";
-            series3.ChartArea = "ChartArea1";
-            series3.Legend = "Legend1";
-            series3.Name = "Series1";
-            this.chart1.Series.Add(series3);
-            this.chart1.Size = new System.Drawing.Size(981, 274);
-            this.chart1.TabIndex = 0;
-            this.chart1.Text = "chart1";
             // 
             // Luminance_Start
             // 
@@ -84,6 +59,7 @@
             this.Luminance_Start.TabIndex = 1;
             this.Luminance_Start.Text = "LUM";
             this.Luminance_Start.UseVisualStyleBackColor = true;
+            this.Luminance_Start.Click += new System.EventHandler(this.Luminance_Start_Click);
             // 
             // Luminance_Save
             // 
@@ -94,22 +70,6 @@
             this.Luminance_Save.TabIndex = 2;
             this.Luminance_Save.Text = "Save";
             this.Luminance_Save.UseVisualStyleBackColor = true;
-            // 
-            // chart2
-            // 
-            chartArea4.Name = "ChartArea1";
-            this.chart2.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            this.chart2.Legends.Add(legend4);
-            this.chart2.Location = new System.Drawing.Point(251, 388);
-            this.chart2.Name = "chart2";
-            series4.ChartArea = "ChartArea1";
-            series4.Legend = "Legend1";
-            series4.Name = "Series1";
-            this.chart2.Series.Add(series4);
-            this.chart2.Size = new System.Drawing.Size(981, 274);
-            this.chart2.TabIndex = 3;
-            this.chart2.Text = "chart2";
             // 
             // Crosstalk_Save
             // 
@@ -185,6 +145,7 @@
             this.StepRange.Size = new System.Drawing.Size(107, 35);
             this.StepRange.TabIndex = 11;
             this.StepRange.Text = "70";
+            this.StepRange.SelectedIndexChanged += new System.EventHandler(this.StepRange_TextChanged);
             // 
             // label1
             // 
@@ -206,15 +167,15 @@
             this.ROI.TabIndex = 14;
             this.ROI.Text = "ΔROI : ";
             // 
-            // deltaROI
+            // deltaROI_X
             // 
-            this.deltaROI.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.deltaROI.Location = new System.Drawing.Point(640, 11);
-            this.deltaROI.Name = "deltaROI";
-            this.deltaROI.Size = new System.Drawing.Size(129, 34);
-            this.deltaROI.TabIndex = 15;
-            this.deltaROI.Text = "0";
-            this.deltaROI.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.deltaROI_X.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.deltaROI_X.Location = new System.Drawing.Point(640, 11);
+            this.deltaROI_X.Name = "deltaROI_X";
+            this.deltaROI_X.Size = new System.Drawing.Size(129, 34);
+            this.deltaROI_X.TabIndex = 15;
+            this.deltaROI_X.Text = "0";
+            this.deltaROI_X.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label3
             // 
@@ -256,15 +217,15 @@
             this.label4.TabIndex = 17;
             this.label4.Text = "Step : ";
             // 
-            // textBox2
+            // deltaROI_Y
             // 
-            this.textBox2.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox2.Location = new System.Drawing.Point(796, 11);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(129, 34);
-            this.textBox2.TabIndex = 20;
-            this.textBox2.Text = "0";
-            this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.deltaROI_Y.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.deltaROI_Y.Location = new System.Drawing.Point(796, 11);
+            this.deltaROI_Y.Name = "deltaROI_Y";
+            this.deltaROI_Y.Size = new System.Drawing.Size(129, 34);
+            this.deltaROI_Y.TabIndex = 20;
+            this.deltaROI_Y.Text = "0";
+            this.deltaROI_Y.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label5
             // 
@@ -296,20 +257,29 @@
             this.label7.TabIndex = 23;
             this.label7.Text = ")";
             // 
+            // LuminanceChart
+            // 
+            this.LuminanceChart.Location = new System.Drawing.Point(267, 145);
+            this.LuminanceChart.Name = "LuminanceChart";
+            this.LuminanceChart.Size = new System.Drawing.Size(955, 218);
+            this.LuminanceChart.TabIndex = 24;
+            this.LuminanceChart.Text = "cartesianChart1";
+            // 
             // CrosstalkEvaluation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1244, 674);
+            this.Controls.Add(this.LuminanceChart);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.deltaROI_Y);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.deltaROI);
+            this.Controls.Add(this.deltaROI_X);
             this.Controls.Add(this.ROI);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.Step);
@@ -318,25 +288,18 @@
             this.Controls.Add(this.ROI_start);
             this.Controls.Add(this.Crosstalk_Save);
             this.Controls.Add(this.Crosstalk_Start);
-            this.Controls.Add(this.chart2);
             this.Controls.Add(this.Luminance_Save);
             this.Controls.Add(this.Luminance_Start);
-            this.Controls.Add(this.chart1);
             this.Name = "CrosstalkEvaluation";
             this.Text = "CrossTalkEvaluatiobn";
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chart2)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.Button Luminance_Start;
         private System.Windows.Forms.Button Luminance_Save;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart2;
         private System.Windows.Forms.Button Crosstalk_Save;
         private System.Windows.Forms.Button Crosstalk_Start;
         private System.Windows.Forms.Button ROI_start;
@@ -345,14 +308,15 @@
         private System.Windows.Forms.ComboBox StepRange;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label ROI;
-        private System.Windows.Forms.TextBox deltaROI;
+        private System.Windows.Forms.TextBox deltaROI_X;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox deltaROI_Y;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
+        private LiveCharts.WinForms.CartesianChart LuminanceChart;
     }
 }

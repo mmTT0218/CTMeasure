@@ -424,12 +424,14 @@ namespace CTMeasure
         }
 
         // -------------------------------------   CrossTalk Method -------------------------------------
+        // 測定用フォーム表示
         private void CTR_Calculate_Click(object sender, EventArgs e)
         {
             try
             {
-                CrosstalkEvaluation ctr = new CrosstalkEvaluation();
+                CrosstalkEvaluation ctr = new CrosstalkEvaluation(70.0);
                 ctr.CameraRef = camera;  // CameraManagerインスタンスを渡す
+                ctr.StageRef = stage;    // StageControllerインスタンスを渡す
                 ctr.Show();
             }
             catch (Exception ex)
