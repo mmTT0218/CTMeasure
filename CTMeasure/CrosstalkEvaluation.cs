@@ -12,8 +12,18 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Point = OpenCvSharp.Point;
 
+// LiveChart
 using LiveCharts;
 using LiveCharts.Wpf;
+
+// pdfsharp
+using PdfSharp;
+
+using System.Windows.Media;
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
+using PdfSharp.Drawing;
+using System.IO;
 
 namespace CTMeasure
 {
@@ -33,6 +43,8 @@ namespace CTMeasure
         // 輝度分布リスト
         List<double> luminanceList = new List<double>();
         private ChartValues<double> realTimeValues = new ChartValues<double>();
+        // グラフタイトルをキーにした ChartValues 管理辞書
+        private Dictionary<string, ChartValues<double>> dataSeriesDict = new Dictionary<string, ChartValues<double>>();
 
         public CrosstalkEvaluation(double steps)
         {
@@ -41,18 +53,6 @@ namespace CTMeasure
             // --- 輝度分布 ---
             // 輝度分布管理のためのオブジェクトを生成
             LuminanceChart.Series = new SeriesCollection();
-            // 折れ線グラフ設定
-            LineSeries lum = new LineSeries
-            {
-                Title = "輝度(0 - 255)",
-                Values = realTimeValues,
-                PointGeometry = DefaultGeometries.Circle,
-                PointGeometrySize = 6,
-                StrokeThickness = 2,
-                Fill = System.Windows.Media.Brushes.Transparent
-            };
-            // 折れ線グラフ追加
-            LuminanceChart.Series.Add(lum);
             // XY軸設定
             LuminanceChart.AxisX.Add(new Axis
             {
@@ -229,6 +229,143 @@ namespace CTMeasure
             return (sum_dx / 4, sum_dy / 4);
         }
 
+        // グラフ追加ダイアログ表示
+        private void AddGraph_lum_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new AddSeriesForm())  
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    var values = new ChartValues<double>();
+                    dataSeriesDict[dlg.SeriesName] = values;
+
+                    var series = new LineSeries
+                    {
+                        Title = dlg.SeriesName,
+                        Values = values,
+                        Stroke = dlg.SelectedColor,
+                        StrokeDashArray = dlg.SelectedLineStyle.Dashes,
+                        StrokeThickness = 2,
+                        PointGeometry = DefaultGeometries.Circle,
+                        PointGeometrySize = 6,
+                        Fill = Brushes.Transparent
+                    };
+
+                    LuminanceChart.Series.Add(series);
+                    SeriesNameComboBox.Items.Add(dlg.SeriesName);
+                }
+            }
+        }
+
+        // グラフ保存
+        private void Luminance_Save_Click(object sender, EventArgs e)
+        {
+            if (luminanceList == null || luminanceList.Count == 0)
+            {
+                MessageBox.Show("保存する測定データがありません。", "エラー");
+                return;
+            }
+
+            using (var dlg = new SaveForm())
+            {
+                var result = dlg.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    SaveCSV();
+                }
+                else if (result == DialogResult.No)
+                {
+                    SavePDF();
+                }
+                // DialogResult.Cancel → 何もしない
+            }
+        }
+        
+        // CSV保存
+        private void SaveCSV()
+        {
+            var saveDlg = new SaveFileDialog
+            {
+                Title = "CSVとして保存",
+                Filter = "CSVファイル (*.csv)|*.csv",
+                FileName = "LuminanceData.csv"
+            };
+
+            if (saveDlg.ShowDialog() == DialogResult.OK)
+            {
+                using (StreamWriter writer = new StreamWriter(saveDlg.FileName, false, Encoding.UTF8))
+                {
+                    writer.WriteLine("Step,Luminance");
+                    for (int i = 0; i < luminanceList.Count; i++)
+                        writer.WriteLine($"{i},{luminanceList[i]:F2}");
+                }
+
+                MessageBox.Show("CSV保存完了", "保存");
+            }
+        }
+
+        private Bitmap CaptureChartImage()
+        {
+            Bitmap bmp = new Bitmap(LuminanceChart.Width, LuminanceChart.Height);
+            LuminanceChart.DrawToBitmap(bmp, new Rectangle(0, 0, bmp.Width, bmp.Height));
+            return bmp;
+        }
+
+        // PDF保存
+        private void SavePDF()
+        {
+            var saveDlg = new SaveFileDialog
+            {
+                Title = "PDFとして保存",
+                Filter = "PDFファイル (*.pdf)|*.pdf",
+                FileName = "LuminanceReport.pdf"
+            };
+
+            if (saveDlg.ShowDialog() == DialogResult.OK)
+            {
+                var doc = new PdfSharp.Pdf.PdfDocument();
+                var page = doc.AddPage();
+                page.Size = PdfSharp.PageSize.A4;
+
+                using (var gfx = XGraphics.FromPdfPage(page))
+                {
+                    // タイトル文字列
+                    var titleFont = new XFont("Arial", 16);
+                    gfx.DrawString("Luminance Report", titleFont, XBrushes.Black,
+                        new XRect(0, 20, page.Width, 40), XStringFormats.TopCenter);
+
+                    // === グラフ画像の挿入 ===
+                    Bitmap chartBmp = CaptureChartImage();
+                    using (var ms = new MemoryStream())
+                    {
+                        chartBmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        ms.Seek(0, SeekOrigin.Begin);
+
+                        XImage chartImg = XImage.FromStream(ms);
+
+                        double imgWidth = page.Width - 100;
+                        double imgHeight = chartImg.PixelHeight * imgWidth / chartImg.PixelWidth;
+
+                        gfx.DrawImage(chartImg, 50, 70, imgWidth, imgHeight); // 余白をつけて描画
+                    }
+
+                    // === 測定値も簡易的に出力（任意） ===
+                    var font = new XFont("Arial", 10);
+                    double y = 80 + 300; // グラフの下に配置
+                    for (int i = 0; i < luminanceList.Count && y < page.Height - 50; i++)
+                    {
+                        gfx.DrawString($"Step {i}: {luminanceList[i]:F2}",
+                            font, XBrushes.Black, new XRect(60, y, 500, 20), XStringFormats.TopLeft);
+                        y += 15;
+                    }
+                }
+
+                doc.Save(saveDlg.FileName);
+                MessageBox.Show("PDF保存完了", "保存");
+            }
+        }
+
         // 輝度分布測定
         private async void Luminance_Start_Click(object sender, EventArgs e)
         {
@@ -249,6 +386,16 @@ namespace CTMeasure
                 MessageBox.Show("開始・終了のROIを設定してください", "エラー");
                 return;
             }
+
+            //  --- 測定前に対象 Series を取得 ---
+            string selectedSeries = SeriesNameComboBox.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selectedSeries) || !dataSeriesDict.ContainsKey(selectedSeries))
+            {
+                MessageBox.Show("追加した凡例名を選択してください", "エラー");
+                return;
+            }
+            var targetSeries = dataSeriesDict[selectedSeries];
+            targetSeries.Clear(); // 測定前にクリア
 
             int steps = int.Parse(StepRange.Text); // 移動距離
 
@@ -278,7 +425,7 @@ namespace CTMeasure
 
                 // === プロット更新 ===
                 luminanceList.Add(luminance);
-                realTimeValues.Add(luminance);  // ★ LiveChartsに即追加（リアルタイム描画）
+                targetSeries.Add(luminance);  // ★ LiveChartsに即追加（リアルタイム描画）
 
                 Console.WriteLine($"Step {i}: Luminance = {luminance:F2}");
 
@@ -293,7 +440,6 @@ namespace CTMeasure
             StageRef.SendCommand("STOP");
 
             MessageBox.Show("輝度測定完了", "完了");
-
             
             // 必要なら CSV 保存も可（オプション）
             // SaveLuminanceToCSV(luminanceList);

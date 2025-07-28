@@ -47,15 +47,20 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
+            this.AddGraph_lum = new System.Windows.Forms.Button();
             this.LuminanceChart = new LiveCharts.WinForms.CartesianChart();
+            this.button1 = new System.Windows.Forms.Button();
+            this.SeriesNameComboBox = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // Luminance_Start
             // 
             this.Luminance_Start.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Luminance_Start.Location = new System.Drawing.Point(28, 145);
+            this.Luminance_Start.ForeColor = System.Drawing.Color.Black;
+            this.Luminance_Start.Location = new System.Drawing.Point(69, 141);
             this.Luminance_Start.Name = "Luminance_Start";
-            this.Luminance_Start.Size = new System.Drawing.Size(201, 77);
+            this.Luminance_Start.Size = new System.Drawing.Size(124, 67);
             this.Luminance_Start.TabIndex = 1;
             this.Luminance_Start.Text = "LUM";
             this.Luminance_Start.UseVisualStyleBackColor = true;
@@ -64,19 +69,22 @@
             // Luminance_Save
             // 
             this.Luminance_Save.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Luminance_Save.Location = new System.Drawing.Point(28, 242);
+            this.Luminance_Save.ForeColor = System.Drawing.Color.Black;
+            this.Luminance_Save.Location = new System.Drawing.Point(69, 292);
             this.Luminance_Save.Name = "Luminance_Save";
-            this.Luminance_Save.Size = new System.Drawing.Size(201, 77);
+            this.Luminance_Save.Size = new System.Drawing.Size(124, 67);
             this.Luminance_Save.TabIndex = 2;
             this.Luminance_Save.Text = "Save";
             this.Luminance_Save.UseVisualStyleBackColor = true;
+            this.Luminance_Save.Click += new System.EventHandler(this.Luminance_Save_Click);
             // 
             // Crosstalk_Save
             // 
             this.Crosstalk_Save.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Crosstalk_Save.Location = new System.Drawing.Point(28, 541);
+            this.Crosstalk_Save.ForeColor = System.Drawing.Color.Black;
+            this.Crosstalk_Save.Location = new System.Drawing.Point(69, 601);
             this.Crosstalk_Save.Name = "Crosstalk_Save";
-            this.Crosstalk_Save.Size = new System.Drawing.Size(201, 77);
+            this.Crosstalk_Save.Size = new System.Drawing.Size(124, 67);
             this.Crosstalk_Save.TabIndex = 5;
             this.Crosstalk_Save.Text = "Save";
             this.Crosstalk_Save.UseVisualStyleBackColor = true;
@@ -84,9 +92,10 @@
             // Crosstalk_Start
             // 
             this.Crosstalk_Start.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Crosstalk_Start.Location = new System.Drawing.Point(28, 442);
+            this.Crosstalk_Start.ForeColor = System.Drawing.Color.Black;
+            this.Crosstalk_Start.Location = new System.Drawing.Point(69, 455);
             this.Crosstalk_Start.Name = "Crosstalk_Start";
-            this.Crosstalk_Start.Size = new System.Drawing.Size(201, 77);
+            this.Crosstalk_Start.Size = new System.Drawing.Size(124, 67);
             this.Crosstalk_Start.TabIndex = 4;
             this.Crosstalk_Start.Text = "CTR";
             this.Crosstalk_Start.UseVisualStyleBackColor = true;
@@ -94,6 +103,7 @@
             // ROI_start
             // 
             this.ROI_start.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.ROI_start.ForeColor = System.Drawing.Color.Black;
             this.ROI_start.Location = new System.Drawing.Point(28, 12);
             this.ROI_start.Name = "ROI_start";
             this.ROI_start.Size = new System.Drawing.Size(201, 77);
@@ -105,6 +115,7 @@
             // ROI_end
             // 
             this.ROI_end.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.ROI_end.ForeColor = System.Drawing.Color.Black;
             this.ROI_end.Location = new System.Drawing.Point(251, 12);
             this.ROI_end.Name = "ROI_end";
             this.ROI_end.Size = new System.Drawing.Size(201, 77);
@@ -117,6 +128,7 @@
             // 
             this.Step.AutoSize = true;
             this.Step.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Step.ForeColor = System.Drawing.Color.White;
             this.Step.Location = new System.Drawing.Point(465, 59);
             this.Step.Name = "Step";
             this.Step.Size = new System.Drawing.Size(155, 29);
@@ -132,17 +144,20 @@
             this.StepRange.FormattingEnabled = true;
             this.StepRange.ItemHeight = 27;
             this.StepRange.Items.AddRange(new object[] {
-            "20",
-            "30",
-            "40",
-            "50",
             "60",
             "70",
-            "80"});
+            "80",
+            "90",
+            "100",
+            "110",
+            "120",
+            "130",
+            "140",
+            "150"});
             this.StepRange.Location = new System.Drawing.Point(626, 53);
             this.StepRange.Name = "StepRange";
             this.StepRange.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.StepRange.Size = new System.Drawing.Size(107, 35);
+            this.StepRange.Size = new System.Drawing.Size(181, 35);
             this.StepRange.TabIndex = 11;
             this.StepRange.Text = "70";
             this.StepRange.SelectedIndexChanged += new System.EventHandler(this.StepRange_TextChanged);
@@ -151,7 +166,8 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label1.Location = new System.Drawing.Point(739, 62);
+            this.label1.ForeColor = System.Drawing.Color.White;
+            this.label1.Location = new System.Drawing.Point(813, 62);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(54, 27);
             this.label1.TabIndex = 13;
@@ -161,6 +177,7 @@
             // 
             this.ROI.AutoSize = true;
             this.ROI.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.ROI.ForeColor = System.Drawing.Color.White;
             this.ROI.Location = new System.Drawing.Point(501, 16);
             this.ROI.Name = "ROI";
             this.ROI.Size = new System.Drawing.Size(119, 29);
@@ -181,6 +198,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label3.ForeColor = System.Drawing.Color.White;
             this.label3.Location = new System.Drawing.Point(958, 18);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(68, 27);
@@ -191,7 +209,8 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label2.Location = new System.Drawing.Point(1052, 61);
+            this.label2.ForeColor = System.Drawing.Color.White;
+            this.label2.Location = new System.Drawing.Point(1127, 59);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(54, 27);
             this.label2.TabIndex = 19;
@@ -200,7 +219,7 @@
             // textBox1
             // 
             this.textBox1.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox1.Location = new System.Drawing.Point(921, 55);
+            this.textBox1.Location = new System.Drawing.Point(996, 53);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(112, 34);
             this.textBox1.TabIndex = 18;
@@ -211,7 +230,8 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label4.Location = new System.Drawing.Point(815, 59);
+            this.label4.ForeColor = System.Drawing.Color.White;
+            this.label4.Location = new System.Drawing.Point(890, 57);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(100, 29);
             this.label4.TabIndex = 17;
@@ -241,6 +261,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label6.ForeColor = System.Drawing.Color.White;
             this.label6.Location = new System.Drawing.Point(616, 14);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(21, 27);
@@ -251,25 +272,76 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label7.ForeColor = System.Drawing.Color.White;
             this.label7.Location = new System.Drawing.Point(931, 14);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(21, 27);
             this.label7.TabIndex = 23;
             this.label7.Text = ")";
             // 
+            // AddGraph_lum
+            // 
+            this.AddGraph_lum.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.AddGraph_lum.ForeColor = System.Drawing.Color.Black;
+            this.AddGraph_lum.Location = new System.Drawing.Point(69, 214);
+            this.AddGraph_lum.Name = "AddGraph_lum";
+            this.AddGraph_lum.Size = new System.Drawing.Size(124, 67);
+            this.AddGraph_lum.TabIndex = 25;
+            this.AddGraph_lum.Text = "Add";
+            this.AddGraph_lum.UseVisualStyleBackColor = true;
+            this.AddGraph_lum.Click += new System.EventHandler(this.AddGraph_lum_Click);
+            // 
             // LuminanceChart
             // 
-            this.LuminanceChart.Location = new System.Drawing.Point(267, 145);
+            this.LuminanceChart.BackColor = System.Drawing.Color.White;
+            this.LuminanceChart.ForeColor = System.Drawing.Color.White;
+            this.LuminanceChart.Location = new System.Drawing.Point(251, 158);
             this.LuminanceChart.Name = "LuminanceChart";
-            this.LuminanceChart.Size = new System.Drawing.Size(955, 218);
+            this.LuminanceChart.Size = new System.Drawing.Size(1043, 218);
             this.LuminanceChart.TabIndex = 24;
             this.LuminanceChart.Text = "cartesianChart1";
+            // 
+            // button1
+            // 
+            this.button1.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.button1.ForeColor = System.Drawing.Color.Black;
+            this.button1.Location = new System.Drawing.Point(69, 528);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(124, 67);
+            this.button1.TabIndex = 26;
+            this.button1.Text = "Add";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // SeriesNameComboBox
+            // 
+            this.SeriesNameComboBox.Font = new System.Drawing.Font("MS UI Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.SeriesNameComboBox.FormattingEnabled = true;
+            this.SeriesNameComboBox.Location = new System.Drawing.Point(998, 120);
+            this.SeriesNameComboBox.Name = "SeriesNameComboBox";
+            this.SeriesNameComboBox.Size = new System.Drawing.Size(208, 32);
+            this.SeriesNameComboBox.TabIndex = 27;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label8.ForeColor = System.Drawing.Color.White;
+            this.label8.Location = new System.Drawing.Point(797, 123);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(195, 29);
+            this.label8.TabIndex = 28;
+            this.label8.Text = "SeriesName : ";
             // 
             // CrosstalkEvaluation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1244, 674);
+            this.BackColor = System.Drawing.Color.Black;
+            this.ClientSize = new System.Drawing.Size(1318, 674);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.SeriesNameComboBox);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.AddGraph_lum);
             this.Controls.Add(this.LuminanceChart);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
@@ -290,6 +362,7 @@
             this.Controls.Add(this.Crosstalk_Start);
             this.Controls.Add(this.Luminance_Save);
             this.Controls.Add(this.Luminance_Start);
+            this.ForeColor = System.Drawing.Color.Black;
             this.Name = "CrosstalkEvaluation";
             this.Text = "CrossTalkEvaluatiobn";
             this.ResumeLayout(false);
@@ -317,6 +390,10 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button AddGraph_lum;
         private LiveCharts.WinForms.CartesianChart LuminanceChart;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.ComboBox SeriesNameComboBox;
+        private System.Windows.Forms.Label label8;
     }
 }
