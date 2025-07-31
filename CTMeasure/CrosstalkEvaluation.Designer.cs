@@ -49,9 +49,16 @@
             this.label7 = new System.Windows.Forms.Label();
             this.AddGraph_lum = new System.Windows.Forms.Button();
             this.LuminanceChart = new LiveCharts.WinForms.CartesianChart();
-            this.button1 = new System.Windows.Forms.Button();
-            this.SeriesNameComboBox = new System.Windows.Forms.ComboBox();
+            this.AddGraph_ctr = new System.Windows.Forms.Button();
+            this.LumSeriesNameComboBox = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
+            this.CrosstalkChart = new LiveCharts.WinForms.CartesianChart();
+            this.label9 = new System.Windows.Forms.Label();
+            this.CtrSeriesNameComboBox = new System.Windows.Forms.ComboBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.LTex_ComboBox = new System.Windows.Forms.ComboBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.RTex_ComboBox = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // Luminance_Start
@@ -88,6 +95,7 @@
             this.Crosstalk_Save.TabIndex = 5;
             this.Crosstalk_Save.Text = "Save";
             this.Crosstalk_Save.UseVisualStyleBackColor = true;
+            this.Crosstalk_Save.Click += new System.EventHandler(this.Crosstalk_Save_Click);
             // 
             // Crosstalk_Start
             // 
@@ -99,6 +107,7 @@
             this.Crosstalk_Start.TabIndex = 4;
             this.Crosstalk_Start.Text = "CTR";
             this.Crosstalk_Start.UseVisualStyleBackColor = true;
+            this.Crosstalk_Start.Click += new System.EventHandler(this.Crosstalk_Start_Click);
             // 
             // ROI_start
             // 
@@ -295,52 +304,148 @@
             // 
             this.LuminanceChart.BackColor = System.Drawing.Color.White;
             this.LuminanceChart.ForeColor = System.Drawing.Color.White;
-            this.LuminanceChart.Location = new System.Drawing.Point(251, 158);
+            this.LuminanceChart.Location = new System.Drawing.Point(251, 141);
             this.LuminanceChart.Name = "LuminanceChart";
             this.LuminanceChart.Size = new System.Drawing.Size(1043, 218);
             this.LuminanceChart.TabIndex = 24;
             this.LuminanceChart.Text = "cartesianChart1";
             // 
-            // button1
+            // AddGraph_ctr
             // 
-            this.button1.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button1.ForeColor = System.Drawing.Color.Black;
-            this.button1.Location = new System.Drawing.Point(69, 528);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(124, 67);
-            this.button1.TabIndex = 26;
-            this.button1.Text = "Add";
-            this.button1.UseVisualStyleBackColor = true;
+            this.AddGraph_ctr.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.AddGraph_ctr.ForeColor = System.Drawing.Color.Black;
+            this.AddGraph_ctr.Location = new System.Drawing.Point(69, 528);
+            this.AddGraph_ctr.Name = "AddGraph_ctr";
+            this.AddGraph_ctr.Size = new System.Drawing.Size(124, 67);
+            this.AddGraph_ctr.TabIndex = 26;
+            this.AddGraph_ctr.Text = "Add";
+            this.AddGraph_ctr.UseVisualStyleBackColor = true;
+            this.AddGraph_ctr.Click += new System.EventHandler(this.AddGraph_ctr_Click);
             // 
-            // SeriesNameComboBox
+            // LumSeriesNameComboBox
             // 
-            this.SeriesNameComboBox.Font = new System.Drawing.Font("MS UI Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.SeriesNameComboBox.FormattingEnabled = true;
-            this.SeriesNameComboBox.Location = new System.Drawing.Point(998, 120);
-            this.SeriesNameComboBox.Name = "SeriesNameComboBox";
-            this.SeriesNameComboBox.Size = new System.Drawing.Size(208, 32);
-            this.SeriesNameComboBox.TabIndex = 27;
+            this.LumSeriesNameComboBox.Font = new System.Drawing.Font("MS UI Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.LumSeriesNameComboBox.FormattingEnabled = true;
+            this.LumSeriesNameComboBox.Location = new System.Drawing.Point(998, 103);
+            this.LumSeriesNameComboBox.Name = "LumSeriesNameComboBox";
+            this.LumSeriesNameComboBox.Size = new System.Drawing.Size(208, 32);
+            this.LumSeriesNameComboBox.TabIndex = 27;
             // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label8.ForeColor = System.Drawing.Color.White;
-            this.label8.Location = new System.Drawing.Point(797, 123);
+            this.label8.Location = new System.Drawing.Point(797, 106);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(195, 29);
             this.label8.TabIndex = 28;
             this.label8.Text = "SeriesName : ";
+            // 
+            // CrosstalkChart
+            // 
+            this.CrosstalkChart.BackColor = System.Drawing.Color.White;
+            this.CrosstalkChart.ForeColor = System.Drawing.Color.White;
+            this.CrosstalkChart.Location = new System.Drawing.Point(251, 455);
+            this.CrosstalkChart.Name = "CrosstalkChart";
+            this.CrosstalkChart.Size = new System.Drawing.Size(1043, 218);
+            this.CrosstalkChart.TabIndex = 29;
+            this.CrosstalkChart.Text = "cartesianChart1";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label9.ForeColor = System.Drawing.Color.White;
+            this.label9.Location = new System.Drawing.Point(797, 414);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(195, 29);
+            this.label9.TabIndex = 31;
+            this.label9.Text = "SeriesName : ";
+            // 
+            // CtrSeriesNameComboBox
+            // 
+            this.CtrSeriesNameComboBox.Font = new System.Drawing.Font("MS UI Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.CtrSeriesNameComboBox.FormattingEnabled = true;
+            this.CtrSeriesNameComboBox.Location = new System.Drawing.Point(998, 411);
+            this.CtrSeriesNameComboBox.Name = "CtrSeriesNameComboBox";
+            this.CtrSeriesNameComboBox.Size = new System.Drawing.Size(208, 32);
+            this.CtrSeriesNameComboBox.TabIndex = 30;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label10.ForeColor = System.Drawing.Color.White;
+            this.label10.Location = new System.Drawing.Point(254, 414);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(47, 29);
+            this.label10.TabIndex = 33;
+            this.label10.Text = "L :";
+            // 
+            // LTex_ComboBox
+            // 
+            this.LTex_ComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.LTex_ComboBox.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.LTex_ComboBox.FormattingEnabled = true;
+            this.LTex_ComboBox.ItemHeight = 27;
+            this.LTex_ComboBox.Items.AddRange(new object[] {
+            "黒",
+            "白"});
+            this.LTex_ComboBox.Location = new System.Drawing.Point(307, 408);
+            this.LTex_ComboBox.Name = "LTex_ComboBox";
+            this.LTex_ComboBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.LTex_ComboBox.Size = new System.Drawing.Size(58, 35);
+            this.LTex_ComboBox.TabIndex = 32;
+            this.LTex_ComboBox.Text = "黒";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label11.ForeColor = System.Drawing.Color.White;
+            this.label11.Location = new System.Drawing.Point(381, 414);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(49, 29);
+            this.label11.TabIndex = 35;
+            this.label11.Text = "R :";
+            // 
+            // RTex_ComboBox
+            // 
+            this.RTex_ComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.RTex_ComboBox.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.RTex_ComboBox.FormattingEnabled = true;
+            this.RTex_ComboBox.ItemHeight = 27;
+            this.RTex_ComboBox.Items.AddRange(new object[] {
+            "白",
+            "黒"});
+            this.RTex_ComboBox.Location = new System.Drawing.Point(436, 408);
+            this.RTex_ComboBox.Name = "RTex_ComboBox";
+            this.RTex_ComboBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.RTex_ComboBox.Size = new System.Drawing.Size(58, 35);
+            this.RTex_ComboBox.TabIndex = 34;
+            this.RTex_ComboBox.Text = "白";
             // 
             // CrosstalkEvaluation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(1318, 674);
+            this.ClientSize = new System.Drawing.Size(1318, 693);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.RTex_ComboBox);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.LTex_ComboBox);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.CtrSeriesNameComboBox);
+            this.Controls.Add(this.CrosstalkChart);
             this.Controls.Add(this.label8);
-            this.Controls.Add(this.SeriesNameComboBox);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.LumSeriesNameComboBox);
+            this.Controls.Add(this.AddGraph_ctr);
             this.Controls.Add(this.AddGraph_lum);
             this.Controls.Add(this.LuminanceChart);
             this.Controls.Add(this.label7);
@@ -392,8 +497,15 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button AddGraph_lum;
         private LiveCharts.WinForms.CartesianChart LuminanceChart;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.ComboBox SeriesNameComboBox;
+        private System.Windows.Forms.Button AddGraph_ctr;
+        private System.Windows.Forms.ComboBox LumSeriesNameComboBox;
         private System.Windows.Forms.Label label8;
+        private LiveCharts.WinForms.CartesianChart CrosstalkChart;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.ComboBox CtrSeriesNameComboBox;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.ComboBox LTex_ComboBox;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.ComboBox RTex_ComboBox;
     }
 }

@@ -24,6 +24,7 @@ using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 using PdfSharp.Drawing;
 using System.IO;
+using System.Runtime.ConstrainedExecution;
 
 namespace CTMeasure
 {
@@ -31,6 +32,11 @@ namespace CTMeasure
     {
         public CameraManager CameraRef { get; set; }   // 親から渡されるカメラ管理クラスへの参照
         public StageController StageRef { get; set; }  // 親から渡されるステージ管理クラスへの参照
+
+        private CalkCrossTalk ctr; // クロストーク比計算ライブラリ
+
+        // TCP受信トリガー
+        private TaskCompletionSource<string> responseTcs;
 
         // ROI座標
         private Point[] Start_roiCorners = new Point[4];   // 開始地点
@@ -42,9 +48,11 @@ namespace CTMeasure
 
         // 輝度分布リスト
         List<double> luminanceList = new List<double>();
-        private ChartValues<double> realTimeValues = new ChartValues<double>();
+        // クロストーク比分布リスト
+        List<double> CrosstalkList = new List<double>();
         // グラフタイトルをキーにした ChartValues 管理辞書
-        private Dictionary<string, ChartValues<double>> dataSeriesDict = new Dictionary<string, ChartValues<double>>();
+        private Dictionary<string, ChartValues<double>> dataSeriesDict_lum = new Dictionary<string, ChartValues<double>>();
+        private Dictionary<string, ChartValues<double>> dataSeriesDict_ctr = new Dictionary<string, ChartValues<double>>();
 
         public CrosstalkEvaluation(double steps)
         {
@@ -84,6 +92,43 @@ namespace CTMeasure
             LuminanceChart.LegendLocation = LegendLocation.Right;
             // 拡大・縮小を許可
             LuminanceChart.Zoom = ZoomingOptions.Xy;
+
+            // --- クロストーク比分布 ---
+            // クロストーク比分布管理のためのオブジェクトを生成
+            CrosstalkChart.Series = new SeriesCollection();
+            // XY軸設定
+            CrosstalkChart.AxisX.Add(new Axis
+            {
+                Title = "Viewing position in horizontal direction (mm)",
+                FontSize = 16,
+                LabelFormatter = value => $"{value:F0}",
+                MinValue = 0,
+                MaxValue = steps,
+                Separator = new Separator
+                {
+                    StrokeThickness = 1,
+                    Step = 5
+                }
+            });
+            CrosstalkChart.AxisY.Add(new Axis
+            {
+                Title = "Cross Talk Ratio (%)",
+                FontSize = 16,
+                LabelFormatter = value => $"{value:F2}",
+                MinValue = 0,
+                MaxValue = 100,
+                Separator = new Separator
+                {
+                    StrokeThickness = 1,
+                    Step = 50
+                }
+            });
+            // 凡例の位置を設定
+            CrosstalkChart.LegendLocation = LegendLocation.Right;
+            // 拡大・縮小を許可
+            CrosstalkChart.Zoom = ZoomingOptions.Xy;
+
+            ctr = new CalkCrossTalk();
         }
 
         // X軸値更新
@@ -94,6 +139,9 @@ namespace CTMeasure
 
             LuminanceChart.AxisX[0].MinValue = 0;
             LuminanceChart.AxisX[0].MaxValue = steps;
+
+            CrosstalkChart.AxisX[0].MinValue = 0;
+            CrosstalkChart.AxisX[0].MaxValue = steps;
         }
 
         // ステージの移動範囲更新
@@ -229,143 +277,8 @@ namespace CTMeasure
             return (sum_dx / 4, sum_dy / 4);
         }
 
-        // グラフ追加ダイアログ表示
-        private void AddGraph_lum_Click(object sender, EventArgs e)
-        {
-            using (var dlg = new AddSeriesForm())  
-            {
-                if (dlg.ShowDialog() == DialogResult.OK)
-                {
-                    var values = new ChartValues<double>();
-                    dataSeriesDict[dlg.SeriesName] = values;
 
-                    var series = new LineSeries
-                    {
-                        Title = dlg.SeriesName,
-                        Values = values,
-                        Stroke = dlg.SelectedColor,
-                        StrokeDashArray = dlg.SelectedLineStyle.Dashes,
-                        StrokeThickness = 2,
-                        PointGeometry = DefaultGeometries.Circle,
-                        PointGeometrySize = 6,
-                        Fill = Brushes.Transparent
-                    };
-
-                    LuminanceChart.Series.Add(series);
-                    SeriesNameComboBox.Items.Add(dlg.SeriesName);
-                }
-            }
-        }
-
-        // グラフ保存
-        private void Luminance_Save_Click(object sender, EventArgs e)
-        {
-            if (luminanceList == null || luminanceList.Count == 0)
-            {
-                MessageBox.Show("保存する測定データがありません。", "エラー");
-                return;
-            }
-
-            using (var dlg = new SaveForm())
-            {
-                var result = dlg.ShowDialog();
-
-                if (result == DialogResult.OK)
-                {
-                    SaveCSV();
-                }
-                else if (result == DialogResult.No)
-                {
-                    SavePDF();
-                }
-                // DialogResult.Cancel → 何もしない
-            }
-        }
-        
-        // CSV保存
-        private void SaveCSV()
-        {
-            var saveDlg = new SaveFileDialog
-            {
-                Title = "CSVとして保存",
-                Filter = "CSVファイル (*.csv)|*.csv",
-                FileName = "LuminanceData.csv"
-            };
-
-            if (saveDlg.ShowDialog() == DialogResult.OK)
-            {
-                using (StreamWriter writer = new StreamWriter(saveDlg.FileName, false, Encoding.UTF8))
-                {
-                    writer.WriteLine("Step,Luminance");
-                    for (int i = 0; i < luminanceList.Count; i++)
-                        writer.WriteLine($"{i},{luminanceList[i]:F2}");
-                }
-
-                MessageBox.Show("CSV保存完了", "保存");
-            }
-        }
-
-        private Bitmap CaptureChartImage()
-        {
-            Bitmap bmp = new Bitmap(LuminanceChart.Width, LuminanceChart.Height);
-            LuminanceChart.DrawToBitmap(bmp, new Rectangle(0, 0, bmp.Width, bmp.Height));
-            return bmp;
-        }
-
-        // PDF保存
-        private void SavePDF()
-        {
-            var saveDlg = new SaveFileDialog
-            {
-                Title = "PDFとして保存",
-                Filter = "PDFファイル (*.pdf)|*.pdf",
-                FileName = "LuminanceReport.pdf"
-            };
-
-            if (saveDlg.ShowDialog() == DialogResult.OK)
-            {
-                var doc = new PdfSharp.Pdf.PdfDocument();
-                var page = doc.AddPage();
-                page.Size = PdfSharp.PageSize.A4;
-
-                using (var gfx = XGraphics.FromPdfPage(page))
-                {
-                    // タイトル文字列
-                    var titleFont = new XFont("Arial", 16);
-                    gfx.DrawString("Luminance Report", titleFont, XBrushes.Black,
-                        new XRect(0, 20, page.Width, 40), XStringFormats.TopCenter);
-
-                    // === グラフ画像の挿入 ===
-                    Bitmap chartBmp = CaptureChartImage();
-                    using (var ms = new MemoryStream())
-                    {
-                        chartBmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                        ms.Seek(0, SeekOrigin.Begin);
-
-                        XImage chartImg = XImage.FromStream(ms);
-
-                        double imgWidth = page.Width - 100;
-                        double imgHeight = chartImg.PixelHeight * imgWidth / chartImg.PixelWidth;
-
-                        gfx.DrawImage(chartImg, 50, 70, imgWidth, imgHeight); // 余白をつけて描画
-                    }
-
-                    // === 測定値も簡易的に出力（任意） ===
-                    var font = new XFont("Arial", 10);
-                    double y = 80 + 300; // グラフの下に配置
-                    for (int i = 0; i < luminanceList.Count && y < page.Height - 50; i++)
-                    {
-                        gfx.DrawString($"Step {i}: {luminanceList[i]:F2}",
-                            font, XBrushes.Black, new XRect(60, y, 500, 20), XStringFormats.TopLeft);
-                        y += 15;
-                    }
-                }
-
-                doc.Save(saveDlg.FileName);
-                MessageBox.Show("PDF保存完了", "保存");
-            }
-        }
-
+        // ---------- 輝度測定 ----------
         // 輝度分布測定
         private async void Luminance_Start_Click(object sender, EventArgs e)
         {
@@ -388,19 +301,18 @@ namespace CTMeasure
             }
 
             //  --- 測定前に対象 Series を取得 ---
-            string selectedSeries = SeriesNameComboBox.SelectedItem?.ToString();
-            if (string.IsNullOrEmpty(selectedSeries) || !dataSeriesDict.ContainsKey(selectedSeries))
+            string selectedSeries = LumSeriesNameComboBox.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selectedSeries) || !dataSeriesDict_lum.ContainsKey(selectedSeries))
             {
                 MessageBox.Show("追加した凡例名を選択してください", "エラー");
                 return;
             }
-            var targetSeries = dataSeriesDict[selectedSeries];
+            var targetSeries = dataSeriesDict_lum[selectedSeries];
             targetSeries.Clear(); // 測定前にクリア
 
             int steps = int.Parse(StepRange.Text); // 移動距離
 
             luminanceList.Clear();
-            realTimeValues.Clear();  // ★リセット
 
             for (int i = 0; i < steps; i++)
             {
@@ -440,9 +352,537 @@ namespace CTMeasure
             StageRef.SendCommand("STOP");
 
             MessageBox.Show("輝度測定完了", "完了");
-            
-            // 必要なら CSV 保存も可（オプション）
-            // SaveLuminanceToCSV(luminanceList);
+        }
+        // 輝度グラフ追加ダイアログ表示
+        private void AddGraph_lum_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new AddSeriesForm())  
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    var values = new ChartValues<double>();
+                    dataSeriesDict_lum[dlg.SeriesName] = values;
+
+                    var series = new LineSeries
+                    {
+                        Title = dlg.SeriesName,
+                        Values = values,
+                        Stroke = dlg.SelectedColor,
+                        StrokeDashArray = dlg.SelectedLineStyle.Dashes,
+                        StrokeThickness = 2,
+                        PointGeometry = DefaultGeometries.Circle,
+                        PointGeometrySize = 6,
+                        Fill = Brushes.Transparent
+                    };
+
+                    LuminanceChart.Series.Add(series);
+                    LumSeriesNameComboBox.Items.Add(dlg.SeriesName);
+                }
+            }
+        }
+        // グラフ保存
+        private void Luminance_Save_Click(object sender, EventArgs e)
+        {
+            if (luminanceList == null || luminanceList.Count == 0)
+            {
+                MessageBox.Show("保存する測定データがありません。", "エラー");
+                return;
+            }
+
+            using (var dlg = new SaveForm())
+            {
+                var result = dlg.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    SaveCSV();
+                }
+                else if (result == DialogResult.No)
+                {
+                    SavePDF();
+                }
+                // DialogResult.Cancel → 何もしない
+            }
+        }
+        // CSV保存
+        private void SaveCSV()
+        {
+            using (SaveFileDialog saveDialog = new SaveFileDialog())
+            {
+                saveDialog.Title = "CSVとして保存";
+                saveDialog.Filter = "CSVファイル (*.csv)|*.csv";
+                saveDialog.FileName = "luminance_multi_series.csv";
+
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        using (StreamWriter writer = new StreamWriter(saveDialog.FileName, false, Encoding.UTF8))
+                        {
+                            // ヘッダー行を出力
+                            var headers = new List<string> { "Step(mm)" };
+                            headers.AddRange(dataSeriesDict_lum.Keys);
+                            writer.WriteLine(string.Join(",", headers));
+
+                            // 最大ステップ数を決定（系列ごとに数が異なる可能性があるため）
+                            int maxSteps = dataSeriesDict_lum.Values.Max(series => series.Count);
+
+                            // データ行を出力
+                            for (int i = 0; i < maxSteps; i++)
+                            {
+                                var row = new List<string> { (i * 1.0).ToString("F0") }; // Step(mm)
+
+                                foreach (var series in dataSeriesDict_lum.Values)
+                                {
+                                    if (i < series.Count)
+                                        row.Add(series[i].ToString("F2"));
+                                    else
+                                        row.Add(""); // 欠損データは空欄に
+                                }
+
+                                writer.WriteLine(string.Join(",", row));
+                            }
+                        }
+
+                        MessageBox.Show("CSVファイルとして保存しました。", "保存完了");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("CSV保存中にエラーが発生しました: " + ex.Message, "エラー");
+                    }
+                }
+            }
+        }
+        // PDF保存
+        private void SavePDF()
+        {
+            using (SaveFileDialog saveDialog = new SaveFileDialog())
+            {
+                saveDialog.Title = "PDFとして保存";
+                saveDialog.Filter = "PDFファイル (*.pdf)|*.pdf";
+                saveDialog.FileName = "luminance_chart.pdf";
+
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        // 1. グラフをBitmapに描画
+                        Bitmap bmp = new Bitmap(LuminanceChart.Width, LuminanceChart.Height);
+                        LuminanceChart.DrawToBitmap(bmp, new Rectangle(0, 0, bmp.Width, bmp.Height));
+
+                        // 2. PDFドキュメント作成
+                        var document = new PdfSharp.Pdf.PdfDocument();
+                        var page = document.AddPage();
+                        page.Size = PdfSharp.PageSize.A4;
+                        page.Orientation = PdfSharp.PageOrientation.Landscape;
+
+                        // 3. 描画用グラフィックス取得
+                        var gfx = XGraphics.FromPdfPage(page);
+
+                        // 4. Bitmap → XImage に変換
+                        using (var stream = new MemoryStream())
+                        {
+                            bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                            stream.Position = 0;
+
+                            XImage img = XImage.FromStream(stream);
+
+                            // 5. 画像を中央に配置して描画（スケーリング調整可）
+                            double x = (page.Width - img.PixelWidth * 72 / img.HorizontalResolution) / 2;
+                            double y = (page.Height - img.PixelHeight * 72 / img.VerticalResolution) / 2;
+
+                            gfx.DrawImage(img, x, y,
+                                img.PixelWidth * 72 / img.HorizontalResolution,
+                                img.PixelHeight * 72 / img.VerticalResolution);
+                        }
+
+                        // 6. 保存
+                        document.Save(saveDialog.FileName);
+                        MessageBox.Show("PDFファイルとして保存しました。", "保存完了");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("PDF保存中にエラーが発生しました: " + ex.Message, "エラー");
+                    }
+                }
+            }
+        }
+
+        // ---------- クロストーク比測定 ----------
+        // クロストーク比分布測定
+        private async void Crosstalk_Start_Click(object sender, EventArgs e)
+        {
+            if (StageRef == null || !StageRef.IsConnected)
+            {
+                MessageBox.Show("ステージが接続されていません", "エラー");
+                return;
+            }
+
+            if (CameraRef == null || CameraRef.LatestFrame == null)
+            {
+                MessageBox.Show("カメラ画像が取得できません", "エラー");
+                return;
+            }
+
+            if (Start_roiCorners == null || END_roiCorners == null)
+            {
+                MessageBox.Show("開始・終了のROIを設定してください", "エラー");
+                return;
+            }
+
+            //  --- 測定前に対象 Series を取得 ---
+            string selectedSeries = CtrSeriesNameComboBox.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selectedSeries) || !dataSeriesDict_ctr.ContainsKey(selectedSeries))
+            {
+                MessageBox.Show("追加した凡例名を選択してください", "エラー");
+                return;
+            }
+            var targetSeries = dataSeriesDict_ctr[selectedSeries];
+            targetSeries.Clear(); // 測定前にクリア
+
+            int steps = int.Parse(StepRange.Text); // 移動距離
+
+            CrosstalkList.Clear();
+
+            for (int i = 0; i < steps; i++)
+            {
+                // 初期化
+                Mat frame = new Mat();
+                Mat black = new Mat();
+                Mat white = new Mat();
+                Mat bw = new Mat();
+
+                // --- 測定処理（ROI抽出） ---
+                Point[] roiCorners = GetInterpolatedROICorners(i, steps);
+
+                int minX = roiCorners.Min(p => p.X);
+                int minY = roiCorners.Min(p => p.Y);
+                int maxX = roiCorners.Max(p => p.X);
+                int maxY = roiCorners.Max(p => p.Y);
+                Rect roi = new Rect(minX, minY, maxX - minX, maxY - minY);
+
+                // --- TCP通信 ---
+                // 黒画像リクエスト
+                if (CrossTalkMeasure.lastClient != null)
+                {
+                    responseTcs = new TaskCompletionSource<string>();
+
+                    string message = $"b";
+                    CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
+                    Console.WriteLine($"送信: {message}");
+
+                    if (await Task.WhenAny(responseTcs.Task, Task.Delay(10000)) == responseTcs.Task)
+                    {
+                        string reply = responseTcs.Task.Result;
+                        Console.WriteLine($"Unityから返信: {reply}");
+
+                        if (reply != "OK")
+                        {
+                            MessageBox.Show("Unityから想定外の返信が返されました", "警告");
+                            return;
+                        }
+                        else
+                        {
+                            await Task.Delay(3000);  // 映像が更新されるまで待機
+                            frame = CameraRef.LatestFrame.Clone();
+                            Cv2.ImShow("InterpolatedROI", frame);
+                            Cv2.CvtColor(frame, black, ColorConversionCodes.BGR2GRAY);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
+                        return;
+                    }
+                }
+                // 白画像リクエスト
+                if (CrossTalkMeasure.lastClient != null)
+                {
+                    responseTcs = new TaskCompletionSource<string>();
+
+                    string message = $"w";
+                    CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
+                    Console.WriteLine($"送信: {message}");
+
+                    if (await Task.WhenAny(responseTcs.Task, Task.Delay(10000)) == responseTcs.Task)
+                    {
+                        string reply = responseTcs.Task.Result;
+                        Console.WriteLine($"Unityから返信: {reply}");
+
+                        if (reply != "OK")
+                        {
+                            MessageBox.Show("Unityから想定外の返信が返されました", "警告");
+                            return;
+                        }
+                        else
+                        {
+                            await Task.Delay(3000);
+                            frame = CameraRef.LatestFrame.Clone();
+                            Cv2.ImShow("InterpolatedROI", frame);
+                            Cv2.CvtColor(frame, white, ColorConversionCodes.BGR2GRAY);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
+                        return;
+                    }
+                }
+
+                // --- 黒白 or 白黒 映像判断 ---
+                // 黒白画像リクエスト
+                if (LTex_ComboBox.SelectedItem?.ToString() == "黒" && RTex_ComboBox.SelectedItem?.ToString() == "白")
+                {
+                    if (CrossTalkMeasure.lastClient != null)
+                    {
+                        responseTcs = new TaskCompletionSource<string>();
+
+                        string message = $"bw";
+                        CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
+                        Console.WriteLine($"送信: {message}");
+
+                        if (await Task.WhenAny(responseTcs.Task, Task.Delay(10000)) == responseTcs.Task)
+                        {
+                            string reply = responseTcs.Task.Result;
+                            Console.WriteLine($"Unityから返信: {reply}");
+
+                            if (reply != "OK")
+                            {
+                                MessageBox.Show("Unityから想定外の返信が返されました", "警告");
+                                return;
+                            }
+                            else
+                            {
+                                await Task.Delay(3000);
+                                frame = CameraRef.LatestFrame.Clone();
+                                Cv2.ImShow("InterpolatedROI", frame);
+                                Cv2.CvtColor(frame, bw, ColorConversionCodes.BGR2GRAY);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
+                            return;
+                        }
+                    }
+                }
+                // 白黒画像リクエスト
+                if (LTex_ComboBox.SelectedItem?.ToString() == "白" && RTex_ComboBox.SelectedItem?.ToString() == "黒")
+                {
+                    if (CrossTalkMeasure.lastClient != null)
+                    {
+                        responseTcs = new TaskCompletionSource<string>();
+
+                        string message = $"wb";
+                        CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
+                        Console.WriteLine($"送信: {message}");
+
+                        if (await Task.WhenAny(responseTcs.Task, Task.Delay(10000)) == responseTcs.Task)
+                        {
+                            string reply = responseTcs.Task.Result;
+                            Console.WriteLine($"Unityから返信: {reply}");
+
+                            if (reply != "OK")
+                            {
+                                MessageBox.Show("Unityから想定外の返信が返されました", "警告");
+                                return;
+                            }
+                            else
+                            {
+                                await Task.Delay(3000);
+                                frame = CameraRef.LatestFrame.Clone();
+                                Cv2.ImShow("InterpolatedROI", frame);
+                                Cv2.CvtColor(frame, bw, ColorConversionCodes.BGR2GRAY);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
+                            return;
+                        }
+                    }
+                }
+
+                // === クロストーク計算 ===
+                var results = ctr.calcCTR(roi, black, white, bw);
+
+                // === プロット更新 ===
+                CrosstalkList.Add(results.ctr);
+                targetSeries.Add(results.ctr);  // ★ LiveChartsに即追加（リアルタイム描画）
+
+                // ステージを1mm動かす
+                StageRef.SendCommand($"MGO:A+{1.0f / MoveResolution}");
+                await Task.Delay(1000);
+                StageRef.SendCommand("STOP");
+            }
+
+            // 移動前に戻る
+            StageRef.SendCommand($"MGO:A-{steps / MoveResolution}");
+            StageRef.SendCommand("STOP");
+
+            MessageBox.Show("クロストーク比測定完了", "完了");
+        }
+        // クロストーク比グラフ追加ダイアログ表示
+        private void AddGraph_ctr_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new AddSeriesForm())
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    var values = new ChartValues<double>();
+                    dataSeriesDict_ctr[dlg.SeriesName] = values;
+
+                    var series = new LineSeries
+                    {
+                        Title = dlg.SeriesName,
+                        Values = values,
+                        Stroke = dlg.SelectedColor,
+                        StrokeDashArray = dlg.SelectedLineStyle.Dashes,
+                        StrokeThickness = 2,
+                        PointGeometry = DefaultGeometries.Circle,
+                        PointGeometrySize = 6,
+                        Fill = Brushes.Transparent
+                    };
+
+                    CrosstalkChart.Series.Add(series);
+                    CtrSeriesNameComboBox.Items.Add(dlg.SeriesName);
+                }
+            }
+        }
+        // TCP受信確認
+        public void SetTCPReply(string reply)
+        {
+            if (responseTcs != null && !responseTcs.Task.IsCompleted)
+            {
+                responseTcs.SetResult(reply);
+            }
+        }
+        // グラフ保存
+        private void Crosstalk_Save_Click(object sender, EventArgs e)
+        {
+            if (CrosstalkList == null || CrosstalkList.Count == 0)
+            {
+                MessageBox.Show("保存する測定データがありません。", "エラー");
+                return;
+            }
+
+            using (var dlg = new SaveForm())
+            {
+                var result = dlg.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    SaveCSV_ctr();
+                }
+                else if (result == DialogResult.No)
+                {
+                    SavePDF_ctr();
+                }
+                // DialogResult.Cancel → 何もしない
+            }
+        }
+        // CSV保存
+        private void SaveCSV_ctr()
+        {
+            using (SaveFileDialog saveDialog = new SaveFileDialog())
+            {
+                saveDialog.Title = "CSVとして保存";
+                saveDialog.Filter = "CSVファイル (*.csv)|*.csv";
+                saveDialog.FileName = "crosstalkmulti_series.csv";
+
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        using (StreamWriter writer = new StreamWriter(saveDialog.FileName, false, Encoding.UTF8))
+                        {
+                            // ヘッダー行を出力
+                            var headers = new List<string> { "Step(mm)" };
+                            headers.AddRange(dataSeriesDict_ctr.Keys);
+                            writer.WriteLine(string.Join(",", headers));
+
+                            // 最大ステップ数を決定（系列ごとに数が異なる可能性があるため）
+                            int maxSteps = dataSeriesDict_ctr.Values.Max(series => series.Count);
+
+                            // データ行を出力
+                            for (int i = 0; i < maxSteps; i++)
+                            {
+                                var row = new List<string> { (i * 1.0).ToString("F0") }; // Step(mm)
+
+                                foreach (var series in dataSeriesDict_ctr.Values)
+                                {
+                                    if (i < series.Count)
+                                        row.Add(series[i].ToString("F2"));
+                                    else
+                                        row.Add(""); // 欠損データは空欄に
+                                }
+
+                                writer.WriteLine(string.Join(",", row));
+                            }
+                        }
+
+                        MessageBox.Show("CSVファイルとして保存しました。", "保存完了");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("CSV保存中にエラーが発生しました: " + ex.Message, "エラー");
+                    }
+                }
+            }
+        }
+        // PDF保存
+        private void SavePDF_ctr()
+        {
+            using (SaveFileDialog saveDialog = new SaveFileDialog())
+            {
+                saveDialog.Title = "PDFとして保存";
+                saveDialog.Filter = "PDFファイル (*.pdf)|*.pdf";
+                saveDialog.FileName = "crosstalk_chart.pdf";
+
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        // 1. グラフをBitmapに描画
+                        Bitmap bmp = new Bitmap(CrosstalkChart.Width, CrosstalkChart.Height);
+                        CrosstalkChart.DrawToBitmap(bmp, new Rectangle(0, 0, bmp.Width, bmp.Height));
+
+                        // 2. PDFドキュメント作成
+                        var document = new PdfSharp.Pdf.PdfDocument();
+                        var page = document.AddPage();
+                        page.Size = PdfSharp.PageSize.A4;
+                        page.Orientation = PdfSharp.PageOrientation.Landscape;
+
+                        // 3. 描画用グラフィックス取得
+                        var gfx = XGraphics.FromPdfPage(page);
+
+                        // 4. Bitmap → XImage に変換
+                        using (var stream = new MemoryStream())
+                        {
+                            bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                            stream.Position = 0;
+
+                            XImage img = XImage.FromStream(stream);
+
+                            // 5. 画像を中央に配置して描画（スケーリング調整可）
+                            double x = (page.Width - img.PixelWidth * 72 / img.HorizontalResolution) / 2;
+                            double y = (page.Height - img.PixelHeight * 72 / img.VerticalResolution) / 2;
+
+                            gfx.DrawImage(img, x, y,
+                                img.PixelWidth * 72 / img.HorizontalResolution,
+                                img.PixelHeight * 72 / img.VerticalResolution);
+                        }
+
+                        // 6. 保存
+                        document.Save(saveDialog.FileName);
+                        MessageBox.Show("PDFファイルとして保存しました。", "保存完了");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("PDF保存中にエラーが発生しました: " + ex.Message, "エラー");
+                    }
+                }
+            }
         }
     }
 }

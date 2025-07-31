@@ -613,7 +613,7 @@ namespace CTMeasure
                         string received = msg.MessageString.Trim();
                         Invoke((MethodInvoker)(() =>
                         {
-                            MessageBox.Show($"Unityから受信: {received}");
+                            //MessageBox.Show($"Unityから受信: {received}");
                             tokens = received.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
                             // 「Hello」受信時に「request」送信
@@ -634,6 +634,16 @@ namespace CTMeasure
                                 else
                                 {
                                     MessageBox.Show("受信データの数が不足しています", "エラー");
+                                }
+                            }
+
+                            // クロストーク比測定時に使うTCP通信
+                            if (tokens.Length > 0 && tokens[0] == "ACK")  // 返信が "ACK" の場合
+                            {
+                                // CrosstalkEvaluation.cs 側に通知
+                                if (Application.OpenForms["CrosstalkEvaluation"] is CTMeasure.CrosstalkEvaluation form)
+                                {
+                                    form.SetTCPReply("OK");   // 応答を渡す
                                 }
                             }
                         }));
