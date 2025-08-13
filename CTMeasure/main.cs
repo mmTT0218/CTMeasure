@@ -627,7 +627,7 @@ namespace CTMeasure
                             // データスプリット
                             if (tokens.Length > 0 && tokens[0] == "current")
                             {
-                                if (tokens.Length >= 18)
+                                if (tokens.Length >= 20)
                                 {
                                     MessageBox.Show("パラメータ受信");
                                 }
@@ -724,7 +724,8 @@ namespace CTMeasure
                     tokens[7], tokens[8], tokens[9],
                     tokens[10], tokens[11], tokens[12],
                     tokens[13], tokens[14], tokens[15],
-                    tokens[16], tokens[17], tokens[18]
+                    tokens[16], tokens[17], tokens[18],
+                    tokens[19], tokens[20]
                 );
 
                 ui.Show();         // モードレス表示

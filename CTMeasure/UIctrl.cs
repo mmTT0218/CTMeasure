@@ -25,6 +25,7 @@ namespace CTMeasure
         int picVal;
         int matVal;
         int oriVal;
+        int oriYVal;
 
         // トラックバー値
         public string _Lx_value;
@@ -36,6 +37,7 @@ namespace CTMeasure
         public string _Pic_value;
         public string _Mat_value;
         public string _Ori_value;
+        public string _OriY_value;
 
         public UIctrl(string clientInfo,
               string lx, string lx_int,
@@ -46,7 +48,8 @@ namespace CTMeasure
               string rz, string rz_int,
               string pic, string pic_int,
               string mat, string mat_int,
-              string ori, string ori_int
+              string ori, string ori_int,
+              string oriY, string oriY_int
             )
         {
             InitializeComponent();
@@ -64,6 +67,7 @@ namespace CTMeasure
             int.TryParse(pic, out picVal);
             int.TryParse(mat, out matVal);
             int.TryParse(ori, out oriVal);
+            int.TryParse(ori, out oriYVal);
             // 真偽（"1" / "0" → true / false）
             bool lx_intVal = lx_int == "1";
             bool ly_intVal = ly_int == "1";
@@ -74,6 +78,7 @@ namespace CTMeasure
             bool pic_intVal = pic_int == "1";
             bool mat_intVal = mat_int == "1";
             bool ori_intVal = ori_int == "1";
+            bool oriY_intVal = oriY_int == "1";
 
             // トラックバーに代入(Int)
             Lx_Bar.Value = (int)Math.Round(lxVal * 10);
@@ -87,6 +92,7 @@ namespace CTMeasure
             Picture_Bar.Value = picVal;
             Material_Bar.Value = matVal;
             Origin_Bar.Value = oriVal;
+            OriginY_Bar.Value = oriYVal;
 
             // テキストボックス表示
             Lx_Box.Text = ((double)lxVal).ToString();
@@ -100,6 +106,7 @@ namespace CTMeasure
             Picture_Box.Text = picVal.ToString();
             Material_Box.Text = matVal.ToString();
             Origin_Box.Text = oriVal.ToString();
+            OriginY_Box.Text = oriYVal.ToString();
 
             // チェックボックス代入
             Lx_Int.Checked = lx_intVal;
@@ -111,6 +118,7 @@ namespace CTMeasure
             Picture_Int.Checked = pic_intVal;
             Material_Int.Checked = mat_intVal;
             Origin_Int.Checked = ori_intVal;
+            OriginY_Int.Checked = oriY_intVal;
         }
 
 
@@ -219,6 +227,12 @@ namespace CTMeasure
         private void Origin_Bar_Scroll(object sender, EventArgs e)
         {
             Origin_Box.Text = Origin_Bar.Value.ToString();
+            SendToClient();
+        }
+
+        private void OriginY_Bar_Scroll(object sender, EventArgs e)
+        {
+            OriginY_Box.Text = OriginY_Bar.Value.ToString();
             SendToClient();
         }
 
@@ -363,6 +377,11 @@ namespace CTMeasure
             SendToClient();
         }
 
+        private void OriginY_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            SendToClient();
+        }
+
         // リセットボタン イベント
         private void Lx_Reset_Click(object sender, EventArgs e)
         {
@@ -436,6 +455,14 @@ namespace CTMeasure
             SendToClient();
         }
 
+        private void OriginY_Reset_Click(object sender, EventArgs e)
+        {
+            OriginY_Bar.Value = oriYVal;
+            OriginY_Box.Text = oriYVal.ToString();
+
+            SendToClient();
+        }
+
         // テキストボックス イベント
         private void Lx_Box_TextChanged(object sender, EventArgs e)
         {
@@ -457,6 +484,7 @@ namespace CTMeasure
                     + Picture_Box.Text + "/" + (Picture_Int.Checked ? "1" : "0") + "/"
                     + Material_Box.Text + "/" + (Material_Int.Checked ? "1" : "0") + "/"
                     + Origin_Box.Text + "/" + (Origin_Int.Checked ? "1" : "0") + "/"
+                    + OriginY_Box.Text + "/" + (OriginY_Int.Checked ? "1" : "0") + "/"
                     + (UI_toggle.Checked ? "1" : "0") + "/\n";
 
                 CrossTalkMeasure.lastClient.ReplyLine(message);

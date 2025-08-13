@@ -78,6 +78,11 @@
             this.Picture_Bar = new System.Windows.Forms.TrackBar();
             this.ClientInfo = new System.Windows.Forms.Label();
             this.UI_toggle = new System.Windows.Forms.CheckBox();
+            this.OriginY_Int = new System.Windows.Forms.CheckBox();
+            this.OriginY_Reset = new System.Windows.Forms.Button();
+            this.OriginY_Box = new System.Windows.Forms.TextBox();
+            this.OriginY = new System.Windows.Forms.Label();
+            this.OriginY_Bar = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.Lx_Bar)).BeginInit();
             this.LeftEye.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Lz_Bar)).BeginInit();
@@ -90,6 +95,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.Origin_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Material_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Picture_Bar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.OriginY_Bar)).BeginInit();
             this.SuspendLayout();
             // 
             // Lx_Bar
@@ -431,6 +437,11 @@
             // 
             // Ex
             // 
+            this.Ex.Controls.Add(this.OriginY_Int);
+            this.Ex.Controls.Add(this.OriginY_Reset);
+            this.Ex.Controls.Add(this.OriginY_Box);
+            this.Ex.Controls.Add(this.OriginY);
+            this.Ex.Controls.Add(this.OriginY_Bar);
             this.Ex.Controls.Add(this.Origin_Int);
             this.Ex.Controls.Add(this.Origin_Reset);
             this.Ex.Controls.Add(this.Origin_Box);
@@ -449,7 +460,7 @@
             this.Ex.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Ex.Location = new System.Drawing.Point(24, 456);
             this.Ex.Name = "Ex";
-            this.Ex.Size = new System.Drawing.Size(655, 180);
+            this.Ex.Size = new System.Drawing.Size(655, 223);
             this.Ex.TabIndex = 16;
             this.Ex.TabStop = false;
             this.Ex.Text = "Ex";
@@ -618,11 +629,59 @@
             this.UI_toggle.UseVisualStyleBackColor = true;
             this.UI_toggle.CheckedChanged += new System.EventHandler(this.UI_toggle_CheckedChanged);
             // 
+            // OriginY_Int
+            // 
+            this.OriginY_Int.AutoSize = true;
+            this.OriginY_Int.Location = new System.Drawing.Point(572, 186);
+            this.OriginY_Int.Name = "OriginY_Int";
+            this.OriginY_Int.Size = new System.Drawing.Size(55, 25);
+            this.OriginY_Int.TabIndex = 19;
+            this.OriginY_Int.Text = "Int";
+            this.OriginY_Int.UseVisualStyleBackColor = true;
+            this.OriginY_Int.CheckedChanged += new System.EventHandler(this.OriginY_Int_CheckedChanged);
+            // 
+            // OriginY_Reset
+            // 
+            this.OriginY_Reset.Location = new System.Drawing.Point(491, 179);
+            this.OriginY_Reset.Name = "OriginY_Reset";
+            this.OriginY_Reset.Size = new System.Drawing.Size(75, 32);
+            this.OriginY_Reset.TabIndex = 18;
+            this.OriginY_Reset.Text = "Reset";
+            this.OriginY_Reset.UseVisualStyleBackColor = true;
+            this.OriginY_Reset.Click += new System.EventHandler(this.OriginY_Reset_Click);
+            // 
+            // OriginY_Box
+            // 
+            this.OriginY_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.OriginY_Box.Location = new System.Drawing.Point(107, 182);
+            this.OriginY_Box.Name = "OriginY_Box";
+            this.OriginY_Box.Size = new System.Drawing.Size(92, 28);
+            this.OriginY_Box.TabIndex = 17;
+            // 
+            // OriginY
+            // 
+            this.OriginY.AutoSize = true;
+            this.OriginY.Location = new System.Drawing.Point(16, 185);
+            this.OriginY.Name = "OriginY";
+            this.OriginY.Size = new System.Drawing.Size(80, 21);
+            this.OriginY.TabIndex = 16;
+            this.OriginY.Text = "OriginY";
+            // 
+            // OriginY_Bar
+            // 
+            this.OriginY_Bar.Location = new System.Drawing.Point(207, 185);
+            this.OriginY_Bar.Maximum = 100;
+            this.OriginY_Bar.Minimum = -100;
+            this.OriginY_Bar.Name = "OriginY_Bar";
+            this.OriginY_Bar.Size = new System.Drawing.Size(278, 45);
+            this.OriginY_Bar.TabIndex = 15;
+            this.OriginY_Bar.Scroll += new System.EventHandler(this.OriginY_Bar_Scroll);
+            // 
             // UIctrl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(706, 650);
+            this.ClientSize = new System.Drawing.Size(706, 694);
             this.Controls.Add(this.UI_toggle);
             this.Controls.Add(this.ClientInfo);
             this.Controls.Add(this.Ex);
@@ -645,6 +704,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.Origin_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Material_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Picture_Bar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.OriginY_Bar)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -702,5 +762,10 @@
         private System.Windows.Forms.TrackBar Picture_Bar;
         private System.Windows.Forms.Label ClientInfo;
         private System.Windows.Forms.CheckBox UI_toggle;
+        private System.Windows.Forms.CheckBox OriginY_Int;
+        private System.Windows.Forms.Button OriginY_Reset;
+        private System.Windows.Forms.TextBox OriginY_Box;
+        private System.Windows.Forms.Label OriginY;
+        private System.Windows.Forms.TrackBar OriginY_Bar;
     }
 }
