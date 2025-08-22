@@ -59,13 +59,15 @@
             this.LTex_ComboBox = new System.Windows.Forms.ComboBox();
             this.label11 = new System.Windows.Forms.Label();
             this.RTex_ComboBox = new System.Windows.Forms.ComboBox();
+            this.border = new System.Windows.Forms.Label();
+            this.Eyetracking = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Luminance_Start
             // 
             this.Luminance_Start.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Luminance_Start.ForeColor = System.Drawing.Color.Black;
-            this.Luminance_Start.Location = new System.Drawing.Point(69, 141);
+            this.Luminance_Start.Location = new System.Drawing.Point(33, 241);
             this.Luminance_Start.Name = "Luminance_Start";
             this.Luminance_Start.Size = new System.Drawing.Size(124, 67);
             this.Luminance_Start.TabIndex = 1;
@@ -77,7 +79,7 @@
             // 
             this.Luminance_Save.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Luminance_Save.ForeColor = System.Drawing.Color.Black;
-            this.Luminance_Save.Location = new System.Drawing.Point(69, 292);
+            this.Luminance_Save.Location = new System.Drawing.Point(33, 392);
             this.Luminance_Save.Name = "Luminance_Save";
             this.Luminance_Save.Size = new System.Drawing.Size(124, 67);
             this.Luminance_Save.TabIndex = 2;
@@ -89,7 +91,7 @@
             // 
             this.Crosstalk_Save.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Crosstalk_Save.ForeColor = System.Drawing.Color.Black;
-            this.Crosstalk_Save.Location = new System.Drawing.Point(69, 601);
+            this.Crosstalk_Save.Location = new System.Drawing.Point(33, 682);
             this.Crosstalk_Save.Name = "Crosstalk_Save";
             this.Crosstalk_Save.Size = new System.Drawing.Size(124, 67);
             this.Crosstalk_Save.TabIndex = 5;
@@ -101,7 +103,7 @@
             // 
             this.Crosstalk_Start.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Crosstalk_Start.ForeColor = System.Drawing.Color.Black;
-            this.Crosstalk_Start.Location = new System.Drawing.Point(69, 455);
+            this.Crosstalk_Start.Location = new System.Drawing.Point(33, 536);
             this.Crosstalk_Start.Name = "Crosstalk_Start";
             this.Crosstalk_Start.Size = new System.Drawing.Size(124, 67);
             this.Crosstalk_Start.TabIndex = 4;
@@ -166,7 +168,7 @@
             this.StepRange.Location = new System.Drawing.Point(626, 53);
             this.StepRange.Name = "StepRange";
             this.StepRange.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.StepRange.Size = new System.Drawing.Size(181, 35);
+            this.StepRange.Size = new System.Drawing.Size(164, 35);
             this.StepRange.TabIndex = 11;
             this.StepRange.Text = "70";
             this.StepRange.SelectedIndexChanged += new System.EventHandler(this.StepRange_TextChanged);
@@ -292,7 +294,7 @@
             // 
             this.AddGraph_lum.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.AddGraph_lum.ForeColor = System.Drawing.Color.Black;
-            this.AddGraph_lum.Location = new System.Drawing.Point(69, 214);
+            this.AddGraph_lum.Location = new System.Drawing.Point(33, 314);
             this.AddGraph_lum.Name = "AddGraph_lum";
             this.AddGraph_lum.Size = new System.Drawing.Size(124, 67);
             this.AddGraph_lum.TabIndex = 25;
@@ -304,7 +306,7 @@
             // 
             this.LuminanceChart.BackColor = System.Drawing.Color.White;
             this.LuminanceChart.ForeColor = System.Drawing.Color.White;
-            this.LuminanceChart.Location = new System.Drawing.Point(251, 141);
+            this.LuminanceChart.Location = new System.Drawing.Point(215, 241);
             this.LuminanceChart.Name = "LuminanceChart";
             this.LuminanceChart.Size = new System.Drawing.Size(1043, 218);
             this.LuminanceChart.TabIndex = 24;
@@ -314,7 +316,7 @@
             // 
             this.AddGraph_ctr.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.AddGraph_ctr.ForeColor = System.Drawing.Color.Black;
-            this.AddGraph_ctr.Location = new System.Drawing.Point(69, 528);
+            this.AddGraph_ctr.Location = new System.Drawing.Point(33, 609);
             this.AddGraph_ctr.Name = "AddGraph_ctr";
             this.AddGraph_ctr.Size = new System.Drawing.Size(124, 67);
             this.AddGraph_ctr.TabIndex = 26;
@@ -326,7 +328,7 @@
             // 
             this.LumSeriesNameComboBox.Font = new System.Drawing.Font("MS UI Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.LumSeriesNameComboBox.FormattingEnabled = true;
-            this.LumSeriesNameComboBox.Location = new System.Drawing.Point(998, 103);
+            this.LumSeriesNameComboBox.Location = new System.Drawing.Point(962, 203);
             this.LumSeriesNameComboBox.Name = "LumSeriesNameComboBox";
             this.LumSeriesNameComboBox.Size = new System.Drawing.Size(208, 32);
             this.LumSeriesNameComboBox.TabIndex = 27;
@@ -336,7 +338,7 @@
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label8.ForeColor = System.Drawing.Color.White;
-            this.label8.Location = new System.Drawing.Point(797, 106);
+            this.label8.Location = new System.Drawing.Point(761, 206);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(195, 29);
             this.label8.TabIndex = 28;
@@ -346,7 +348,7 @@
             // 
             this.CrosstalkChart.BackColor = System.Drawing.Color.White;
             this.CrosstalkChart.ForeColor = System.Drawing.Color.White;
-            this.CrosstalkChart.Location = new System.Drawing.Point(251, 455);
+            this.CrosstalkChart.Location = new System.Drawing.Point(215, 536);
             this.CrosstalkChart.Name = "CrosstalkChart";
             this.CrosstalkChart.Size = new System.Drawing.Size(1043, 218);
             this.CrosstalkChart.TabIndex = 29;
@@ -357,7 +359,7 @@
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label9.ForeColor = System.Drawing.Color.White;
-            this.label9.Location = new System.Drawing.Point(797, 414);
+            this.label9.Location = new System.Drawing.Point(761, 495);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(195, 29);
             this.label9.TabIndex = 31;
@@ -367,7 +369,7 @@
             // 
             this.CtrSeriesNameComboBox.Font = new System.Drawing.Font("MS UI Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.CtrSeriesNameComboBox.FormattingEnabled = true;
-            this.CtrSeriesNameComboBox.Location = new System.Drawing.Point(998, 411);
+            this.CtrSeriesNameComboBox.Location = new System.Drawing.Point(962, 492);
             this.CtrSeriesNameComboBox.Name = "CtrSeriesNameComboBox";
             this.CtrSeriesNameComboBox.Size = new System.Drawing.Size(208, 32);
             this.CtrSeriesNameComboBox.TabIndex = 30;
@@ -377,7 +379,7 @@
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label10.ForeColor = System.Drawing.Color.White;
-            this.label10.Location = new System.Drawing.Point(254, 414);
+            this.label10.Location = new System.Drawing.Point(218, 495);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(47, 29);
             this.label10.TabIndex = 33;
@@ -394,10 +396,10 @@
             this.LTex_ComboBox.Items.AddRange(new object[] {
             "黒",
             "白"});
-            this.LTex_ComboBox.Location = new System.Drawing.Point(307, 408);
+            this.LTex_ComboBox.Location = new System.Drawing.Point(271, 489);
             this.LTex_ComboBox.Name = "LTex_ComboBox";
             this.LTex_ComboBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.LTex_ComboBox.Size = new System.Drawing.Size(58, 35);
+            this.LTex_ComboBox.Size = new System.Drawing.Size(68, 35);
             this.LTex_ComboBox.TabIndex = 32;
             this.LTex_ComboBox.Text = "黒";
             // 
@@ -406,7 +408,7 @@
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label11.ForeColor = System.Drawing.Color.White;
-            this.label11.Location = new System.Drawing.Point(381, 414);
+            this.label11.Location = new System.Drawing.Point(345, 495);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(49, 29);
             this.label11.TabIndex = 35;
@@ -423,19 +425,47 @@
             this.RTex_ComboBox.Items.AddRange(new object[] {
             "白",
             "黒"});
-            this.RTex_ComboBox.Location = new System.Drawing.Point(436, 408);
+            this.RTex_ComboBox.Location = new System.Drawing.Point(400, 489);
             this.RTex_ComboBox.Name = "RTex_ComboBox";
             this.RTex_ComboBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.RTex_ComboBox.Size = new System.Drawing.Size(58, 35);
+            this.RTex_ComboBox.Size = new System.Drawing.Size(68, 35);
             this.RTex_ComboBox.TabIndex = 34;
             this.RTex_ComboBox.Text = "白";
+            // 
+            // border
+            // 
+            this.border.AutoSize = true;
+            this.border.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.border.ForeColor = System.Drawing.Color.White;
+            this.border.Location = new System.Drawing.Point(23, 109);
+            this.border.Name = "border";
+            this.border.Size = new System.Drawing.Size(1277, 29);
+            this.border.TabIndex = 36;
+            this.border.Text = "-------------------------------------------------------------------------------";
+            // 
+            // Eyetracking
+            // 
+            this.Eyetracking.BackColor = System.Drawing.Color.Transparent;
+            this.Eyetracking.BackgroundImage = global::CTMeasure.Properties.Resources.EyetrackingON;
+            this.Eyetracking.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.Eyetracking.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Eyetracking.ForeColor = System.Drawing.Color.Black;
+            this.Eyetracking.Location = new System.Drawing.Point(33, 143);
+            this.Eyetracking.Name = "Eyetracking";
+            this.Eyetracking.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.Eyetracking.Size = new System.Drawing.Size(97, 78);
+            this.Eyetracking.TabIndex = 37;
+            this.Eyetracking.UseVisualStyleBackColor = false;
+            this.Eyetracking.Click += new System.EventHandler(this.Eyetracking_Click);
             // 
             // CrosstalkEvaluation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(1318, 693);
+            this.ClientSize = new System.Drawing.Size(1301, 769);
+            this.Controls.Add(this.Eyetracking);
+            this.Controls.Add(this.border);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.RTex_ComboBox);
             this.Controls.Add(this.label10);
@@ -468,6 +498,7 @@
             this.Controls.Add(this.Luminance_Save);
             this.Controls.Add(this.Luminance_Start);
             this.ForeColor = System.Drawing.Color.Black;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "CrosstalkEvaluation";
             this.Text = "CrossTalkEvaluatiobn";
             this.ResumeLayout(false);
@@ -507,5 +538,7 @@
         private System.Windows.Forms.ComboBox LTex_ComboBox;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ComboBox RTex_ComboBox;
+        private System.Windows.Forms.Label border;
+        private System.Windows.Forms.Button Eyetracking;
     }
 }

@@ -61,6 +61,11 @@
             this.Rx = new System.Windows.Forms.Label();
             this.Rx_Bar = new System.Windows.Forms.TrackBar();
             this.Ex = new System.Windows.Forms.GroupBox();
+            this.OriginY_Int = new System.Windows.Forms.CheckBox();
+            this.OriginY_Reset = new System.Windows.Forms.Button();
+            this.OriginY_Box = new System.Windows.Forms.TextBox();
+            this.OriginY = new System.Windows.Forms.Label();
+            this.OriginY_Bar = new System.Windows.Forms.TrackBar();
             this.Origin_Int = new System.Windows.Forms.CheckBox();
             this.Origin_Reset = new System.Windows.Forms.Button();
             this.Origin_Box = new System.Windows.Forms.TextBox();
@@ -78,11 +83,17 @@
             this.Picture_Bar = new System.Windows.Forms.TrackBar();
             this.ClientInfo = new System.Windows.Forms.Label();
             this.UI_toggle = new System.Windows.Forms.CheckBox();
-            this.OriginY_Int = new System.Windows.Forms.CheckBox();
-            this.OriginY_Reset = new System.Windows.Forms.Button();
-            this.OriginY_Box = new System.Windows.Forms.TextBox();
-            this.OriginY = new System.Windows.Forms.Label();
-            this.OriginY_Bar = new System.Windows.Forms.TrackBar();
+            this.Slope = new System.Windows.Forms.GroupBox();
+            this.MRatioY_Int = new System.Windows.Forms.CheckBox();
+            this.MRatioY_Reset = new System.Windows.Forms.Button();
+            this.MRatioY_Box = new System.Windows.Forms.TextBox();
+            this.MRatioY = new System.Windows.Forms.Label();
+            this.MRatioY_Bar = new System.Windows.Forms.TrackBar();
+            this.MRatioX_Int = new System.Windows.Forms.CheckBox();
+            this.MRatioX_Reset = new System.Windows.Forms.Button();
+            this.MRatioX_Box = new System.Windows.Forms.TextBox();
+            this.MRatioX = new System.Windows.Forms.Label();
+            this.MRatioX_Bar = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.Lx_Bar)).BeginInit();
             this.LeftEye.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Lz_Bar)).BeginInit();
@@ -92,10 +103,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.Ry_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Rx_Bar)).BeginInit();
             this.Ex.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.OriginY_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Origin_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Material_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Picture_Bar)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.OriginY_Bar)).BeginInit();
+            this.Slope.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.MRatioY_Bar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.MRatioX_Bar)).BeginInit();
             this.SuspendLayout();
             // 
             // Lx_Bar
@@ -126,9 +140,9 @@
             this.LeftEye.Controls.Add(this.Lx);
             this.LeftEye.Controls.Add(this.Lx_Bar);
             this.LeftEye.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.LeftEye.Location = new System.Drawing.Point(24, 84);
+            this.LeftEye.Location = new System.Drawing.Point(15, 84);
             this.LeftEye.Name = "LeftEye";
-            this.LeftEye.Size = new System.Drawing.Size(655, 180);
+            this.LeftEye.Size = new System.Drawing.Size(655, 198);
             this.LeftEye.TabIndex = 1;
             this.LeftEye.TabStop = false;
             this.LeftEye.Text = "Eye(L)";
@@ -285,9 +299,9 @@
             this.RightEye.Controls.Add(this.Rx);
             this.RightEye.Controls.Add(this.Rx_Bar);
             this.RightEye.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.RightEye.Location = new System.Drawing.Point(24, 270);
+            this.RightEye.Location = new System.Drawing.Point(688, 84);
             this.RightEye.Name = "RightEye";
-            this.RightEye.Size = new System.Drawing.Size(655, 180);
+            this.RightEye.Size = new System.Drawing.Size(655, 198);
             this.RightEye.TabIndex = 15;
             this.RightEye.TabStop = false;
             this.RightEye.Text = "Eye(R)";
@@ -458,12 +472,60 @@
             this.Ex.Controls.Add(this.Picture);
             this.Ex.Controls.Add(this.Picture_Bar);
             this.Ex.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Ex.Location = new System.Drawing.Point(24, 456);
+            this.Ex.Location = new System.Drawing.Point(688, 288);
             this.Ex.Name = "Ex";
-            this.Ex.Size = new System.Drawing.Size(655, 223);
+            this.Ex.Size = new System.Drawing.Size(655, 241);
             this.Ex.TabIndex = 16;
             this.Ex.TabStop = false;
             this.Ex.Text = "Ex";
+            // 
+            // OriginY_Int
+            // 
+            this.OriginY_Int.AutoSize = true;
+            this.OriginY_Int.Location = new System.Drawing.Point(572, 186);
+            this.OriginY_Int.Name = "OriginY_Int";
+            this.OriginY_Int.Size = new System.Drawing.Size(55, 25);
+            this.OriginY_Int.TabIndex = 19;
+            this.OriginY_Int.Text = "Int";
+            this.OriginY_Int.UseVisualStyleBackColor = true;
+            this.OriginY_Int.CheckedChanged += new System.EventHandler(this.OriginY_Int_CheckedChanged);
+            // 
+            // OriginY_Reset
+            // 
+            this.OriginY_Reset.Location = new System.Drawing.Point(491, 179);
+            this.OriginY_Reset.Name = "OriginY_Reset";
+            this.OriginY_Reset.Size = new System.Drawing.Size(75, 32);
+            this.OriginY_Reset.TabIndex = 18;
+            this.OriginY_Reset.Text = "Reset";
+            this.OriginY_Reset.UseVisualStyleBackColor = true;
+            this.OriginY_Reset.Click += new System.EventHandler(this.OriginY_Reset_Click);
+            // 
+            // OriginY_Box
+            // 
+            this.OriginY_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.OriginY_Box.Location = new System.Drawing.Point(107, 182);
+            this.OriginY_Box.Name = "OriginY_Box";
+            this.OriginY_Box.Size = new System.Drawing.Size(92, 28);
+            this.OriginY_Box.TabIndex = 17;
+            // 
+            // OriginY
+            // 
+            this.OriginY.AutoSize = true;
+            this.OriginY.Location = new System.Drawing.Point(16, 185);
+            this.OriginY.Name = "OriginY";
+            this.OriginY.Size = new System.Drawing.Size(80, 21);
+            this.OriginY.TabIndex = 16;
+            this.OriginY.Text = "OriginY";
+            // 
+            // OriginY_Bar
+            // 
+            this.OriginY_Bar.Location = new System.Drawing.Point(207, 185);
+            this.OriginY_Bar.Maximum = 100;
+            this.OriginY_Bar.Minimum = -100;
+            this.OriginY_Bar.Name = "OriginY_Bar";
+            this.OriginY_Bar.Size = new System.Drawing.Size(278, 45);
+            this.OriginY_Bar.TabIndex = 15;
+            this.OriginY_Bar.Scroll += new System.EventHandler(this.OriginY_Bar_Scroll);
             // 
             // Origin_Int
             // 
@@ -621,7 +683,7 @@
             this.UI_toggle.Checked = true;
             this.UI_toggle.CheckState = System.Windows.Forms.CheckState.Checked;
             this.UI_toggle.Font = new System.Drawing.Font("MS UI Gothic", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.UI_toggle.Location = new System.Drawing.Point(582, 37);
+            this.UI_toggle.Location = new System.Drawing.Point(1260, 26);
             this.UI_toggle.Name = "UI_toggle";
             this.UI_toggle.Size = new System.Drawing.Size(69, 41);
             this.UI_toggle.TabIndex = 19;
@@ -629,59 +691,126 @@
             this.UI_toggle.UseVisualStyleBackColor = true;
             this.UI_toggle.CheckedChanged += new System.EventHandler(this.UI_toggle_CheckedChanged);
             // 
-            // OriginY_Int
+            // Slope
             // 
-            this.OriginY_Int.AutoSize = true;
-            this.OriginY_Int.Location = new System.Drawing.Point(572, 186);
-            this.OriginY_Int.Name = "OriginY_Int";
-            this.OriginY_Int.Size = new System.Drawing.Size(55, 25);
-            this.OriginY_Int.TabIndex = 19;
-            this.OriginY_Int.Text = "Int";
-            this.OriginY_Int.UseVisualStyleBackColor = true;
-            this.OriginY_Int.CheckedChanged += new System.EventHandler(this.OriginY_Int_CheckedChanged);
+            this.Slope.Controls.Add(this.MRatioY_Int);
+            this.Slope.Controls.Add(this.MRatioY_Reset);
+            this.Slope.Controls.Add(this.MRatioY_Box);
+            this.Slope.Controls.Add(this.MRatioY);
+            this.Slope.Controls.Add(this.MRatioY_Bar);
+            this.Slope.Controls.Add(this.MRatioX_Int);
+            this.Slope.Controls.Add(this.MRatioX_Reset);
+            this.Slope.Controls.Add(this.MRatioX_Box);
+            this.Slope.Controls.Add(this.MRatioX);
+            this.Slope.Controls.Add(this.MRatioX_Bar);
+            this.Slope.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Slope.Location = new System.Drawing.Point(15, 288);
+            this.Slope.Name = "Slope";
+            this.Slope.Size = new System.Drawing.Size(655, 241);
+            this.Slope.TabIndex = 20;
+            this.Slope.TabStop = false;
+            this.Slope.Text = "Slope";
             // 
-            // OriginY_Reset
+            // MRatioY_Int
             // 
-            this.OriginY_Reset.Location = new System.Drawing.Point(491, 179);
-            this.OriginY_Reset.Name = "OriginY_Reset";
-            this.OriginY_Reset.Size = new System.Drawing.Size(75, 32);
-            this.OriginY_Reset.TabIndex = 18;
-            this.OriginY_Reset.Text = "Reset";
-            this.OriginY_Reset.UseVisualStyleBackColor = true;
-            this.OriginY_Reset.Click += new System.EventHandler(this.OriginY_Reset_Click);
+            this.MRatioY_Int.AutoSize = true;
+            this.MRatioY_Int.Location = new System.Drawing.Point(572, 155);
+            this.MRatioY_Int.Name = "MRatioY_Int";
+            this.MRatioY_Int.Size = new System.Drawing.Size(55, 25);
+            this.MRatioY_Int.TabIndex = 9;
+            this.MRatioY_Int.Text = "Int";
+            this.MRatioY_Int.UseVisualStyleBackColor = true;
+            this.MRatioY_Int.CheckedChanged += new System.EventHandler(this.MRatioY_Int_CheckedChanged);
             // 
-            // OriginY_Box
+            // MRatioY_Reset
             // 
-            this.OriginY_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.OriginY_Box.Location = new System.Drawing.Point(107, 182);
-            this.OriginY_Box.Name = "OriginY_Box";
-            this.OriginY_Box.Size = new System.Drawing.Size(92, 28);
-            this.OriginY_Box.TabIndex = 17;
+            this.MRatioY_Reset.Location = new System.Drawing.Point(491, 148);
+            this.MRatioY_Reset.Name = "MRatioY_Reset";
+            this.MRatioY_Reset.Size = new System.Drawing.Size(75, 32);
+            this.MRatioY_Reset.TabIndex = 8;
+            this.MRatioY_Reset.Text = "Reset";
+            this.MRatioY_Reset.UseVisualStyleBackColor = true;
+            this.MRatioY_Reset.Click += new System.EventHandler(this.MRatioY_Reset_Click);
             // 
-            // OriginY
+            // MRatioY_Box
             // 
-            this.OriginY.AutoSize = true;
-            this.OriginY.Location = new System.Drawing.Point(16, 185);
-            this.OriginY.Name = "OriginY";
-            this.OriginY.Size = new System.Drawing.Size(80, 21);
-            this.OriginY.TabIndex = 16;
-            this.OriginY.Text = "OriginY";
+            this.MRatioY_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.MRatioY_Box.Location = new System.Drawing.Point(107, 151);
+            this.MRatioY_Box.Name = "MRatioY_Box";
+            this.MRatioY_Box.Size = new System.Drawing.Size(92, 28);
+            this.MRatioY_Box.TabIndex = 7;
             // 
-            // OriginY_Bar
+            // MRatioY
             // 
-            this.OriginY_Bar.Location = new System.Drawing.Point(207, 185);
-            this.OriginY_Bar.Maximum = 100;
-            this.OriginY_Bar.Minimum = -100;
-            this.OriginY_Bar.Name = "OriginY_Bar";
-            this.OriginY_Bar.Size = new System.Drawing.Size(278, 45);
-            this.OriginY_Bar.TabIndex = 15;
-            this.OriginY_Bar.Scroll += new System.EventHandler(this.OriginY_Bar_Scroll);
+            this.MRatioY.AutoSize = true;
+            this.MRatioY.Location = new System.Drawing.Point(16, 154);
+            this.MRatioY.Name = "MRatioY";
+            this.MRatioY.Size = new System.Drawing.Size(90, 21);
+            this.MRatioY.TabIndex = 6;
+            this.MRatioY.Text = "MRatioY";
+            // 
+            // MRatioY_Bar
+            // 
+            this.MRatioY_Bar.Location = new System.Drawing.Point(207, 154);
+            this.MRatioY_Bar.Maximum = 300;
+            this.MRatioY_Bar.Name = "MRatioY_Bar";
+            this.MRatioY_Bar.Size = new System.Drawing.Size(278, 45);
+            this.MRatioY_Bar.TabIndex = 5;
+            this.MRatioY_Bar.Scroll += new System.EventHandler(this.MRatioY_Bar_Scroll);
+            // 
+            // MRatioX_Int
+            // 
+            this.MRatioX_Int.AutoSize = true;
+            this.MRatioX_Int.Location = new System.Drawing.Point(572, 68);
+            this.MRatioX_Int.Name = "MRatioX_Int";
+            this.MRatioX_Int.Size = new System.Drawing.Size(55, 25);
+            this.MRatioX_Int.TabIndex = 4;
+            this.MRatioX_Int.Text = "Int";
+            this.MRatioX_Int.UseVisualStyleBackColor = true;
+            this.MRatioX_Int.CheckedChanged += new System.EventHandler(this.MRatioX_Int_CheckedChanged);
+            // 
+            // MRatioX_Reset
+            // 
+            this.MRatioX_Reset.Location = new System.Drawing.Point(491, 61);
+            this.MRatioX_Reset.Name = "MRatioX_Reset";
+            this.MRatioX_Reset.Size = new System.Drawing.Size(75, 32);
+            this.MRatioX_Reset.TabIndex = 3;
+            this.MRatioX_Reset.Text = "Reset";
+            this.MRatioX_Reset.UseVisualStyleBackColor = true;
+            this.MRatioX_Reset.Click += new System.EventHandler(this.MRatioX_Reset_Click);
+            // 
+            // MRatioX_Box
+            // 
+            this.MRatioX_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.MRatioX_Box.Location = new System.Drawing.Point(107, 64);
+            this.MRatioX_Box.Name = "MRatioX_Box";
+            this.MRatioX_Box.Size = new System.Drawing.Size(92, 28);
+            this.MRatioX_Box.TabIndex = 2;
+            // 
+            // MRatioX
+            // 
+            this.MRatioX.AutoSize = true;
+            this.MRatioX.Location = new System.Drawing.Point(16, 67);
+            this.MRatioX.Name = "MRatioX";
+            this.MRatioX.Size = new System.Drawing.Size(91, 21);
+            this.MRatioX.TabIndex = 1;
+            this.MRatioX.Text = "MRatioX";
+            // 
+            // MRatioX_Bar
+            // 
+            this.MRatioX_Bar.Location = new System.Drawing.Point(207, 67);
+            this.MRatioX_Bar.Maximum = 300;
+            this.MRatioX_Bar.Name = "MRatioX_Bar";
+            this.MRatioX_Bar.Size = new System.Drawing.Size(278, 45);
+            this.MRatioX_Bar.TabIndex = 0;
+            this.MRatioX_Bar.Scroll += new System.EventHandler(this.MRatioX_Bar_Scroll);
             // 
             // UIctrl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(706, 694);
+            this.ClientSize = new System.Drawing.Size(1377, 541);
+            this.Controls.Add(this.Slope);
             this.Controls.Add(this.UI_toggle);
             this.Controls.Add(this.ClientInfo);
             this.Controls.Add(this.Ex);
@@ -701,10 +830,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.Rx_Bar)).EndInit();
             this.Ex.ResumeLayout(false);
             this.Ex.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.OriginY_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Origin_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Material_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Picture_Bar)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.OriginY_Bar)).EndInit();
+            this.Slope.ResumeLayout(false);
+            this.Slope.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.MRatioY_Bar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.MRatioX_Bar)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -767,5 +900,16 @@
         private System.Windows.Forms.TextBox OriginY_Box;
         private System.Windows.Forms.Label OriginY;
         private System.Windows.Forms.TrackBar OriginY_Bar;
+        private System.Windows.Forms.GroupBox Slope;
+        private System.Windows.Forms.CheckBox MRatioY_Int;
+        private System.Windows.Forms.Button MRatioY_Reset;
+        private System.Windows.Forms.TextBox MRatioY_Box;
+        private System.Windows.Forms.Label MRatioY;
+        private System.Windows.Forms.TrackBar MRatioY_Bar;
+        private System.Windows.Forms.CheckBox MRatioX_Int;
+        private System.Windows.Forms.Button MRatioX_Reset;
+        private System.Windows.Forms.TextBox MRatioX_Box;
+        private System.Windows.Forms.Label MRatioX;
+        private System.Windows.Forms.TrackBar MRatioX_Bar;
     }
 }

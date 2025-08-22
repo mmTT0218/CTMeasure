@@ -627,7 +627,7 @@ namespace CTMeasure
                             // データスプリット
                             if (tokens.Length > 0 && tokens[0] == "current")
                             {
-                                if (tokens.Length >= 20)
+                                if (tokens.Length >= 24)
                                 {
                                     MessageBox.Show("パラメータ受信");
                                 }
@@ -708,7 +708,7 @@ namespace CTMeasure
             }
 
             // パラメータが不足しているときの安全対策
-            if (tokens == null || tokens.Length < 19)
+            if (tokens == null || tokens.Length < 25)
             {
                 MessageBox.Show("Unityからのパラメータをまだ受信していません。", "エラー");
                 return;
@@ -725,7 +725,8 @@ namespace CTMeasure
                     tokens[10], tokens[11], tokens[12],
                     tokens[13], tokens[14], tokens[15],
                     tokens[16], tokens[17], tokens[18],
-                    tokens[19], tokens[20]
+                    tokens[19], tokens[20], tokens[21],
+                    tokens[22], tokens[23], tokens[24]
                 );
 
                 ui.Show();         // モードレス表示

@@ -38,6 +38,9 @@ namespace CTMeasure
         // TCP受信トリガー
         private TaskCompletionSource<string> responseTcs;
 
+        // アイトラッキング機能ON/OFF
+        bool EyeTrack = false;        
+
         // ROI座標
         private Point[] Start_roiCorners = new Point[4];   // 開始地点
         private Point[] END_roiCorners = new Point[4];     // 終了地点
@@ -712,6 +715,32 @@ namespace CTMeasure
 
                 // ステージを1mm動かす
                 StageRef.SendCommand($"MGO:A+{1.0f / MoveResolution}");
+
+                // ステージの移動をUnityに通知(EyeTrack == falseなら無視)
+                if (EyeTrack)
+                {
+                    string message = $"EyeTracking";
+                    CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
+                    Console.WriteLine($"送信: {message}");
+
+                    if (await Task.WhenAny(responseTcs.Task, Task.Delay(10000)) == responseTcs.Task)
+                    {
+                        string reply = responseTcs.Task.Result;
+                        Console.WriteLine($"Unityから返信: {reply}");
+
+                        if (reply != "OK")
+                        {
+                            MessageBox.Show("Unityから想定外の返信が返されました", "警告");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
+                        return;
+                    }
+                }
+
                 await Task.Delay(1000);
                 StageRef.SendCommand("STOP");
             }
@@ -882,6 +911,21 @@ namespace CTMeasure
                         MessageBox.Show("PDF保存中にエラーが発生しました: " + ex.Message, "エラー");
                     }
                 }
+            }
+        }
+
+        // Eyetracking 測定機能ON/OFF
+        private void Eyetracking_Click(object sender, EventArgs e)
+        {
+            if (EyeTrack == false)
+            {
+                EyeTrack = true;
+                Eyetracking.BackgroundImage = Properties.Resources.EyetrackingOFF;
+            }
+            else
+            {
+                EyeTrack = false;
+                Eyetracking.BackgroundImage = Properties.Resources.EyetrackingON;
             }
         }
     }

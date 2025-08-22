@@ -334,6 +334,12 @@
   <ItemGroup>
     <None Include="Resources\Measure.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EyetrackingON.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EyetrackingOFF.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

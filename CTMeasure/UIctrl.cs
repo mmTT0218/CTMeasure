@@ -26,6 +26,8 @@ namespace CTMeasure
         int matVal;
         int oriVal;
         int oriYVal;
+        float MRatioXVal;
+        float MRatioYVal;
 
         // トラックバー値
         public string _Lx_value;
@@ -38,6 +40,8 @@ namespace CTMeasure
         public string _Mat_value;
         public string _Ori_value;
         public string _OriY_value;
+        public string _MRatioX_value;
+        public string _MRatioY_value;
 
         public UIctrl(string clientInfo,
               string lx, string lx_int,
@@ -49,7 +53,9 @@ namespace CTMeasure
               string pic, string pic_int,
               string mat, string mat_int,
               string ori, string ori_int,
-              string oriY, string oriY_int
+              string oriY, string oriY_int,
+              string mratioX, string mratioX_int,
+              string mratioY, string mratioY_int
             )
         {
             InitializeComponent();
@@ -63,11 +69,13 @@ namespace CTMeasure
             float.TryParse(rx, out rxVal);
             float.TryParse(ry, out ryVal);
             float.TryParse(rz, out rzVal);
+            float.TryParse(mratioX, out MRatioXVal);
+            float.TryParse(mratioY, out MRatioYVal);
             // 整数
             int.TryParse(pic, out picVal);
             int.TryParse(mat, out matVal);
             int.TryParse(ori, out oriVal);
-            int.TryParse(ori, out oriYVal);
+            int.TryParse(oriY, out oriYVal);
             // 真偽（"1" / "0" → true / false）
             bool lx_intVal = lx_int == "1";
             bool ly_intVal = ly_int == "1";
@@ -79,36 +87,46 @@ namespace CTMeasure
             bool mat_intVal = mat_int == "1";
             bool ori_intVal = ori_int == "1";
             bool oriY_intVal = oriY_int == "1";
+            bool mratioX_intVal = mratioX_int == "1";
+            bool mratioY_intVal = mratioY_int == "1";
 
-            // トラックバーに代入(Int)
+            // ------ トラックバーに代入(Int) ------
+            // 左目
             Lx_Bar.Value = (int)Math.Round(lxVal * 10);
             Ly_Bar.Value = (int)Math.Round(lyVal * 10);
             Lz_Bar.Value = (int)Math.Round(lzVal * 10);
-
+            // 右目
             Rx_Bar.Value = (int)Math.Round(rxVal * 10);
             Ry_Bar.Value = (int)Math.Round(ryVal * 10);
             Rz_Bar.Value = (int)Math.Round(rzVal * 10);
-
+            // 傾き
+            MRatioX_Bar.Value = (int)Math.Round(MRatioXVal * 10);
+            MRatioY_Bar.Value = (int)Math.Round(MRatioYVal * 10);
+            // その他
             Picture_Bar.Value = picVal;
             Material_Bar.Value = matVal;
             Origin_Bar.Value = oriVal;
             OriginY_Bar.Value = oriYVal;
 
-            // テキストボックス表示
+            // ------ テキストボックス表示 ------
+            // 左目
             Lx_Box.Text = ((double)lxVal).ToString();
             Ly_Box.Text = ((double)lyVal).ToString();
             Lz_Box.Text = ((double)lzVal).ToString();
-
+            // 右目
             Rx_Box.Text = ((double)rxVal).ToString();
             Ry_Box.Text = ((double)ryVal).ToString();
             Rz_Box.Text = ((double)rzVal).ToString();
-
+            // 傾き
+            MRatioX_Box.Text = ((double)MRatioXVal).ToString();
+            MRatioY_Box.Text = ((double)MRatioYVal).ToString();
+            // その他
             Picture_Box.Text = picVal.ToString();
             Material_Box.Text = matVal.ToString();
             Origin_Box.Text = oriVal.ToString();
             OriginY_Box.Text = oriYVal.ToString();
 
-            // チェックボックス代入
+            // ------ チェックボックス代入 ------
             Lx_Int.Checked = lx_intVal;
             Ly_Int.Checked = ly_intVal;
             Lz_Int.Checked = lz_intVal;
@@ -119,6 +137,8 @@ namespace CTMeasure
             Material_Int.Checked = mat_intVal;
             Origin_Int.Checked = ori_intVal;
             OriginY_Int.Checked = oriY_intVal;
+            MRatioX_Int.Checked = mratioX_intVal;
+            MRatioY_Int.Checked = mratioY_intVal;
         }
 
 
@@ -128,6 +148,7 @@ namespace CTMeasure
         }
 
         // -------------- トラックバーイベント ------------------
+        // 左目
         private void Lx_Bar_Scroll(object sender, EventArgs e)
         {
             if (Lx_Int.Checked)
@@ -170,6 +191,7 @@ namespace CTMeasure
             SendToClient();
         }
 
+        // 右目
         private void Rx_Bar_Scroll(object sender, EventArgs e)
         {
             if (Rx_Int.Checked)
@@ -212,6 +234,36 @@ namespace CTMeasure
             SendToClient();
         }
 
+        // 傾き
+        private void MRatioX_Bar_Scroll(object sender, EventArgs e)
+        {
+            if (MRatioX_Int.Checked)
+            {
+                MRatioX_Box.Text = ((int)MRatioX_Bar.Value / 10).ToString();
+
+            }
+            else
+            {
+                MRatioX_Box.Text = ((double)MRatioX_Bar.Value / 10).ToString();
+            }
+            SendToClient();
+        }
+
+        private void MRatioY_Bar_Scroll(object sender, EventArgs e)
+        {
+            if (MRatioY_Int.Checked)
+            {
+                MRatioY_Box.Text = ((int)MRatioY_Bar.Value / 10).ToString();
+
+            }
+            else
+            {
+                MRatioY_Box.Text = ((double)MRatioY_Bar.Value / 10).ToString();
+            }
+            SendToClient();
+        }
+
+        // その他
         private void Picture_Bar_Scroll(object sender, EventArgs e)
         {
             Picture_Box.Text = Picture_Bar.Value.ToString();
@@ -236,12 +288,14 @@ namespace CTMeasure
             SendToClient();
         }
 
-        // トグルイベント
+        // -------------- トグルイベント --------------
+        // UI ON/OFF
         private void UI_toggle_CheckedChanged(object sender, EventArgs e)
         {
             SendToClient();
         }
 
+        // 左目
         private void Lx_Int_CheckedChanged(object sender, EventArgs e)
         {
             if (Lx_Int.Checked)
@@ -302,6 +356,7 @@ namespace CTMeasure
             SendToClient();
         }
 
+        // 右目
         private void Rx_Int_CheckedChanged(object sender, EventArgs e)
         {
             if (Rx_Int.Checked)
@@ -362,6 +417,48 @@ namespace CTMeasure
             SendToClient();
         }
 
+        // 傾き
+        private void MRatioX_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            if (MRatioX_Int.Checked)
+            {
+                // 1刻み = 10単位で動かす（10 = 1.0）
+                MRatioX_Bar.SmallChange = 10;
+                MRatioX_Bar.LargeChange = 10;
+
+                // 端数がある場合は丸める
+                MRatioX_Bar.Value = (int)(Math.Round(MRatioX_Bar.Value / 10.0) * 10);
+            }
+            else
+            {
+                // 0.1刻み = 1単位で動かす（1 = 0.1）
+                MRatioX_Bar.SmallChange = 1;
+                MRatioX_Bar.LargeChange = 1;
+            }
+            SendToClient();
+        }
+
+        private void MRatioY_Int_CheckedChanged(object sender, EventArgs e)
+        {
+            if (MRatioY_Int.Checked)
+            {
+                // 1刻み = 10単位で動かす（10 = 1.0）
+                MRatioY_Bar.SmallChange = 10;
+                MRatioY_Bar.LargeChange = 10;
+
+                // 端数がある場合は丸める
+                MRatioY_Bar.Value = (int)(Math.Round(MRatioY_Bar.Value / 10.0) * 10);
+            }
+            else
+            {
+                // 0.1刻み = 1単位で動かす（1 = 0.1）
+                MRatioY_Bar.SmallChange = 1;
+                MRatioY_Bar.LargeChange = 1;
+            }
+            SendToClient();
+        }
+
+        // その他
         private void Picture_Int_CheckedChanged(object sender, EventArgs e)
         {
             SendToClient();
@@ -431,6 +528,22 @@ namespace CTMeasure
             SendToClient();
         }
 
+        private void MRatioX_Reset_Click(object sender, EventArgs e)
+        {
+            MRatioX_Bar.Value = (int)Math.Round(MRatioXVal * 10);
+            MRatioX_Box.Text = ((double)MRatioXVal).ToString();
+
+            SendToClient();
+        }
+
+        private void MRatioY_Reset_Click(object sender, EventArgs e)
+        {
+            MRatioY_Bar.Value = (int)Math.Round(MRatioYVal * 10);
+            MRatioY_Box.Text = ((double)MRatioYVal).ToString();
+
+            SendToClient();
+        }
+
         private void Picture_Reset_Click(object sender, EventArgs e)
         {
             Picture_Bar.Value = picVal;
@@ -470,6 +583,7 @@ namespace CTMeasure
         }
 
         // パラメータ送信
+        // ここから↓
         private void SendToClient()
         {
             if (CrossTalkMeasure.lastClient != null)
@@ -485,7 +599,9 @@ namespace CTMeasure
                     + Material_Box.Text + "/" + (Material_Int.Checked ? "1" : "0") + "/"
                     + Origin_Box.Text + "/" + (Origin_Int.Checked ? "1" : "0") + "/"
                     + OriginY_Box.Text + "/" + (OriginY_Int.Checked ? "1" : "0") + "/"
-                    + (UI_toggle.Checked ? "1" : "0") + "/\n";
+                    + MRatioX_Box.Text + "/" + (MRatioX_Int.Checked ? "1" : "0") + "/"
+                    + MRatioY_Box.Text + "/" + (MRatioY_Int.Checked ? "1" : "0") + "/"
+                    + (UI_toggle.Checked ? "1" : "0") + "\n";
 
                 CrossTalkMeasure.lastClient.ReplyLine(message);
             }
