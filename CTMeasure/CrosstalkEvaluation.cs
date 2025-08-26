@@ -25,6 +25,7 @@ using Brushes = System.Windows.Media.Brushes;
 using PdfSharp.Drawing;
 using System.IO;
 using System.Runtime.ConstrainedExecution;
+using System.Threading;
 
 namespace CTMeasure
 {
@@ -37,9 +38,22 @@ namespace CTMeasure
 
         // TCP受信トリガー
         private TaskCompletionSource<string> responseTcs;
+        string message = "";
 
-        // アイトラッキング機能ON/OFF
-        bool EyeTrack = false;        
+        // カメラトラッキング機能ON/OFF
+        bool EyeTrack = false;
+
+        // ステージ移動方向
+        bool Horizontal = false;
+        bool Depth = false;
+
+        // ステージ停止用
+        private CancellationTokenSource _measureCts;
+        private volatile bool _isMeasuring = false;
+
+        // 原点復帰のための移動積算（何 mm 進んだかをステップ数で記録：1ステップ=1mm）
+        private int _completedSteps = 0;
+        private readonly object _moveLock = new object();
 
         // ROI座標
         private Point[] Start_roiCorners = new Point[4];   // 開始地点
@@ -67,7 +81,7 @@ namespace CTMeasure
             // XY軸設定
             LuminanceChart.AxisX.Add(new Axis
             {
-                Title = "Viewing position in horizontal direction (mm)",
+                Title = "Step (mm)",
                 FontSize = 16,
                 LabelFormatter = value => $"{value:F0}",
                 MinValue = 0,
@@ -102,7 +116,7 @@ namespace CTMeasure
             // XY軸設定
             CrosstalkChart.AxisX.Add(new Axis
             {
-                Title = "Viewing position in horizontal direction (mm)",
+                Title = "Step (mm)",
                 FontSize = 16,
                 LabelFormatter = value => $"{value:F0}",
                 MinValue = 0,
@@ -280,11 +294,69 @@ namespace CTMeasure
             return (sum_dx / 4, sum_dy / 4);
         }
 
+        // ----------------------------------------
+        //               測定中断処理
+        // ----------------------------------------
+        // 1mm move
+        private void MoveOneMillimeterForward()
+        {
+            // 水平・奥行は排他で選ばれている想定
+            if (Horizontal && !Depth)
+                StageRef.SendCommand($"MGO:A+{1.0f / MoveResolution}");
+            else if (!Horizontal && Depth)
+                StageRef.SendCommand($"MGO:B+{1.0f / MoveResolution}");
+            else
+                return; // どちらも未選択なら何もしない
 
-        // ---------- 輝度測定 ----------
-        // 輝度分布測定
+            lock (_moveLock)
+            {
+                _completedSteps++;   // 1mm 進んだとみなす
+            }
+        }
+        // 原点移動
+        private void ReturnToOriginForCancel()
+        {
+            int stepsToReturn;
+            lock (_moveLock)
+            {
+                stepsToReturn = _completedSteps;
+                _completedSteps = 0; // 二重実行防止
+            }
+            if (stepsToReturn <= 0) return;
+
+            // 進んだ mm → パルス数へ変換
+            float pulses = (float)(stepsToReturn / MoveResolution);
+
+            try
+            {
+                if (Horizontal && !Depth)
+                    StageRef.SendCommand($"MGO:A-{pulses}");
+                else if (!Horizontal && Depth)
+                    StageRef.SendCommand($"MGO:B-{pulses}");
+
+                StageRef.SendCommand("STOP");
+            }
+            catch { /* 失敗しても握りつぶし */ }
+        }
+        private void StopMeasure_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                _measureCts?.Cancel();          // 測定ループを中断要求
+                StageRef?.SendCommand("STOP");  // 即時停止
+            }
+            catch { }
+        }
+
+        // ----------------------------------------
+        //                 輝度測定
+        // ----------------------------------------
+        // 輝度分布測定スタート
         private async void Luminance_Start_Click(object sender, EventArgs e)
         {
+            if (_isMeasuring) { MessageBox.Show("別の測定が実行中です。"); return; }
+
+            // 前提Check
             if (StageRef == null || !StageRef.IsConnected)
             {
                 MessageBox.Show("ステージが接続されていません", "エラー");
@@ -303,58 +375,132 @@ namespace CTMeasure
                 return;
             }
 
-            //  --- 測定前に対象 Series を取得 ---
-            string selectedSeries = LumSeriesNameComboBox.SelectedItem?.ToString();
-            if (string.IsNullOrEmpty(selectedSeries) || !dataSeriesDict_lum.ContainsKey(selectedSeries))
+            _isMeasuring = true;
+            _measureCts = new CancellationTokenSource();
+            var token = _measureCts.Token;
+
+            // UIロック
+            StopMeasure.Enabled = true;
+            Luminance_Start.Enabled = false;
+            Crosstalk_Start.Enabled = false;
+
+            // ★移動積算をクリア
+            _completedSteps = 0;
+
+            try
             {
-                MessageBox.Show("追加した凡例名を選択してください", "エラー");
-                return;
+                //  --- 測定前に対象 Series を取得 ---
+                string selectedSeries = LumSeriesNameComboBox.SelectedItem?.ToString();
+                if (string.IsNullOrEmpty(selectedSeries) || !dataSeriesDict_lum.ContainsKey(selectedSeries))
+                {
+                    MessageBox.Show("追加した凡例名を選択してください", "エラー");
+                    return;
+                }
+                var targetSeries = dataSeriesDict_lum[selectedSeries];
+                targetSeries.Clear(); // 測定前にクリア
+
+                int steps = int.Parse(StepRange.Text); // 移動距離
+
+                luminanceList.Clear();
+
+                for (int i = 0; i < steps; i++)
+                {
+                    // --- 測定処理（ROI抽出 → 輝度計算） ---
+                    Point[] roiCorners = GetInterpolatedROICorners(i, steps);
+
+                    int minX = roiCorners.Min(p => p.X);
+                    int minY = roiCorners.Min(p => p.Y);
+                    int maxX = roiCorners.Max(p => p.X);
+                    int maxY = roiCorners.Max(p => p.Y);
+                    Rect roi = new Rect(minX, minY, maxX - minX, maxY - minY);
+
+                    Mat frame = CameraRef.LatestFrame.Clone();
+                    Mat roiMat = new Mat(frame, roi);
+
+                    Cv2.ImShow("InterpolatedROI", roiMat);
+
+                    Mat gray = new Mat();
+                    Cv2.CvtColor(roiMat, gray, ColorConversionCodes.BGR2GRAY);
+                    Scalar mean = Cv2.Mean(gray);
+                    double luminance = mean.Val0;
+
+                    // === プロット更新 ===
+                    luminanceList.Add(luminance);
+                    targetSeries.Add(luminance);  // ★ LiveChartsに即追加（リアルタイム描画）
+
+                    Console.WriteLine($"Step {i}: Luminance = {luminance:F2}");
+
+                    // ステージを1mm動かす
+                    if (Horizontal && !Depth) message = "EyeTracking_Horizontal";
+                    if (!Horizontal && Depth) message = "EyeTracking_Depth";
+
+                    MoveOneMillimeterForward();
+
+                    // ステージの移動をUnityに通知(EyeTrack == falseなら無視)
+                    if (EyeTrack == true)
+                    {
+                        responseTcs = new TaskCompletionSource<string>();
+                        CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令(水平 or 奥行)
+
+                        var completed = await Task.WhenAny(
+                            responseTcs.Task,
+                            Task.Delay(10000, token)
+                        );
+
+                        if (completed == responseTcs.Task)
+                        {
+                            string reply = responseTcs.Task.Result;
+                            if (reply != "OK")
+                            {
+                                MessageBox.Show("Unityから想定外の返信が返されました", "警告");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            if (token.IsCancellationRequested) break;
+                            MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
+                            return;
+                        }
+                    }
+
+                    await Task.Delay(2000, token);
+                    StageRef.SendCommand("STOP");
+                }
+
+                if (!token.IsCancellationRequested)
+                {
+                    // 通常終了：従来の“全量戻し”のままでもOK（厳密にするなら _completedSteps でも可）
+                    if (Horizontal && !Depth)
+                        StageRef.SendCommand($"MGO:A-{steps / MoveResolution}");
+                    if (!Horizontal && Depth)
+                        StageRef.SendCommand($"MGO:B-{steps / MoveResolution}");
+                    StageRef.SendCommand("STOP");
+
+                    MessageBox.Show("輝度測定完了", "完了");
+                }
+                else
+                {
+                    // ★ キャンセル時：積算分だけ原点復帰
+                    ReturnToOriginForCancel();
+                    MessageBox.Show("輝度測定を中断しました。", "中断");
+                }
             }
-            var targetSeries = dataSeriesDict_lum[selectedSeries];
-            targetSeries.Clear(); // 測定前にクリア
-
-            int steps = int.Parse(StepRange.Text); // 移動距離
-
-            luminanceList.Clear();
-
-            for (int i = 0; i < steps; i++)
+            catch (TaskCanceledException)
             {
-                // --- 測定処理（ROI抽出 → 輝度計算） ---
-                Point[] roiCorners = GetInterpolatedROICorners(i, steps);
-
-                int minX = roiCorners.Min(p => p.X);
-                int minY = roiCorners.Min(p => p.Y);
-                int maxX = roiCorners.Max(p => p.X);
-                int maxY = roiCorners.Max(p => p.Y);
-                Rect roi = new Rect(minX, minY, maxX - minX, maxY - minY);
-
-                Mat frame = CameraRef.LatestFrame.Clone();
-                Mat roiMat = new Mat(frame, roi);
-
-                Cv2.ImShow("InterpolatedROI", roiMat);
-
-                Mat gray = new Mat();
-                Cv2.CvtColor(roiMat, gray, ColorConversionCodes.BGR2GRAY);
-                Scalar mean = Cv2.Mean(gray);
-                double luminance = mean.Val0;
-
-                // === プロット更新 ===
-                luminanceList.Add(luminance);
-                targetSeries.Add(luminance);  // ★ LiveChartsに即追加（リアルタイム描画）
-
-                Console.WriteLine($"Step {i}: Luminance = {luminance:F2}");
-
-                // ステージを1mm動かす
-                StageRef.SendCommand($"MGO:A+{1.0f / MoveResolution}");
-                await Task.Delay(1000);
-                StageRef.SendCommand("STOP");
+                // ★ キャンセル例外時も原点復帰
+                ReturnToOriginForCancel();
+                MessageBox.Show("輝度測定を中断しました。", "中断");
             }
-
-            // 移動前に戻る
-            StageRef.SendCommand($"MGO:A-{steps / MoveResolution}");
-            StageRef.SendCommand("STOP");
-
-            MessageBox.Show("輝度測定完了", "完了");
+            finally
+            {
+                _isMeasuring = false;
+                StopMeasure.Enabled = false;
+                Luminance_Start.Enabled = true;
+                Crosstalk_Start.Enabled = true;
+                _measureCts?.Dispose();
+                _measureCts = null;
+            }
         }
         // 輝度グラフ追加ダイアログ表示
         private void AddGraph_lum_Click(object sender, EventArgs e)
@@ -511,136 +657,84 @@ namespace CTMeasure
             }
         }
 
-        // ---------- クロストーク比測定 ----------
-        // クロストーク比分布測定
+        // ----------------------------------------
+        // 　　　　　クロストーク比測定
+        // ----------------------------------------
+        // クロストーク比分布測定スタート
         private async void Crosstalk_Start_Click(object sender, EventArgs e)
         {
+            if (_isMeasuring) { MessageBox.Show("別の測定が実行中です。"); return; }
+
+            // 前提Check
             if (StageRef == null || !StageRef.IsConnected)
             {
                 MessageBox.Show("ステージが接続されていません", "エラー");
                 return;
             }
-
             if (CameraRef == null || CameraRef.LatestFrame == null)
             {
                 MessageBox.Show("カメラ画像が取得できません", "エラー");
                 return;
             }
-
             if (Start_roiCorners == null || END_roiCorners == null)
             {
                 MessageBox.Show("開始・終了のROIを設定してください", "エラー");
                 return;
             }
 
-            //  --- 測定前に対象 Series を取得 ---
-            string selectedSeries = CtrSeriesNameComboBox.SelectedItem?.ToString();
-            if (string.IsNullOrEmpty(selectedSeries) || !dataSeriesDict_ctr.ContainsKey(selectedSeries))
+            _isMeasuring = true;
+            _measureCts = new CancellationTokenSource();
+            var token = _measureCts.Token;
+
+            // UIロック
+            StopMeasure.Enabled = true;
+            Luminance_Start.Enabled = false;
+            Crosstalk_Start.Enabled = false;
+
+            // ★移動積算クリア
+            _completedSteps = 0;
+
+            try
             {
-                MessageBox.Show("追加した凡例名を選択してください", "エラー");
-                return;
-            }
-            var targetSeries = dataSeriesDict_ctr[selectedSeries];
-            targetSeries.Clear(); // 測定前にクリア
-
-            int steps = int.Parse(StepRange.Text); // 移動距離
-
-            CrosstalkList.Clear();
-
-            for (int i = 0; i < steps; i++)
-            {
-                // 初期化
-                Mat frame = new Mat();
-                Mat black = new Mat();
-                Mat white = new Mat();
-                Mat bw = new Mat();
-
-                // --- 測定処理（ROI抽出） ---
-                Point[] roiCorners = GetInterpolatedROICorners(i, steps);
-
-                int minX = roiCorners.Min(p => p.X);
-                int minY = roiCorners.Min(p => p.Y);
-                int maxX = roiCorners.Max(p => p.X);
-                int maxY = roiCorners.Max(p => p.Y);
-                Rect roi = new Rect(minX, minY, maxX - minX, maxY - minY);
-
-                // --- TCP通信 ---
-                // 黒画像リクエスト
-                if (CrossTalkMeasure.lastClient != null)
+                //  --- 測定前に対象 Series を取得 ---
+                string selectedSeries = CtrSeriesNameComboBox.SelectedItem?.ToString();
+                if (string.IsNullOrEmpty(selectedSeries) || !dataSeriesDict_ctr.ContainsKey(selectedSeries))
                 {
-                    responseTcs = new TaskCompletionSource<string>();
-
-                    string message = $"b";
-                    CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
-                    Console.WriteLine($"送信: {message}");
-
-                    if (await Task.WhenAny(responseTcs.Task, Task.Delay(10000)) == responseTcs.Task)
-                    {
-                        string reply = responseTcs.Task.Result;
-                        Console.WriteLine($"Unityから返信: {reply}");
-
-                        if (reply != "OK")
-                        {
-                            MessageBox.Show("Unityから想定外の返信が返されました", "警告");
-                            return;
-                        }
-                        else
-                        {
-                            await Task.Delay(2000);  // 映像が更新されるまで待機
-                            frame = CameraRef.LatestFrame.Clone();
-                            Cv2.ImShow("InterpolatedROI", frame);
-                            Cv2.CvtColor(frame, black, ColorConversionCodes.BGR2GRAY);
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
-                        return;
-                    }
+                    MessageBox.Show("追加した凡例名を選択してください", "エラー");
+                    return;
                 }
-                // 白画像リクエスト
-                if (CrossTalkMeasure.lastClient != null)
+                var targetSeries = dataSeriesDict_ctr[selectedSeries];
+                targetSeries.Clear(); // 測定前にクリア
+
+                int steps = int.Parse(StepRange.Text); // 移動距離
+                CrosstalkList.Clear();
+
+                for (int i = 0; i < steps; i++)
                 {
-                    responseTcs = new TaskCompletionSource<string>();
+                    if (token.IsCancellationRequested) break;
 
-                    string message = $"w";
-                    CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
-                    Console.WriteLine($"送信: {message}");
+                    // 初期化
+                    Mat frame = new Mat();
+                    Mat black = new Mat();
+                    Mat white = new Mat();
+                    Mat bw = new Mat();
 
-                    if (await Task.WhenAny(responseTcs.Task, Task.Delay(10000)) == responseTcs.Task)
-                    {
-                        string reply = responseTcs.Task.Result;
-                        Console.WriteLine($"Unityから返信: {reply}");
+                    // --- 測定処理（ROI抽出） ---
+                    Point[] roiCorners = GetInterpolatedROICorners(i, steps);
 
-                        if (reply != "OK")
-                        {
-                            MessageBox.Show("Unityから想定外の返信が返されました", "警告");
-                            return;
-                        }
-                        else
-                        {
-                            await Task.Delay(2000);
-                            frame = CameraRef.LatestFrame.Clone();
-                            Cv2.ImShow("InterpolatedROI", frame);
-                            Cv2.CvtColor(frame, white, ColorConversionCodes.BGR2GRAY);
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
-                        return;
-                    }
-                }
+                    int minX = roiCorners.Min(p => p.X);
+                    int minY = roiCorners.Min(p => p.Y);
+                    int maxX = roiCorners.Max(p => p.X);
+                    int maxY = roiCorners.Max(p => p.Y);
+                    Rect roi = new Rect(minX, minY, maxX - minX, maxY - minY);
 
-                // --- 黒白 or 白黒 映像判断 ---
-                // 黒白画像リクエスト
-                if (LTex_ComboBox.SelectedItem?.ToString() == "黒" && RTex_ComboBox.SelectedItem?.ToString() == "白")
-                {
+                    // --- TCP通信 ---
+                    // 黒画像リクエスト
                     if (CrossTalkMeasure.lastClient != null)
                     {
                         responseTcs = new TaskCompletionSource<string>();
 
-                        string message = $"bw";
+                        message = $"b";
                         CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
                         Console.WriteLine($"送信: {message}");
 
@@ -656,10 +750,10 @@ namespace CTMeasure
                             }
                             else
                             {
-                                await Task.Delay(2000);
+                                await Task.Delay(2000, token);  // 映像が更新されるまで待機
                                 frame = CameraRef.LatestFrame.Clone();
                                 Cv2.ImShow("InterpolatedROI", frame);
-                                Cv2.CvtColor(frame, bw, ColorConversionCodes.BGR2GRAY);
+                                Cv2.CvtColor(frame, black, ColorConversionCodes.BGR2GRAY);
                             }
                         }
                         else
@@ -668,15 +762,12 @@ namespace CTMeasure
                             return;
                         }
                     }
-                }
-                // 白黒画像リクエスト
-                if (LTex_ComboBox.SelectedItem?.ToString() == "白" && RTex_ComboBox.SelectedItem?.ToString() == "黒")
-                {
+                    // 白画像リクエスト
                     if (CrossTalkMeasure.lastClient != null)
                     {
                         responseTcs = new TaskCompletionSource<string>();
 
-                        string message = $"wb";
+                        message = $"w";
                         CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
                         Console.WriteLine($"送信: {message}");
 
@@ -692,10 +783,10 @@ namespace CTMeasure
                             }
                             else
                             {
-                                await Task.Delay(2000);
+                                await Task.Delay(2000, token);
                                 frame = CameraRef.LatestFrame.Clone();
                                 Cv2.ImShow("InterpolatedROI", frame);
-                                Cv2.CvtColor(frame, bw, ColorConversionCodes.BGR2GRAY);
+                                Cv2.CvtColor(frame, white, ColorConversionCodes.BGR2GRAY);
                             }
                         }
                         else
@@ -704,54 +795,163 @@ namespace CTMeasure
                             return;
                         }
                     }
-                }
 
-                // === クロストーク計算 ===
-                var results = ctr.calcCTR(roi, black, white, bw);
-
-                // === プロット更新 ===
-                CrosstalkList.Add(results.ctr);
-                targetSeries.Add(results.ctr);  // ★ LiveChartsに即追加（リアルタイム描画）
-
-                // ステージを1mm動かす
-                StageRef.SendCommand($"MGO:A+{1.0f / MoveResolution}");
-
-                // ステージの移動をUnityに通知(EyeTrack == falseなら無視)
-                if (EyeTrack == true)
-                {
-                    responseTcs = new TaskCompletionSource<string>();
-
-                    string message = $"EyeTracking";
-                    CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
-                    Console.WriteLine($"送信: {message}");
-
-                    if (await Task.WhenAny(responseTcs.Task, Task.Delay(10000)) == responseTcs.Task)
+                    // --- 黒白 or 白黒 映像判断 ---
+                    // 黒白画像リクエスト
+                    if (LTex_ComboBox.SelectedItem?.ToString() == "黒" && RTex_ComboBox.SelectedItem?.ToString() == "白")
                     {
-                        string reply = responseTcs.Task.Result;
-                        Console.WriteLine($"Unityから返信: {reply}");
-
-                        if (reply != "OK")
+                        if (CrossTalkMeasure.lastClient != null)
                         {
-                            MessageBox.Show("Unityから想定外の返信が返されました", "警告");
+                            responseTcs = new TaskCompletionSource<string>();
+
+                            message = $"bw";
+                            CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
+                            Console.WriteLine($"送信: {message}");
+
+                            if (await Task.WhenAny(responseTcs.Task, Task.Delay(10000)) == responseTcs.Task)
+                            {
+                                string reply = responseTcs.Task.Result;
+                                Console.WriteLine($"Unityから返信: {reply}");
+
+                                if (reply != "OK")
+                                {
+                                    MessageBox.Show("Unityから想定外の返信が返されました", "警告");
+                                    return;
+                                }
+                                else
+                                {
+                                    await Task.Delay(2000, token);
+                                    frame = CameraRef.LatestFrame.Clone();
+                                    Cv2.ImShow("InterpolatedROI", frame);
+                                    Cv2.CvtColor(frame, bw, ColorConversionCodes.BGR2GRAY);
+                                }
+                            }
+                            else
+                            {
+                                MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
+                                return;
+                            }
+                        }
+                    }
+                    // 白黒画像リクエスト
+                    if (LTex_ComboBox.SelectedItem?.ToString() == "白" && RTex_ComboBox.SelectedItem?.ToString() == "黒")
+                    {
+                        if (CrossTalkMeasure.lastClient != null)
+                        {
+                            responseTcs = new TaskCompletionSource<string>();
+
+                            message = $"wb";
+                            CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
+                            Console.WriteLine($"送信: {message}");
+
+                            if (await Task.WhenAny(responseTcs.Task, Task.Delay(10000)) == responseTcs.Task)
+                            {
+                                string reply = responseTcs.Task.Result;
+                                Console.WriteLine($"Unityから返信: {reply}");
+
+                                if (reply != "OK")
+                                {
+                                    MessageBox.Show("Unityから想定外の返信が返されました", "警告");
+                                    return;
+                                }
+                                else
+                                {
+                                    await Task.Delay(2000, token);
+                                    frame = CameraRef.LatestFrame.Clone();
+                                    Cv2.ImShow("InterpolatedROI", frame);
+                                    Cv2.CvtColor(frame, bw, ColorConversionCodes.BGR2GRAY);
+                                }
+                            }
+                            else
+                            {
+                                MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
+                                return;
+                            }
+                        }
+                    }
+
+                    // === クロストーク計算 ===
+                    var results = ctr.calcCTR(roi, black, white, bw);
+
+                    // === プロット更新 ===
+                    CrosstalkList.Add(results.ctr);
+                    targetSeries.Add(results.ctr);  // ★ LiveChartsに即追加（リアルタイム描画）
+
+                    // ステージを1mm動かす
+                    if (Horizontal && !Depth) message = "EyeTracking_Horizontal";
+                    if (!Horizontal && Depth) message = "EyeTracking_Depth";
+
+                    MoveOneMillimeterForward();
+
+                    // ステージの移動をUnityに通知(EyeTrack == falseなら無視)
+                    if (EyeTrack == true)
+                    {
+                        responseTcs = new TaskCompletionSource<string>();
+                        CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令(水平 or 奥行)
+
+                        var completed = await Task.WhenAny(
+                            responseTcs.Task,
+                            Task.Delay(10000, token)
+                        );
+
+                        if (completed == responseTcs.Task)
+                        {
+                            string reply = responseTcs.Task.Result;
+                            if (reply != "OK")
+                            {
+                                MessageBox.Show("Unityから想定外の返信が返されました", "警告");
+                                return;
+                            }
+                            else
+                            {
+                                await Task.Delay(2000, token);
+                            }
+                        }
+                        else
+                        {
+                            if (token.IsCancellationRequested) break;
+                            MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
                             return;
                         }
                     }
-                    else
-                    {
-                        MessageBox.Show("Unityからの返信がタイムアウトしました", "エラー");
-                        return;
-                    }
+
+                    await Task.Delay(2000, token);
+                    StageRef.SendCommand("STOP");
                 }
 
-                await Task.Delay(2000);
-                StageRef.SendCommand("STOP");
+                if (!token.IsCancellationRequested)
+                {
+                    // 通常終了
+                    if (Horizontal && !Depth)
+                        StageRef.SendCommand($"MGO:A-{steps / MoveResolution}");
+                    if (!Horizontal && Depth)
+                        StageRef.SendCommand($"MGO:B-{steps / MoveResolution}");
+                    StageRef.SendCommand("STOP");
+
+                    MessageBox.Show("クロストーク比測定完了", "完了");
+                }
+                else
+                {
+                    // ★ キャンセル時：積算分だけ原点復帰
+                    ReturnToOriginForCancel();
+                    MessageBox.Show("クロストーク比測定を中断しました。", "中断");
+                }
             }
-
-            // 移動前に戻る
-            StageRef.SendCommand($"MGO:A-{steps / MoveResolution}");
-            StageRef.SendCommand("STOP");
-
-            MessageBox.Show("クロストーク比測定完了", "完了");
+            catch (TaskCanceledException)
+            {
+                // ★ キャンセル例外時も原点復帰
+                ReturnToOriginForCancel();
+                MessageBox.Show("クロストーク比測定を中断しました。", "中断");
+            }
+            finally
+            {
+                _isMeasuring = false;
+                StopMeasure.Enabled = false;
+                Luminance_Start.Enabled = true;
+                Crosstalk_Start.Enabled = true;
+                _measureCts?.Dispose();
+                _measureCts = null;
+            }
         }
         // クロストーク比グラフ追加ダイアログ表示
         private void AddGraph_ctr_Click(object sender, EventArgs e)
@@ -916,6 +1116,9 @@ namespace CTMeasure
             }
         }
 
+        // ---------------------------------------
+        //               その他機能
+        // ---------------------------------------
         // Eyetracking 測定機能ON/OFF
         private void Eyetracking_Click(object sender, EventArgs e)
         {
@@ -930,5 +1133,40 @@ namespace CTMeasure
                 Eyetracking.BackgroundImage = Properties.Resources.EyetrackingON;
             }
         }
+        // カメラ移動方向指定ボタン
+        // 水平
+        private void CameraMove_H_Click(object sender, EventArgs e)
+        {
+            if (Horizontal == false)
+            {
+                Horizontal = true;
+                CameraMove_H.BackgroundImage = Properties.Resources.CameraTrackingON_Horizontal;
+                Depth = false;
+                CameraMove_D.BackgroundImage = Properties.Resources.CameraTrackingOFF_Depth;
+            }
+            else
+            {
+                Horizontal = false;
+                CameraMove_H.BackgroundImage = Properties.Resources.CameraTrackingOFF_Horizontal;
+            }
+        }
+        // 奥行
+        private void CameraMove_D_Click(object sender, EventArgs e)
+        {
+            if (Depth == false)
+            {
+                Depth = true;
+                CameraMove_D.BackgroundImage = Properties.Resources.CameraTrackingON_Depth;
+                Horizontal = false;
+                CameraMove_H.BackgroundImage = Properties.Resources.CameraTrackingOFF_Horizontal;
+            }
+            else
+            {
+                Depth = false;
+                CameraMove_H.BackgroundImage = Properties.Resources.CameraTrackingOFF_Depth;
+            }
+        }
+
+
     }
 }

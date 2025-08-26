@@ -103,6 +103,46 @@ namespace CTMeasure.Properties {
         /// <summary>
         ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
         /// </summary>
+        internal static System.Drawing.Bitmap CameraTrackingOFF_Depth {
+            get {
+                object obj = ResourceManager.GetObject("CameraTrackingOFF_Depth", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Bitmap CameraTrackingOFF_Horizontal {
+            get {
+                object obj = ResourceManager.GetObject("CameraTrackingOFF_Horizontal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Bitmap CameraTrackingON_Depth {
+            get {
+                object obj = ResourceManager.GetObject("CameraTrackingON_Depth", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Bitmap CameraTrackingON_Horizontal {
+            get {
+                object obj = ResourceManager.GetObject("CameraTrackingON_Horizontal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
         internal static System.Drawing.Bitmap ConnectOFF {
             get {
                 object obj = ResourceManager.GetObject("ConnectOFF", resourceCulture);
@@ -276,6 +316,16 @@ namespace CTMeasure.Properties {
         internal static System.Drawing.Bitmap Shrink {
             get {
                 object obj = ResourceManager.GetObject("Shrink", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Bitmap StopMeasure {
+            get {
+                object obj = ResourceManager.GetObject("StopMeasure", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -340,6 +340,21 @@
   <ItemGroup>
     <None Include="Resources\EyetrackingOFF.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CameraTrackingOFF_Horizontal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CameraTrackingON_Horizontal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CameraTrackingOFF_Depth.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CameraTrackingON_Depth.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\StopMeasure.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

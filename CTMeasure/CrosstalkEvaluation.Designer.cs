@@ -60,7 +60,10 @@
             this.label11 = new System.Windows.Forms.Label();
             this.RTex_ComboBox = new System.Windows.Forms.ComboBox();
             this.border = new System.Windows.Forms.Label();
+            this.CameraMove_D = new System.Windows.Forms.Button();
+            this.CameraMove_H = new System.Windows.Forms.Button();
             this.Eyetracking = new System.Windows.Forms.Button();
+            this.StopMeasure = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Luminance_Start
@@ -168,7 +171,7 @@
             this.StepRange.Location = new System.Drawing.Point(626, 53);
             this.StepRange.Name = "StepRange";
             this.StepRange.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.StepRange.Size = new System.Drawing.Size(164, 35);
+            this.StepRange.Size = new System.Drawing.Size(196, 35);
             this.StepRange.TabIndex = 11;
             this.StepRange.Text = "70";
             this.StepRange.SelectedIndexChanged += new System.EventHandler(this.StepRange_TextChanged);
@@ -178,7 +181,7 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(813, 62);
+            this.label1.Location = new System.Drawing.Point(828, 62);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(54, 27);
             this.label1.TabIndex = 13;
@@ -221,7 +224,7 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(1127, 59);
+            this.label2.Location = new System.Drawing.Point(1156, 61);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(54, 27);
             this.label2.TabIndex = 19;
@@ -230,7 +233,7 @@
             // textBox1
             // 
             this.textBox1.Font = new System.Drawing.Font("MS UI Gothic", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textBox1.Location = new System.Drawing.Point(996, 53);
+            this.textBox1.Location = new System.Drawing.Point(1025, 55);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(112, 34);
             this.textBox1.TabIndex = 18;
@@ -242,7 +245,7 @@
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(890, 57);
+            this.label4.Location = new System.Drawing.Point(919, 59);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(100, 29);
             this.label4.TabIndex = 17;
@@ -308,7 +311,7 @@
             this.LuminanceChart.ForeColor = System.Drawing.Color.White;
             this.LuminanceChart.Location = new System.Drawing.Point(215, 241);
             this.LuminanceChart.Name = "LuminanceChart";
-            this.LuminanceChart.Size = new System.Drawing.Size(1043, 218);
+            this.LuminanceChart.Size = new System.Drawing.Size(1098, 218);
             this.LuminanceChart.TabIndex = 24;
             this.LuminanceChart.Text = "cartesianChart1";
             // 
@@ -328,6 +331,11 @@
             // 
             this.LumSeriesNameComboBox.Font = new System.Drawing.Font("MS UI Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.LumSeriesNameComboBox.FormattingEnabled = true;
+            this.LumSeriesNameComboBox.Items.AddRange(new object[] {
+            "西村式(L: 黒 R: 白)",
+            "西村式(L: 白 R: 黒)",
+            "提案手法(L: 黒 R: 白)",
+            "提案手法(L: 白 R: 黒)"});
             this.LumSeriesNameComboBox.Location = new System.Drawing.Point(962, 203);
             this.LumSeriesNameComboBox.Name = "LumSeriesNameComboBox";
             this.LumSeriesNameComboBox.Size = new System.Drawing.Size(208, 32);
@@ -350,7 +358,7 @@
             this.CrosstalkChart.ForeColor = System.Drawing.Color.White;
             this.CrosstalkChart.Location = new System.Drawing.Point(215, 536);
             this.CrosstalkChart.Name = "CrosstalkChart";
-            this.CrosstalkChart.Size = new System.Drawing.Size(1043, 218);
+            this.CrosstalkChart.Size = new System.Drawing.Size(1098, 218);
             this.CrosstalkChart.TabIndex = 29;
             this.CrosstalkChart.Text = "cartesianChart1";
             // 
@@ -369,6 +377,11 @@
             // 
             this.CtrSeriesNameComboBox.Font = new System.Drawing.Font("MS UI Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.CtrSeriesNameComboBox.FormattingEnabled = true;
+            this.CtrSeriesNameComboBox.Items.AddRange(new object[] {
+            "西村式(L: 黒 R: 白)",
+            "西村式(L: 白 R: 黒)",
+            "提案手法(L: 黒 R: 白)",
+            "提案手法(L: 白 R: 黒)"});
             this.CtrSeriesNameComboBox.Location = new System.Drawing.Point(962, 492);
             this.CtrSeriesNameComboBox.Name = "CtrSeriesNameComboBox";
             this.CtrSeriesNameComboBox.Size = new System.Drawing.Size(208, 32);
@@ -399,7 +412,7 @@
             this.LTex_ComboBox.Location = new System.Drawing.Point(271, 489);
             this.LTex_ComboBox.Name = "LTex_ComboBox";
             this.LTex_ComboBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.LTex_ComboBox.Size = new System.Drawing.Size(68, 35);
+            this.LTex_ComboBox.Size = new System.Drawing.Size(114, 35);
             this.LTex_ComboBox.TabIndex = 32;
             this.LTex_ComboBox.Text = "黒";
             // 
@@ -408,7 +421,7 @@
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("MS UI Gothic", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.label11.ForeColor = System.Drawing.Color.White;
-            this.label11.Location = new System.Drawing.Point(345, 495);
+            this.label11.Location = new System.Drawing.Point(400, 495);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(49, 29);
             this.label11.TabIndex = 35;
@@ -425,10 +438,10 @@
             this.RTex_ComboBox.Items.AddRange(new object[] {
             "白",
             "黒"});
-            this.RTex_ComboBox.Location = new System.Drawing.Point(400, 489);
+            this.RTex_ComboBox.Location = new System.Drawing.Point(455, 489);
             this.RTex_ComboBox.Name = "RTex_ComboBox";
             this.RTex_ComboBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.RTex_ComboBox.Size = new System.Drawing.Size(68, 35);
+            this.RTex_ComboBox.Size = new System.Drawing.Size(114, 35);
             this.RTex_ComboBox.TabIndex = 34;
             this.RTex_ComboBox.Text = "白";
             // 
@@ -442,6 +455,36 @@
             this.border.Size = new System.Drawing.Size(1277, 29);
             this.border.TabIndex = 36;
             this.border.Text = "-------------------------------------------------------------------------------";
+            // 
+            // CameraMove_D
+            // 
+            this.CameraMove_D.BackColor = System.Drawing.Color.Transparent;
+            this.CameraMove_D.BackgroundImage = global::CTMeasure.Properties.Resources.CameraTrackingOFF_Depth;
+            this.CameraMove_D.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.CameraMove_D.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.CameraMove_D.ForeColor = System.Drawing.Color.Black;
+            this.CameraMove_D.Location = new System.Drawing.Point(271, 141);
+            this.CameraMove_D.Name = "CameraMove_D";
+            this.CameraMove_D.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.CameraMove_D.Size = new System.Drawing.Size(97, 78);
+            this.CameraMove_D.TabIndex = 39;
+            this.CameraMove_D.UseVisualStyleBackColor = false;
+            this.CameraMove_D.Click += new System.EventHandler(this.CameraMove_D_Click);
+            // 
+            // CameraMove_H
+            // 
+            this.CameraMove_H.BackColor = System.Drawing.Color.Transparent;
+            this.CameraMove_H.BackgroundImage = global::CTMeasure.Properties.Resources.CameraTrackingOFF_Horizontal;
+            this.CameraMove_H.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.CameraMove_H.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.CameraMove_H.ForeColor = System.Drawing.Color.Black;
+            this.CameraMove_H.Location = new System.Drawing.Point(153, 143);
+            this.CameraMove_H.Name = "CameraMove_H";
+            this.CameraMove_H.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.CameraMove_H.Size = new System.Drawing.Size(97, 78);
+            this.CameraMove_H.TabIndex = 38;
+            this.CameraMove_H.UseVisualStyleBackColor = false;
+            this.CameraMove_H.Click += new System.EventHandler(this.CameraMove_H_Click);
             // 
             // Eyetracking
             // 
@@ -458,12 +501,30 @@
             this.Eyetracking.UseVisualStyleBackColor = false;
             this.Eyetracking.Click += new System.EventHandler(this.Eyetracking_Click);
             // 
+            // StopMeasure
+            // 
+            this.StopMeasure.BackColor = System.Drawing.Color.Transparent;
+            this.StopMeasure.BackgroundImage = global::CTMeasure.Properties.Resources.StopMeasure;
+            this.StopMeasure.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.StopMeasure.Font = new System.Drawing.Font("MS UI Gothic", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.StopMeasure.ForeColor = System.Drawing.Color.Black;
+            this.StopMeasure.Location = new System.Drawing.Point(393, 141);
+            this.StopMeasure.Name = "StopMeasure";
+            this.StopMeasure.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.StopMeasure.Size = new System.Drawing.Size(97, 78);
+            this.StopMeasure.TabIndex = 40;
+            this.StopMeasure.UseVisualStyleBackColor = false;
+            this.StopMeasure.Click += new System.EventHandler(this.StopMeasure_Click);
+            // 
             // CrosstalkEvaluation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(1301, 769);
+            this.ClientSize = new System.Drawing.Size(1347, 769);
+            this.Controls.Add(this.StopMeasure);
+            this.Controls.Add(this.CameraMove_D);
+            this.Controls.Add(this.CameraMove_H);
             this.Controls.Add(this.Eyetracking);
             this.Controls.Add(this.border);
             this.Controls.Add(this.label11);
@@ -539,6 +600,9 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ComboBox RTex_ComboBox;
         private System.Windows.Forms.Label border;
+        private System.Windows.Forms.Button CameraMove_H;
+        private System.Windows.Forms.Button CameraMove_D;
         private System.Windows.Forms.Button Eyetracking;
+        private System.Windows.Forms.Button StopMeasure;
     }
 }
