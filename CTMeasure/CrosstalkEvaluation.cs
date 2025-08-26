@@ -586,7 +586,7 @@ namespace CTMeasure
                         }
                         else
                         {
-                            await Task.Delay(3000);  // 映像が更新されるまで待機
+                            await Task.Delay(2000);  // 映像が更新されるまで待機
                             frame = CameraRef.LatestFrame.Clone();
                             Cv2.ImShow("InterpolatedROI", frame);
                             Cv2.CvtColor(frame, black, ColorConversionCodes.BGR2GRAY);
@@ -619,7 +619,7 @@ namespace CTMeasure
                         }
                         else
                         {
-                            await Task.Delay(3000);
+                            await Task.Delay(2000);
                             frame = CameraRef.LatestFrame.Clone();
                             Cv2.ImShow("InterpolatedROI", frame);
                             Cv2.CvtColor(frame, white, ColorConversionCodes.BGR2GRAY);
@@ -656,7 +656,7 @@ namespace CTMeasure
                             }
                             else
                             {
-                                await Task.Delay(3000);
+                                await Task.Delay(2000);
                                 frame = CameraRef.LatestFrame.Clone();
                                 Cv2.ImShow("InterpolatedROI", frame);
                                 Cv2.CvtColor(frame, bw, ColorConversionCodes.BGR2GRAY);
@@ -692,7 +692,7 @@ namespace CTMeasure
                             }
                             else
                             {
-                                await Task.Delay(3000);
+                                await Task.Delay(2000);
                                 frame = CameraRef.LatestFrame.Clone();
                                 Cv2.ImShow("InterpolatedROI", frame);
                                 Cv2.CvtColor(frame, bw, ColorConversionCodes.BGR2GRAY);
@@ -717,8 +717,10 @@ namespace CTMeasure
                 StageRef.SendCommand($"MGO:A+{1.0f / MoveResolution}");
 
                 // ステージの移動をUnityに通知(EyeTrack == falseなら無視)
-                if (EyeTrack)
+                if (EyeTrack == true)
                 {
+                    responseTcs = new TaskCompletionSource<string>();
+
                     string message = $"EyeTracking";
                     CrossTalkMeasure.lastClient.ReplyLine(message);  // Unityに指令
                     Console.WriteLine($"送信: {message}");
@@ -741,7 +743,7 @@ namespace CTMeasure
                     }
                 }
 
-                await Task.Delay(1000);
+                await Task.Delay(2000);
                 StageRef.SendCommand("STOP");
             }
 
