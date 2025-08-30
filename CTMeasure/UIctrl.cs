@@ -25,7 +25,7 @@ namespace CTMeasure
         int picVal;
         int matVal;
         int oriVal;
-        int oriYVal;
+        int ondotVal;
         float MRatioXVal;
         float MRatioYVal;
 
@@ -39,7 +39,7 @@ namespace CTMeasure
         public string _Pic_value;
         public string _Mat_value;
         public string _Ori_value;
-        public string _OriY_value;
+        public string _OnDotNum_value;
         public string _MRatioX_value;
         public string _MRatioY_value;
 
@@ -53,7 +53,7 @@ namespace CTMeasure
               string pic, string pic_int,
               string mat, string mat_int,
               string ori, string ori_int,
-              string oriY, string oriY_int,
+              string ondotNum, string ondotNum_int,
               string mratioX, string mratioX_int,
               string mratioY, string mratioY_int
             )
@@ -75,7 +75,7 @@ namespace CTMeasure
             int.TryParse(pic, out picVal);
             int.TryParse(mat, out matVal);
             int.TryParse(ori, out oriVal);
-            int.TryParse(oriY, out oriYVal);
+            int.TryParse(ondotNum, out ondotVal);
             // 真偽（"1" / "0" → true / false）
             bool lx_intVal = lx_int == "1";
             bool ly_intVal = ly_int == "1";
@@ -86,7 +86,7 @@ namespace CTMeasure
             bool pic_intVal = pic_int == "1";
             bool mat_intVal = mat_int == "1";
             bool ori_intVal = ori_int == "1";
-            bool oriY_intVal = oriY_int == "1";
+            bool ondotNum_intVal = ondotNum_int == "1";
             bool mratioX_intVal = mratioX_int == "1";
             bool mratioY_intVal = mratioY_int == "1";
 
@@ -106,7 +106,7 @@ namespace CTMeasure
             Picture_Bar.Value = picVal;
             Material_Bar.Value = matVal;
             Origin_Bar.Value = oriVal;
-            OriginY_Bar.Value = oriYVal;
+            OnDotNum_Bar.Value = ondotVal;
 
             // ------ テキストボックス表示 ------
             // 左目
@@ -124,7 +124,7 @@ namespace CTMeasure
             Picture_Box.Text = picVal.ToString();
             Material_Box.Text = matVal.ToString();
             Origin_Box.Text = oriVal.ToString();
-            OriginY_Box.Text = oriYVal.ToString();
+            OnDotNum_Box.Text = ondotVal.ToString();
 
             // ------ チェックボックス代入 ------
             Lx_Int.Checked = lx_intVal;
@@ -136,7 +136,7 @@ namespace CTMeasure
             Picture_Int.Checked = pic_intVal;
             Material_Int.Checked = mat_intVal;
             Origin_Int.Checked = ori_intVal;
-            OriginY_Int.Checked = oriY_intVal;
+            OnDotNum_Int.Checked = ondotNum_intVal;
             MRatioX_Int.Checked = mratioX_intVal;
             MRatioY_Int.Checked = mratioY_intVal;
         }
@@ -282,9 +282,9 @@ namespace CTMeasure
             SendToClient();
         }
 
-        private void OriginY_Bar_Scroll(object sender, EventArgs e)
+        private void OnDotNum_Bar_Scroll(object sender, EventArgs e)
         {
-            OriginY_Box.Text = OriginY_Bar.Value.ToString();
+            OnDotNum_Box.Text = OnDotNum_Bar.Value.ToString();
             SendToClient();
         }
 
@@ -474,7 +474,7 @@ namespace CTMeasure
             SendToClient();
         }
 
-        private void OriginY_Int_CheckedChanged(object sender, EventArgs e)
+        private void OnDotNum_Int_CheckedChanged(object sender, EventArgs e)
         {
             SendToClient();
         }
@@ -568,10 +568,10 @@ namespace CTMeasure
             SendToClient();
         }
 
-        private void OriginY_Reset_Click(object sender, EventArgs e)
+        private void OnDotNum_Reset_Click(object sender, EventArgs e)
         {
-            OriginY_Bar.Value = oriYVal;
-            OriginY_Box.Text = oriYVal.ToString();
+            OnDotNum_Bar.Value = ondotVal;
+            OnDotNum_Box.Text = ondotVal.ToString();
 
             SendToClient();
         }
@@ -598,7 +598,7 @@ namespace CTMeasure
                     + Picture_Box.Text + "/" + (Picture_Int.Checked ? "1" : "0") + "/"
                     + Material_Box.Text + "/" + (Material_Int.Checked ? "1" : "0") + "/"
                     + Origin_Box.Text + "/" + (Origin_Int.Checked ? "1" : "0") + "/"
-                    + OriginY_Box.Text + "/" + (OriginY_Int.Checked ? "1" : "0") + "/"
+                    + OnDotNum_Box.Text + "/" + (OnDotNum_Int.Checked ? "1" : "0") + "/"
                     + MRatioX_Box.Text + "/" + (MRatioX_Int.Checked ? "1" : "0") + "/"
                     + MRatioY_Box.Text + "/" + (MRatioY_Int.Checked ? "1" : "0") + "/"
                     + (UI_toggle.Checked ? "1" : "0") + "\n";
