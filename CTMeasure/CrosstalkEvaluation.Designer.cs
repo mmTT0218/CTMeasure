@@ -158,6 +158,7 @@
             this.StepRange.FormattingEnabled = true;
             this.StepRange.ItemHeight = 27;
             this.StepRange.Items.AddRange(new object[] {
+            "50",
             "60",
             "70",
             "80",
@@ -331,11 +332,6 @@
             // 
             this.LumSeriesNameComboBox.Font = new System.Drawing.Font("MS UI Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.LumSeriesNameComboBox.FormattingEnabled = true;
-            this.LumSeriesNameComboBox.Items.AddRange(new object[] {
-            "西村式(L: 黒 R: 白)",
-            "西村式(L: 白 R: 黒)",
-            "提案手法(L: 黒 R: 白)",
-            "提案手法(L: 白 R: 黒)"});
             this.LumSeriesNameComboBox.Location = new System.Drawing.Point(962, 203);
             this.LumSeriesNameComboBox.Name = "LumSeriesNameComboBox";
             this.LumSeriesNameComboBox.Size = new System.Drawing.Size(208, 32);
@@ -377,11 +373,6 @@
             // 
             this.CtrSeriesNameComboBox.Font = new System.Drawing.Font("MS UI Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.CtrSeriesNameComboBox.FormattingEnabled = true;
-            this.CtrSeriesNameComboBox.Items.AddRange(new object[] {
-            "西村式(L: 黒 R: 白)",
-            "西村式(L: 白 R: 黒)",
-            "提案手法(L: 黒 R: 白)",
-            "提案手法(L: 白 R: 黒)"});
             this.CtrSeriesNameComboBox.Location = new System.Drawing.Point(962, 492);
             this.CtrSeriesNameComboBox.Name = "CtrSeriesNameComboBox";
             this.CtrSeriesNameComboBox.Size = new System.Drawing.Size(208, 32);

@@ -107,7 +107,7 @@ namespace CTMeasure
         // Image Enlarge
         private void EnlargeButton_Click(object sender, EventArgs e)
         {
-            zoomFactor = Math.Min(5.0f, zoomFactor + 0.1f);
+            zoomFactor = Math.Min(100.0f, zoomFactor + 0.1f);
             StreamImage.Invalidate(); // call StreamImage_Paint
         }
 

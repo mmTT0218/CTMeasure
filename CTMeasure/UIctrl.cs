@@ -15,6 +15,9 @@ namespace CTMeasure
     {
         public string _ClientInfo;
 
+        // MRatio.Xの浮動小数点
+        float fp = 1000;
+
         // Reset の値
         float lxVal;
         float lyVal;
@@ -100,7 +103,7 @@ namespace CTMeasure
             Ry_Bar.Value = (int)Math.Round(ryVal * 10);
             Rz_Bar.Value = (int)Math.Round(rzVal * 10);
             // 傾き
-            MRatioX_Bar.Value = (int)Math.Round(MRatioXVal * 10);
+            MRatioX_Bar.Value = (int)Math.Round(MRatioXVal * fp);
             MRatioY_Bar.Value = (int)Math.Round(MRatioYVal * 10);
             // その他
             Picture_Bar.Value = picVal;
@@ -239,12 +242,12 @@ namespace CTMeasure
         {
             if (MRatioX_Int.Checked)
             {
-                MRatioX_Box.Text = ((int)MRatioX_Bar.Value / 10).ToString();
+                MRatioX_Box.Text = ((int)MRatioX_Bar.Value / fp).ToString();
 
             }
             else
             {
-                MRatioX_Box.Text = ((double)MRatioX_Bar.Value / 10).ToString();
+                MRatioX_Box.Text = ((double)MRatioX_Bar.Value / fp).ToString();
             }
             SendToClient();
         }
@@ -263,11 +266,30 @@ namespace CTMeasure
             SendToClient();
         }
 
+        // 小数点精度
+        private void Float_Bar_Scroll(object sender, EventArgs e)
+        {
+            fp = (float)Math.Pow(10.0, Float_Bar.Value);
+            Float.Text = ((int)fp).ToString();
+
+            if (MRatioX_Int.Checked)
+            {
+                MRatioX_Box.Text = ((int)MRatioX_Bar.Value / fp).ToString();
+
+            }
+            else
+            {
+                MRatioX_Box.Text = ((double)MRatioX_Bar.Value / fp).ToString();
+            }
+            SendToClient();
+        }
+
         // その他
         private void Picture_Bar_Scroll(object sender, EventArgs e)
         {
             Picture_Box.Text = Picture_Bar.Value.ToString();
             SendToClient();
+            
         }
 
         private void Material_Bar_Scroll(object sender, EventArgs e)
@@ -530,7 +552,7 @@ namespace CTMeasure
 
         private void MRatioX_Reset_Click(object sender, EventArgs e)
         {
-            MRatioX_Bar.Value = (int)Math.Round(MRatioXVal * 10);
+            MRatioX_Bar.Value = (int)Math.Round(MRatioXVal * fp);
             MRatioX_Box.Text = ((double)MRatioXVal).ToString();
 
             SendToClient();
@@ -583,7 +605,6 @@ namespace CTMeasure
         }
 
         // パラメータ送信
-        // ここから↓
         private void SendToClient()
         {
             if (CrossTalkMeasure.lastClient != null)
@@ -606,5 +627,7 @@ namespace CTMeasure
                 CrossTalkMeasure.lastClient.ReplyLine(message);
             }
         }
+
+        
     }
 }
