@@ -8,15 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using TextBox = System.Windows.Forms.TextBox;
 
 namespace CTMeasure
 {
     public partial class UIctrl : Form
     {
         public string _ClientInfo;
-
-        // MRatio.Xの浮動小数点
-        float fp = 1000;
 
         // Reset の値
         float lxVal;
@@ -46,6 +44,9 @@ namespace CTMeasure
         public string _MRatioX_value;
         public string _MRatioY_value;
 
+        // TextBoxの値反映フラグ
+        private bool _isSyncingUI = false;
+
         public UIctrl(string clientInfo,
               string lx, string lx_int,
               string ly, string ly_int,
@@ -62,6 +63,22 @@ namespace CTMeasure
             )
         {
             InitializeComponent();
+
+            WireTextBoxToBarConfirmOnly(Lx_Box, Lx_Bar, 10, Lx_Int);
+            WireTextBoxToBarConfirmOnly(Ly_Box, Ly_Bar, 10, Ly_Int);
+            WireTextBoxToBarConfirmOnly(Lz_Box, Lz_Bar, 10, Lz_Int);
+
+            WireTextBoxToBarConfirmOnly(Rx_Box, Rx_Bar, 10, Rx_Int);
+            WireTextBoxToBarConfirmOnly(Ry_Box, Ry_Bar, 10, Ry_Int);
+            WireTextBoxToBarConfirmOnly(Rz_Box, Rz_Bar, 10, Rz_Int);
+
+            WireTextBoxToBarConfirmOnly(Picture_Box, Picture_Bar, 1, Picture_Int);
+            WireTextBoxToBarConfirmOnly(Material_Box, Material_Bar, 1, Material_Int);
+            WireTextBoxToBarConfirmOnly(Origin_Box, Origin_Bar, 1, Origin_Int);
+            WireTextBoxToBarConfirmOnly(OnDotNum_Box, OnDotNum_Bar, 1, OnDotNum_Int);
+
+            WireTextBoxToBarConfirmOnly(MRatioX_Box, MRatioX_Bar, 100000, MRatioX_Int);
+            WireTextBoxToBarConfirmOnly(MRatioY_Box, MRatioY_Bar, 10, MRatioY_Int);
 
             _ClientInfo = clientInfo;
 
@@ -93,7 +110,7 @@ namespace CTMeasure
             bool mratioX_intVal = mratioX_int == "1";
             bool mratioY_intVal = mratioY_int == "1";
 
-            // ------ トラックバーに代入(Int) ------
+            // ------ UI初期化 ------
             // 左目
             Lx_Bar.Value = (int)Math.Round(lxVal * 10);
             Ly_Bar.Value = (int)Math.Round(lyVal * 10);
@@ -103,7 +120,7 @@ namespace CTMeasure
             Ry_Bar.Value = (int)Math.Round(ryVal * 10);
             Rz_Bar.Value = (int)Math.Round(rzVal * 10);
             // 傾き
-            MRatioX_Bar.Value = (int)Math.Round(MRatioXVal * fp);
+            MRatioX_Bar.Value = (int)Math.Round(MRatioXVal * 100000);
             MRatioY_Bar.Value = (int)Math.Round(MRatioYVal * 10);
             // その他
             Picture_Bar.Value = picVal;
@@ -237,21 +254,20 @@ namespace CTMeasure
             SendToClient();
         }
 
-        // 傾き
+        // -------------- トラックバーイベント ------------------
         private void MRatioX_Bar_Scroll(object sender, EventArgs e)
         {
             if (MRatioX_Int.Checked)
             {
-                MRatioX_Box.Text = ((int)MRatioX_Bar.Value / fp).ToString();
+                MRatioX_Box.Text = ((int)MRatioX_Bar.Value / 100000).ToString();
 
             }
             else
             {
-                MRatioX_Box.Text = ((double)MRatioX_Bar.Value / fp).ToString();
+                MRatioX_Box.Text = ((double)MRatioX_Bar.Value / 100000).ToString();
             }
             SendToClient();
         }
-
         private void MRatioY_Bar_Scroll(object sender, EventArgs e)
         {
             if (MRatioY_Int.Checked)
@@ -262,24 +278,6 @@ namespace CTMeasure
             else
             {
                 MRatioY_Box.Text = ((double)MRatioY_Bar.Value / 10).ToString();
-            }
-            SendToClient();
-        }
-
-        // 小数点精度
-        private void Float_Bar_Scroll(object sender, EventArgs e)
-        {
-            fp = (float)Math.Pow(10.0, Float_Bar.Value);
-            Float.Text = ((int)fp).ToString();
-
-            if (MRatioX_Int.Checked)
-            {
-                MRatioX_Box.Text = ((int)MRatioX_Bar.Value / fp).ToString();
-
-            }
-            else
-            {
-                MRatioX_Box.Text = ((double)MRatioX_Bar.Value / fp).ToString();
             }
             SendToClient();
         }
@@ -442,21 +440,6 @@ namespace CTMeasure
         // 傾き
         private void MRatioX_Int_CheckedChanged(object sender, EventArgs e)
         {
-            if (MRatioX_Int.Checked)
-            {
-                // 1刻み = 10単位で動かす（10 = 1.0）
-                MRatioX_Bar.SmallChange = 10;
-                MRatioX_Bar.LargeChange = 10;
-
-                // 端数がある場合は丸める
-                MRatioX_Bar.Value = (int)(Math.Round(MRatioX_Bar.Value / 10.0) * 10);
-            }
-            else
-            {
-                // 0.1刻み = 1単位で動かす（1 = 0.1）
-                MRatioX_Bar.SmallChange = 1;
-                MRatioX_Bar.LargeChange = 1;
-            }
             SendToClient();
         }
 
@@ -552,9 +535,9 @@ namespace CTMeasure
 
         private void MRatioX_Reset_Click(object sender, EventArgs e)
         {
-            MRatioX_Bar.Value = (int)Math.Round(MRatioXVal * fp);
-            MRatioX_Box.Text = ((double)MRatioXVal).ToString();
-
+            float clampedVal = Math.Max(1.0f, Math.Min(10.0f, MRatioXVal));
+            int resetValue = (int)Math.Round(clampedVal * 100000.0);
+            MRatioX_Bar.Value = resetValue;
             SendToClient();
         }
 
@@ -599,9 +582,45 @@ namespace CTMeasure
         }
 
         // テキストボックス イベント
-        private void Lx_Box_TextChanged(object sender, EventArgs e)
+        // 確定時のみ TextBox → TrackBar に反映
+        private void WireTextBoxToBarConfirmOnly(TextBox box, System.Windows.Forms.TrackBar bar, double scale, CheckBox intCheck = null)
         {
+            void Commit()
+            {
+                if (_isSyncingUI) return;
 
+                // 空や未完成（"-"など）は無視
+                if (!double.TryParse(box.Text, out double v)) return;
+
+                // IntチェックがONなら整数丸め
+                if (intCheck != null && intCheck.Checked) v = Math.Round(v);
+
+                // スケール適用（例：10倍、100000倍など）
+                int target = (int)Math.Round(v * scale);
+
+                // TrackBar範囲にクリップ
+                target = Math.Max(bar.Minimum, Math.Min(bar.Maximum, target));
+
+                _isSyncingUI = true;
+                if (bar.Value != target) bar.Value = target;
+                _isSyncingUI = false;
+
+                // ProgrammaticなValue変更では Scroll が走らない想定なので送信
+                SendToClient();
+            }
+
+            // Enterで確定
+            box.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    e.SuppressKeyPress = true; // ビープ抑止
+                    Commit();
+                }
+            };
+
+            // フォーカスが外れた時も確定
+            box.Leave += (s, e) => Commit();
         }
 
         // パラメータ送信

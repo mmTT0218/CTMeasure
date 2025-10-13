@@ -94,10 +94,6 @@
             this.MRatioX_Box = new System.Windows.Forms.TextBox();
             this.MRatioX = new System.Windows.Forms.Label();
             this.MRatioX_Bar = new System.Windows.Forms.TrackBar();
-            this.Float_Reset = new System.Windows.Forms.Button();
-            this.Float_Box = new System.Windows.Forms.TextBox();
-            this.Float = new System.Windows.Forms.Label();
-            this.Float_Bar = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.Lx_Bar)).BeginInit();
             this.LeftEye.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Lz_Bar)).BeginInit();
@@ -114,7 +110,6 @@
             this.Slope.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MRatioY_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MRatioX_Bar)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Float_Bar)).BeginInit();
             this.SuspendLayout();
             // 
             // Lx_Bar
@@ -275,7 +270,6 @@
             this.Lx_Box.Name = "Lx_Box";
             this.Lx_Box.Size = new System.Drawing.Size(92, 28);
             this.Lx_Box.TabIndex = 2;
-            this.Lx_Box.TextChanged += new System.EventHandler(this.Lx_Box_TextChanged);
             // 
             // Lx
             // 
@@ -697,10 +691,6 @@
             // 
             // Slope
             // 
-            this.Slope.Controls.Add(this.Float_Reset);
-            this.Slope.Controls.Add(this.Float_Box);
-            this.Slope.Controls.Add(this.Float);
-            this.Slope.Controls.Add(this.Float_Bar);
             this.Slope.Controls.Add(this.MRatioY_Int);
             this.Slope.Controls.Add(this.MRatioY_Reset);
             this.Slope.Controls.Add(this.MRatioY_Box);
@@ -807,46 +797,13 @@
             // MRatioX_Bar
             // 
             this.MRatioX_Bar.Location = new System.Drawing.Point(207, 52);
-            this.MRatioX_Bar.Maximum = 300;
+            this.MRatioX_Bar.Maximum = 1000000;
+            this.MRatioX_Bar.Minimum = 1;
             this.MRatioX_Bar.Name = "MRatioX_Bar";
             this.MRatioX_Bar.Size = new System.Drawing.Size(278, 45);
             this.MRatioX_Bar.TabIndex = 0;
+            this.MRatioX_Bar.Value = 100000;
             this.MRatioX_Bar.Scroll += new System.EventHandler(this.MRatioX_Bar_Scroll);
-            // 
-            // Float_Reset
-            // 
-            this.Float_Reset.Location = new System.Drawing.Point(491, 107);
-            this.Float_Reset.Name = "Float_Reset";
-            this.Float_Reset.Size = new System.Drawing.Size(75, 32);
-            this.Float_Reset.TabIndex = 13;
-            this.Float_Reset.Text = "Reset";
-            this.Float_Reset.UseVisualStyleBackColor = true;
-            // 
-            // Float_Box
-            // 
-            this.Float_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Float_Box.Location = new System.Drawing.Point(107, 110);
-            this.Float_Box.Name = "Float_Box";
-            this.Float_Box.Size = new System.Drawing.Size(92, 28);
-            this.Float_Box.TabIndex = 12;
-            // 
-            // Float
-            // 
-            this.Float.AutoSize = true;
-            this.Float.Location = new System.Drawing.Point(16, 113);
-            this.Float.Name = "Float";
-            this.Float.Size = new System.Drawing.Size(59, 21);
-            this.Float.TabIndex = 11;
-            this.Float.Text = "Float";
-            // 
-            // Float_Bar
-            // 
-            this.Float_Bar.Location = new System.Drawing.Point(207, 113);
-            this.Float_Bar.Maximum = 5;
-            this.Float_Bar.Name = "Float_Bar";
-            this.Float_Bar.Size = new System.Drawing.Size(278, 45);
-            this.Float_Bar.TabIndex = 10;
-            this.Float_Bar.Scroll += new System.EventHandler(this.Float_Bar_Scroll);
             // 
             // UIctrl
             // 
@@ -881,7 +838,6 @@
             this.Slope.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MRatioY_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.MRatioX_Bar)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Float_Bar)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -955,9 +911,5 @@
         private System.Windows.Forms.TextBox MRatioX_Box;
         private System.Windows.Forms.Label MRatioX;
         private System.Windows.Forms.TrackBar MRatioX_Bar;
-        private System.Windows.Forms.Button Float_Reset;
-        private System.Windows.Forms.TextBox Float_Box;
-        private System.Windows.Forms.Label Float;
-        private System.Windows.Forms.TrackBar Float_Bar;
     }
 }
