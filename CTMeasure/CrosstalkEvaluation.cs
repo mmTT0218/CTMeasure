@@ -178,8 +178,21 @@ namespace CTMeasure
 
             Mat currentFrame = CameraRef.LatestFrame.Clone();
 
+            int maxWidth = 1024;
+            int maxHeight = 768;
+
+            // リサイズ後のサイズを計算する
+            (int newWidth, int newHeight) = CalculateResizedDimensions(currentFrame.Width, currentFrame.Height, maxWidth, maxHeight);
+
+            // リサイズ後のMatを生成
+            Mat dst = new Mat();
+            
+            // Cv2.Resizeを使用してリサイズ
+            Cv2.Resize(currentFrame, dst, new OpenCvSharp.Size(newWidth, newHeight), interpolation: InterpolationFlags.Area);            
+
+
             // ROI選択
-            Rect roi = Cv2.SelectROI("ROI選択", currentFrame);
+            Rect roi = Cv2.SelectROI("ROI選択", dst);
             if (roi.Width == 0 || roi.Height == 0)
             {
                 MessageBox.Show("有効なROIが選択されていません", "注意");
@@ -188,16 +201,16 @@ namespace CTMeasure
             Cv2.DestroyWindow("ROI選択");
 
             // ROIの四隅を取得（必要なら別途保持）
-            Start_roiCorners[0] = new Point(roi.X, roi.Y);                             // 左上
-            Start_roiCorners[1] = new Point(roi.X + roi.Width, roi.Y);                // 右上
-            Start_roiCorners[2] = new Point(roi.X + roi.Width, roi.Y + roi.Height);  // 右下
-            Start_roiCorners[3] = new Point(roi.X, roi.Y + roi.Height);              // 左下
+            Start_roiCorners[0] = new Point(roi.X, roi.Y) * 2;                             // 左上
+            Start_roiCorners[1] = new Point(roi.X + roi.Width, roi.Y) * 2;                // 右上
+            Start_roiCorners[2] = new Point(roi.X + roi.Width, roi.Y + roi.Height) * 2;  // 右下
+            Start_roiCorners[3] = new Point(roi.X, roi.Y + roi.Height) * 2;              // 左下
 
             // ★ ROI枠を描画してわかりやすく
-            Cv2.Rectangle(currentFrame, roi, new Scalar(0, 0, 255), 2);  // 赤い枠
+            Cv2.Rectangle(dst, roi, new Scalar(0, 0, 255), 2);  // 赤い枠
 
             // ★ 別ウィンドウで表示
-            Cv2.ImShow("選択されたROI", currentFrame);
+            Cv2.ImShow("選択されたROI", dst);
             Cv2.WaitKey(0);
             Cv2.DestroyWindow("選択されたROI");
 
@@ -208,6 +221,20 @@ namespace CTMeasure
                 deltaROI_X.Text = dx.ToString();
                 deltaROI_Y.Text = dy.ToString();
             }
+        }
+
+        static (int newWidth, int newHeight) CalculateResizedDimensions(int originalWidth, int originalHeight, int maxWidth, int maxHeight)
+        {
+            double widthRatio = (double)maxWidth / originalWidth;
+            double heightRatio = (double)maxHeight / originalHeight;
+
+            // 縦横のうち、より縮小率が高い方（または拡大率が低い方）を基準とする
+            double ratio = Math.Min(widthRatio, heightRatio);
+
+            int newWidth = (int)(originalWidth * ratio);
+            int newHeight = (int)(originalHeight * ratio);
+
+            return (newWidth, newHeight);
         }
 
         // 終了地点のROI選択
@@ -221,8 +248,20 @@ namespace CTMeasure
 
             Mat currentFrame = CameraRef.LatestFrame.Clone();
 
+            int maxWidth = 1024;
+            int maxHeight = 768;
+
+            // リサイズ後のサイズを計算する
+            (int newWidth, int newHeight) = CalculateResizedDimensions(currentFrame.Width, currentFrame.Height, maxWidth, maxHeight);
+
+            // リサイズ後のMatを生成
+            Mat dst = new Mat();
+
+            // Cv2.Resizeを使用してリサイズ
+            Cv2.Resize(currentFrame, dst, new OpenCvSharp.Size(newWidth, newHeight), interpolation: InterpolationFlags.Area);
+
             // ROI選択
-            Rect roi = Cv2.SelectROI("ROI選択", currentFrame);
+            Rect roi = Cv2.SelectROI("ROI選択", dst);
             if (roi.Width == 0 || roi.Height == 0)
             {
                 MessageBox.Show("有効なROIが選択されていません", "注意");
@@ -231,16 +270,16 @@ namespace CTMeasure
             Cv2.DestroyWindow("ROI選択");
 
             // ROIの四隅を取得（必要なら別途保持）
-            END_roiCorners[0] = new Point(roi.X, roi.Y);                             // 左上
-            END_roiCorners[1] = new Point(roi.X + roi.Width, roi.Y);                // 右上
-            END_roiCorners[2] = new Point(roi.X + roi.Width, roi.Y + roi.Height);  // 右下
-            END_roiCorners[3] = new Point(roi.X, roi.Y + roi.Height);              // 左下
+            END_roiCorners[0] = new Point(roi.X, roi.Y) * 2;                             // 左上
+            END_roiCorners[1] = new Point(roi.X + roi.Width, roi.Y) * 2;                // 右上
+            END_roiCorners[2] = new Point(roi.X + roi.Width, roi.Y + roi.Height) * 2;  // 右下
+            END_roiCorners[3] = new Point(roi.X, roi.Y + roi.Height) * 2;              // 左下
 
             // ★ ROI枠を描画してわかりやすく
-            Cv2.Rectangle(currentFrame, roi, new Scalar(0, 0, 255), 2);  // 赤い枠
+            Cv2.Rectangle(dst, roi, new Scalar(0, 0, 255), 2);  // 赤い枠
 
             // ★ 別ウィンドウで表示
-            Cv2.ImShow("選択されたROI", currentFrame);
+            Cv2.ImShow("選択されたROI", dst);
             Cv2.WaitKey(0);
             Cv2.DestroyWindow("選択されたROI");
 
@@ -264,7 +303,7 @@ namespace CTMeasure
                 return interpolated;
             }
 
-            double alpha = (i - 1.0) / (maxIndex - 1.0);  // 補間係数
+            double alpha = (maxIndex <= 1) ? 0.0 : (double)i / (maxIndex - 1.0);  // 補間係数
 
             for (int j = 0; j < 4; j++)
             {

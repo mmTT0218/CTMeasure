@@ -188,7 +188,7 @@
             // Lz_Bar
             // 
             this.Lz_Bar.Location = new System.Drawing.Point(207, 134);
-            this.Lz_Bar.Maximum = 5000;
+            this.Lz_Bar.Maximum = 10000;
             this.Lz_Bar.Name = "Lz_Bar";
             this.Lz_Bar.Size = new System.Drawing.Size(278, 45);
             this.Lz_Bar.TabIndex = 10;
@@ -346,7 +346,7 @@
             // Rz_Bar
             // 
             this.Rz_Bar.Location = new System.Drawing.Point(221, 135);
-            this.Rz_Bar.Maximum = 5000;
+            this.Rz_Bar.Maximum = 10000;
             this.Rz_Bar.Name = "Rz_Bar";
             this.Rz_Bar.Size = new System.Drawing.Size(278, 45);
             this.Rz_Bar.TabIndex = 10;
