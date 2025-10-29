@@ -94,6 +94,11 @@
             this.MRatioX_Box = new System.Windows.Forms.TextBox();
             this.MRatioX = new System.Windows.Forms.Label();
             this.MRatioX_Bar = new System.Windows.Forms.TrackBar();
+            this.BarrierPitch_Int = new System.Windows.Forms.CheckBox();
+            this.BarrierPitch_Reset = new System.Windows.Forms.Button();
+            this.BarrierPitch_Box = new System.Windows.Forms.TextBox();
+            this.BarrierPitch = new System.Windows.Forms.Label();
+            this.BarrierPitch_Bar = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.Lx_Bar)).BeginInit();
             this.LeftEye.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Lz_Bar)).BeginInit();
@@ -110,6 +115,7 @@
             this.Slope.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MRatioY_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MRatioX_Bar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BarrierPitch_Bar)).BeginInit();
             this.SuspendLayout();
             // 
             // Lx_Bar
@@ -450,10 +456,15 @@
             // 
             // Ex
             // 
+            this.Ex.Controls.Add(this.BarrierPitch_Int);
             this.Ex.Controls.Add(this.OnDotNum_Int);
+            this.Ex.Controls.Add(this.BarrierPitch_Reset);
             this.Ex.Controls.Add(this.OnDotNum_Reset);
+            this.Ex.Controls.Add(this.BarrierPitch_Box);
             this.Ex.Controls.Add(this.OnDotNum_Box);
+            this.Ex.Controls.Add(this.BarrierPitch);
             this.Ex.Controls.Add(this.OnDotNum);
+            this.Ex.Controls.Add(this.BarrierPitch_Bar);
             this.Ex.Controls.Add(this.OnDotNum_Bar);
             this.Ex.Controls.Add(this.Origin_Int);
             this.Ex.Controls.Add(this.Origin_Reset);
@@ -473,7 +484,7 @@
             this.Ex.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Ex.Location = new System.Drawing.Point(688, 288);
             this.Ex.Name = "Ex";
-            this.Ex.Size = new System.Drawing.Size(655, 241);
+            this.Ex.Size = new System.Drawing.Size(655, 301);
             this.Ex.TabIndex = 16;
             this.Ex.TabStop = false;
             this.Ex.Text = "Ex";
@@ -704,7 +715,7 @@
             this.Slope.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Slope.Location = new System.Drawing.Point(15, 288);
             this.Slope.Name = "Slope";
-            this.Slope.Size = new System.Drawing.Size(655, 241);
+            this.Slope.Size = new System.Drawing.Size(655, 301);
             this.Slope.TabIndex = 20;
             this.Slope.TabStop = false;
             this.Slope.Text = "Slope";
@@ -712,7 +723,7 @@
             // MRatioY_Int
             // 
             this.MRatioY_Int.AutoSize = true;
-            this.MRatioY_Int.Location = new System.Drawing.Point(572, 174);
+            this.MRatioY_Int.Location = new System.Drawing.Point(572, 190);
             this.MRatioY_Int.Name = "MRatioY_Int";
             this.MRatioY_Int.Size = new System.Drawing.Size(55, 25);
             this.MRatioY_Int.TabIndex = 9;
@@ -722,7 +733,7 @@
             // 
             // MRatioY_Reset
             // 
-            this.MRatioY_Reset.Location = new System.Drawing.Point(491, 167);
+            this.MRatioY_Reset.Location = new System.Drawing.Point(491, 183);
             this.MRatioY_Reset.Name = "MRatioY_Reset";
             this.MRatioY_Reset.Size = new System.Drawing.Size(75, 32);
             this.MRatioY_Reset.TabIndex = 8;
@@ -733,7 +744,7 @@
             // MRatioY_Box
             // 
             this.MRatioY_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.MRatioY_Box.Location = new System.Drawing.Point(107, 170);
+            this.MRatioY_Box.Location = new System.Drawing.Point(107, 186);
             this.MRatioY_Box.Name = "MRatioY_Box";
             this.MRatioY_Box.Size = new System.Drawing.Size(92, 28);
             this.MRatioY_Box.TabIndex = 7;
@@ -741,7 +752,7 @@
             // MRatioY
             // 
             this.MRatioY.AutoSize = true;
-            this.MRatioY.Location = new System.Drawing.Point(16, 173);
+            this.MRatioY.Location = new System.Drawing.Point(16, 189);
             this.MRatioY.Name = "MRatioY";
             this.MRatioY.Size = new System.Drawing.Size(90, 21);
             this.MRatioY.TabIndex = 6;
@@ -749,7 +760,7 @@
             // 
             // MRatioY_Bar
             // 
-            this.MRatioY_Bar.Location = new System.Drawing.Point(207, 173);
+            this.MRatioY_Bar.Location = new System.Drawing.Point(207, 189);
             this.MRatioY_Bar.Maximum = 300;
             this.MRatioY_Bar.Name = "MRatioY_Bar";
             this.MRatioY_Bar.Size = new System.Drawing.Size(278, 45);
@@ -759,7 +770,7 @@
             // MRatioX_Int
             // 
             this.MRatioX_Int.AutoSize = true;
-            this.MRatioX_Int.Location = new System.Drawing.Point(572, 53);
+            this.MRatioX_Int.Location = new System.Drawing.Point(572, 87);
             this.MRatioX_Int.Name = "MRatioX_Int";
             this.MRatioX_Int.Size = new System.Drawing.Size(55, 25);
             this.MRatioX_Int.TabIndex = 4;
@@ -769,7 +780,7 @@
             // 
             // MRatioX_Reset
             // 
-            this.MRatioX_Reset.Location = new System.Drawing.Point(491, 46);
+            this.MRatioX_Reset.Location = new System.Drawing.Point(491, 80);
             this.MRatioX_Reset.Name = "MRatioX_Reset";
             this.MRatioX_Reset.Size = new System.Drawing.Size(75, 32);
             this.MRatioX_Reset.TabIndex = 3;
@@ -780,7 +791,7 @@
             // MRatioX_Box
             // 
             this.MRatioX_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.MRatioX_Box.Location = new System.Drawing.Point(107, 49);
+            this.MRatioX_Box.Location = new System.Drawing.Point(107, 83);
             this.MRatioX_Box.Name = "MRatioX_Box";
             this.MRatioX_Box.Size = new System.Drawing.Size(92, 28);
             this.MRatioX_Box.TabIndex = 2;
@@ -788,7 +799,7 @@
             // MRatioX
             // 
             this.MRatioX.AutoSize = true;
-            this.MRatioX.Location = new System.Drawing.Point(16, 52);
+            this.MRatioX.Location = new System.Drawing.Point(16, 86);
             this.MRatioX.Name = "MRatioX";
             this.MRatioX.Size = new System.Drawing.Size(91, 21);
             this.MRatioX.TabIndex = 1;
@@ -796,7 +807,7 @@
             // 
             // MRatioX_Bar
             // 
-            this.MRatioX_Bar.Location = new System.Drawing.Point(207, 52);
+            this.MRatioX_Bar.Location = new System.Drawing.Point(207, 86);
             this.MRatioX_Bar.Maximum = 1000000;
             this.MRatioX_Bar.Minimum = 1;
             this.MRatioX_Bar.Name = "MRatioX_Bar";
@@ -805,11 +816,59 @@
             this.MRatioX_Bar.Value = 100000;
             this.MRatioX_Bar.Scroll += new System.EventHandler(this.MRatioX_Bar_Scroll);
             // 
+            // BarrierPitch_Int
+            // 
+            this.BarrierPitch_Int.AutoSize = true;
+            this.BarrierPitch_Int.Location = new System.Drawing.Point(586, 237);
+            this.BarrierPitch_Int.Name = "BarrierPitch_Int";
+            this.BarrierPitch_Int.Size = new System.Drawing.Size(55, 25);
+            this.BarrierPitch_Int.TabIndex = 14;
+            this.BarrierPitch_Int.Text = "Int";
+            this.BarrierPitch_Int.UseVisualStyleBackColor = true;
+            // 
+            // BarrierPitch_Reset
+            // 
+            this.BarrierPitch_Reset.Location = new System.Drawing.Point(505, 230);
+            this.BarrierPitch_Reset.Name = "BarrierPitch_Reset";
+            this.BarrierPitch_Reset.Size = new System.Drawing.Size(75, 32);
+            this.BarrierPitch_Reset.TabIndex = 13;
+            this.BarrierPitch_Reset.Text = "Reset";
+            this.BarrierPitch_Reset.UseVisualStyleBackColor = true;
+            this.BarrierPitch_Reset.Click += new System.EventHandler(this.BarrierPitch_Reset_Click);
+            // 
+            // BarrierPitch_Box
+            // 
+            this.BarrierPitch_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.BarrierPitch_Box.Location = new System.Drawing.Point(121, 233);
+            this.BarrierPitch_Box.Name = "BarrierPitch_Box";
+            this.BarrierPitch_Box.Size = new System.Drawing.Size(92, 28);
+            this.BarrierPitch_Box.TabIndex = 12;
+            // 
+            // BarrierPitch
+            // 
+            this.BarrierPitch.AutoSize = true;
+            this.BarrierPitch.Location = new System.Drawing.Point(38, 236);
+            this.BarrierPitch.Name = "BarrierPitch";
+            this.BarrierPitch.Size = new System.Drawing.Size(35, 21);
+            this.BarrierPitch.TabIndex = 11;
+            this.BarrierPitch.Text = "Bp";
+            // 
+            // BarrierPitch_Bar
+            // 
+            this.BarrierPitch_Bar.Location = new System.Drawing.Point(221, 236);
+            this.BarrierPitch_Bar.Maximum = 2600000;
+            this.BarrierPitch_Bar.Minimum = 2500000;
+            this.BarrierPitch_Bar.Name = "BarrierPitch_Bar";
+            this.BarrierPitch_Bar.Size = new System.Drawing.Size(278, 45);
+            this.BarrierPitch_Bar.TabIndex = 10;
+            this.BarrierPitch_Bar.Value = 2500000;
+            this.BarrierPitch_Bar.Scroll += new System.EventHandler(this.BarrierPitch_Bar_Scroll);
+            // 
             // UIctrl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1377, 541);
+            this.ClientSize = new System.Drawing.Size(1377, 601);
             this.Controls.Add(this.Slope);
             this.Controls.Add(this.UI_toggle);
             this.Controls.Add(this.ClientInfo);
@@ -838,6 +897,7 @@
             this.Slope.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MRatioY_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.MRatioX_Bar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BarrierPitch_Bar)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -911,5 +971,10 @@
         private System.Windows.Forms.TextBox MRatioX_Box;
         private System.Windows.Forms.Label MRatioX;
         private System.Windows.Forms.TrackBar MRatioX_Bar;
+        private System.Windows.Forms.CheckBox BarrierPitch_Int;
+        private System.Windows.Forms.Button BarrierPitch_Reset;
+        private System.Windows.Forms.TextBox BarrierPitch_Box;
+        private System.Windows.Forms.Label BarrierPitch;
+        private System.Windows.Forms.TrackBar BarrierPitch_Bar;
     }
 }

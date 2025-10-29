@@ -29,6 +29,7 @@ namespace CTMeasure
         int ondotVal;
         float MRatioXVal;
         float MRatioYVal;
+        float BarrierPitchVal;
 
         // トラックバー値
         public string _Lx_value;
@@ -43,9 +44,15 @@ namespace CTMeasure
         public string _OnDotNum_value;
         public string _MRatioX_value;
         public string _MRatioY_value;
+        public string _BarrierPitch_value;
 
         // TextBoxの値反映フラグ
         private bool _isSyncingUI = false;
+
+        // ---- Barrier Pitch slider scaling (7桁小数 = 0.0000001 mm/step) ----
+        const int BP_SCALE = 10000000; // 1 tick = 0.0000001 mm
+        const double BP_MIN = 0.2500000;
+        const double BP_MAX = 0.2560000;
 
         public UIctrl(string clientInfo,
               string lx, string lx_int,
@@ -59,7 +66,8 @@ namespace CTMeasure
               string ori, string ori_int,
               string ondotNum, string ondotNum_int,
               string mratioX, string mratioX_int,
-              string mratioY, string mratioY_int
+              string mratioY, string mratioY_int,
+              string barrierPitch, string barrierPitch_int
             )
         {
             InitializeComponent();
@@ -80,7 +88,14 @@ namespace CTMeasure
             WireTextBoxToBarConfirmOnly(MRatioX_Box, MRatioX_Bar, 100000, MRatioX_Int);
             WireTextBoxToBarConfirmOnly(MRatioY_Box, MRatioY_Bar, 10, MRatioY_Int);
 
+            WireTextBoxToBarConfirmOnly(BarrierPitch_Box, BarrierPitch_Bar, BP_SCALE, null);
+
             _ClientInfo = clientInfo;
+
+            BarrierPitch_Bar.Minimum = (int)Math.Round(BP_MIN * BP_SCALE);
+            BarrierPitch_Bar.Maximum = (int)Math.Round(BP_MAX * BP_SCALE);
+            BarrierPitch_Bar.SmallChange = 1;    // 0.0000001 mm
+            BarrierPitch_Bar.LargeChange = 100;  // 0.0000100 mm
 
             // 実数
             float.TryParse(lx, out lxVal);
@@ -91,6 +106,7 @@ namespace CTMeasure
             float.TryParse(rz, out rzVal);
             float.TryParse(mratioX, out MRatioXVal);
             float.TryParse(mratioY, out MRatioYVal);
+            float.TryParse(barrierPitch, out BarrierPitchVal);
             // 整数
             int.TryParse(pic, out picVal);
             int.TryParse(mat, out matVal);
@@ -109,6 +125,7 @@ namespace CTMeasure
             bool ondotNum_intVal = ondotNum_int == "1";
             bool mratioX_intVal = mratioX_int == "1";
             bool mratioY_intVal = mratioY_int == "1";
+            bool barrierPitch_intVal = barrierPitch_int == "1";
 
             // ------ UI初期化 ------
             // 左目
@@ -127,6 +144,9 @@ namespace CTMeasure
             Material_Bar.Value = matVal;
             Origin_Bar.Value = oriVal;
             OnDotNum_Bar.Value = ondotVal;
+            int bpInit = (int)Math.Round(BarrierPitchVal * BP_SCALE);
+            bpInit = Math.Max(BarrierPitch_Bar.Minimum, Math.Min(BarrierPitch_Bar.Maximum, bpInit));
+            BarrierPitch_Bar.Value = bpInit;
 
             // ------ テキストボックス表示 ------
             // 左目
@@ -145,6 +165,7 @@ namespace CTMeasure
             Material_Box.Text = matVal.ToString();
             Origin_Box.Text = oriVal.ToString();
             OnDotNum_Box.Text = ondotVal.ToString();
+            BarrierPitch_Box.Text = (BarrierPitch_Bar.Value / (double)BP_SCALE).ToString("F7");
 
             // ------ チェックボックス代入 ------
             Lx_Int.Checked = lx_intVal;
@@ -159,6 +180,7 @@ namespace CTMeasure
             OnDotNum_Int.Checked = ondotNum_intVal;
             MRatioX_Int.Checked = mratioX_intVal;
             MRatioY_Int.Checked = mratioY_intVal;
+            BarrierPitch_Int.Checked = barrierPitch_intVal;
         }
 
 
@@ -305,6 +327,12 @@ namespace CTMeasure
         private void OnDotNum_Bar_Scroll(object sender, EventArgs e)
         {
             OnDotNum_Box.Text = OnDotNum_Bar.Value.ToString();
+            SendToClient();
+        }
+
+        private void BarrierPitch_Bar_Scroll(object sender, EventArgs e)
+        {
+            BarrierPitch_Box.Text = (BarrierPitch_Bar.Value / (double)BP_SCALE).ToString("F7");
             SendToClient();
         }
 
@@ -484,7 +512,8 @@ namespace CTMeasure
             SendToClient();
         }
 
-        // リセットボタン イベント
+        // -------------- リセットボタン イベント --------------
+        // 左目
         private void Lx_Reset_Click(object sender, EventArgs e)
         {
             Lx_Bar.Value = (int)Math.Round(lxVal * 10);
@@ -508,7 +537,7 @@ namespace CTMeasure
 
             SendToClient();
         }
-
+        // 右目
         private void Rx_Reset_Click(object sender, EventArgs e)
         {
             Rx_Bar.Value = (int)Math.Round(rxVal * 10);
@@ -532,7 +561,7 @@ namespace CTMeasure
 
             SendToClient();
         }
-
+        // 傾き
         private void MRatioX_Reset_Click(object sender, EventArgs e)
         {
             float clampedVal = Math.Max(1.0f, Math.Min(10.0f, MRatioXVal));
@@ -548,7 +577,7 @@ namespace CTMeasure
 
             SendToClient();
         }
-
+        // その他
         private void Picture_Reset_Click(object sender, EventArgs e)
         {
             Picture_Bar.Value = picVal;
@@ -578,6 +607,15 @@ namespace CTMeasure
             OnDotNum_Bar.Value = ondotVal;
             OnDotNum_Box.Text = ondotVal.ToString();
 
+            SendToClient();
+        }
+
+        private void BarrierPitch_Reset_Click(object sender, EventArgs e)
+        {
+            int v = (int)Math.Round(BarrierPitchVal * BP_SCALE);
+            v = Math.Max(BarrierPitch_Bar.Minimum, Math.Min(BarrierPitch_Bar.Maximum, v));
+            BarrierPitch_Bar.Value = v;
+            BarrierPitch_Box.Text = (v / (double)BP_SCALE).ToString("F7");
             SendToClient();
         }
 
@@ -641,12 +679,11 @@ namespace CTMeasure
                     + OnDotNum_Box.Text + "/" + (OnDotNum_Int.Checked ? "1" : "0") + "/"
                     + MRatioX_Box.Text + "/" + (MRatioX_Int.Checked ? "1" : "0") + "/"
                     + MRatioY_Box.Text + "/" + (MRatioY_Int.Checked ? "1" : "0") + "/"
+                    + BarrierPitch_Box.Text + "/" + (BarrierPitch_Int.Checked ? "1" : "0") + "/"
                     + (UI_toggle.Checked ? "1" : "0") + "\n";
 
                 CrossTalkMeasure.lastClient.ReplyLine(message);
             }
         }
-
-        
     }
 }

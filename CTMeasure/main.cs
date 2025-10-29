@@ -708,7 +708,7 @@ namespace CTMeasure
             }
 
             // パラメータが不足しているときの安全対策
-            if (tokens == null || tokens.Length < 25)
+            if (tokens == null || tokens.Length < 27)
             {
                 MessageBox.Show("Unityからのパラメータをまだ受信していません。", "エラー");
                 return;
@@ -726,7 +726,8 @@ namespace CTMeasure
                     tokens[13], tokens[14], tokens[15],
                     tokens[16], tokens[17], tokens[18],
                     tokens[19], tokens[20], tokens[21],
-                    tokens[22], tokens[23], tokens[24]
+                    tokens[22], tokens[23], tokens[24],
+                    tokens[25], tokens[26]
                 );
 
                 ui.Show();         // モードレス表示
