@@ -61,10 +61,15 @@
             this.Rx = new System.Windows.Forms.Label();
             this.Rx_Bar = new System.Windows.Forms.TrackBar();
             this.Ex = new System.Windows.Forms.GroupBox();
+            this.BarrierPitch_Int = new System.Windows.Forms.CheckBox();
             this.OnDotNum_Int = new System.Windows.Forms.CheckBox();
+            this.BarrierPitch_Reset = new System.Windows.Forms.Button();
             this.OnDotNum_Reset = new System.Windows.Forms.Button();
+            this.BarrierPitch_Box = new System.Windows.Forms.TextBox();
             this.OnDotNum_Box = new System.Windows.Forms.TextBox();
+            this.BarrierPitch = new System.Windows.Forms.Label();
             this.OnDotNum = new System.Windows.Forms.Label();
+            this.BarrierPitch_Bar = new System.Windows.Forms.TrackBar();
             this.OnDotNum_Bar = new System.Windows.Forms.TrackBar();
             this.Origin_Int = new System.Windows.Forms.CheckBox();
             this.Origin_Reset = new System.Windows.Forms.Button();
@@ -83,22 +88,12 @@
             this.Picture_Bar = new System.Windows.Forms.TrackBar();
             this.ClientInfo = new System.Windows.Forms.Label();
             this.UI_toggle = new System.Windows.Forms.CheckBox();
-            this.Slope = new System.Windows.Forms.GroupBox();
-            this.MRatioY_Int = new System.Windows.Forms.CheckBox();
-            this.MRatioY_Reset = new System.Windows.Forms.Button();
-            this.MRatioY_Box = new System.Windows.Forms.TextBox();
-            this.MRatioY = new System.Windows.Forms.Label();
-            this.MRatioY_Bar = new System.Windows.Forms.TrackBar();
-            this.MRatioX_Int = new System.Windows.Forms.CheckBox();
-            this.MRatioX_Reset = new System.Windows.Forms.Button();
-            this.MRatioX_Box = new System.Windows.Forms.TextBox();
-            this.MRatioX = new System.Windows.Forms.Label();
-            this.MRatioX_Bar = new System.Windows.Forms.TrackBar();
-            this.BarrierPitch_Int = new System.Windows.Forms.CheckBox();
-            this.BarrierPitch_Reset = new System.Windows.Forms.Button();
-            this.BarrierPitch_Box = new System.Windows.Forms.TextBox();
-            this.BarrierPitch = new System.Windows.Forms.Label();
-            this.BarrierPitch_Bar = new System.Windows.Forms.TrackBar();
+            this.Theta = new System.Windows.Forms.GroupBox();
+            this.dTheta_Int = new System.Windows.Forms.CheckBox();
+            this.dTheta_Reset = new System.Windows.Forms.Button();
+            this.dTheta_Box = new System.Windows.Forms.TextBox();
+            this.dTheta = new System.Windows.Forms.Label();
+            this.dTheta_Bar = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.Lx_Bar)).BeginInit();
             this.LeftEye.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Lz_Bar)).BeginInit();
@@ -108,14 +103,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.Ry_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Rx_Bar)).BeginInit();
             this.Ex.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BarrierPitch_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.OnDotNum_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Origin_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Material_Bar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Picture_Bar)).BeginInit();
-            this.Slope.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MRatioY_Bar)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.MRatioX_Bar)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.BarrierPitch_Bar)).BeginInit();
+            this.Theta.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dTheta_Bar)).BeginInit();
             this.SuspendLayout();
             // 
             // Lx_Bar
@@ -489,6 +483,16 @@
             this.Ex.TabStop = false;
             this.Ex.Text = "Ex";
             // 
+            // BarrierPitch_Int
+            // 
+            this.BarrierPitch_Int.AutoSize = true;
+            this.BarrierPitch_Int.Location = new System.Drawing.Point(586, 237);
+            this.BarrierPitch_Int.Name = "BarrierPitch_Int";
+            this.BarrierPitch_Int.Size = new System.Drawing.Size(55, 25);
+            this.BarrierPitch_Int.TabIndex = 14;
+            this.BarrierPitch_Int.Text = "Int";
+            this.BarrierPitch_Int.UseVisualStyleBackColor = true;
+            // 
             // OnDotNum_Int
             // 
             this.OnDotNum_Int.AutoSize = true;
@@ -500,6 +504,16 @@
             this.OnDotNum_Int.UseVisualStyleBackColor = true;
             this.OnDotNum_Int.CheckedChanged += new System.EventHandler(this.OnDotNum_Int_CheckedChanged);
             // 
+            // BarrierPitch_Reset
+            // 
+            this.BarrierPitch_Reset.Location = new System.Drawing.Point(505, 230);
+            this.BarrierPitch_Reset.Name = "BarrierPitch_Reset";
+            this.BarrierPitch_Reset.Size = new System.Drawing.Size(75, 32);
+            this.BarrierPitch_Reset.TabIndex = 13;
+            this.BarrierPitch_Reset.Text = "Reset";
+            this.BarrierPitch_Reset.UseVisualStyleBackColor = true;
+            this.BarrierPitch_Reset.Click += new System.EventHandler(this.BarrierPitch_Reset_Click);
+            // 
             // OnDotNum_Reset
             // 
             this.OnDotNum_Reset.Location = new System.Drawing.Point(507, 179);
@@ -510,6 +524,14 @@
             this.OnDotNum_Reset.UseVisualStyleBackColor = true;
             this.OnDotNum_Reset.Click += new System.EventHandler(this.OnDotNum_Reset_Click);
             // 
+            // BarrierPitch_Box
+            // 
+            this.BarrierPitch_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.BarrierPitch_Box.Location = new System.Drawing.Point(121, 233);
+            this.BarrierPitch_Box.Name = "BarrierPitch_Box";
+            this.BarrierPitch_Box.Size = new System.Drawing.Size(92, 28);
+            this.BarrierPitch_Box.TabIndex = 12;
+            // 
             // OnDotNum_Box
             // 
             this.OnDotNum_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
@@ -517,6 +539,15 @@
             this.OnDotNum_Box.Name = "OnDotNum_Box";
             this.OnDotNum_Box.Size = new System.Drawing.Size(92, 28);
             this.OnDotNum_Box.TabIndex = 17;
+            // 
+            // BarrierPitch
+            // 
+            this.BarrierPitch.AutoSize = true;
+            this.BarrierPitch.Location = new System.Drawing.Point(38, 236);
+            this.BarrierPitch.Name = "BarrierPitch";
+            this.BarrierPitch.Size = new System.Drawing.Size(35, 21);
+            this.BarrierPitch.TabIndex = 11;
+            this.BarrierPitch.Text = "Bp";
             // 
             // OnDotNum
             // 
@@ -526,6 +557,17 @@
             this.OnDotNum.Size = new System.Drawing.Size(115, 21);
             this.OnDotNum.TabIndex = 16;
             this.OnDotNum.Text = "OnDotNum";
+            // 
+            // BarrierPitch_Bar
+            // 
+            this.BarrierPitch_Bar.Location = new System.Drawing.Point(221, 236);
+            this.BarrierPitch_Bar.Maximum = 2600000;
+            this.BarrierPitch_Bar.Minimum = 2500000;
+            this.BarrierPitch_Bar.Name = "BarrierPitch_Bar";
+            this.BarrierPitch_Bar.Size = new System.Drawing.Size(278, 45);
+            this.BarrierPitch_Bar.TabIndex = 10;
+            this.BarrierPitch_Bar.Value = 2500000;
+            this.BarrierPitch_Bar.Scroll += new System.EventHandler(this.BarrierPitch_Bar_Scroll);
             // 
             // OnDotNum_Bar
             // 
@@ -700,176 +742,75 @@
             this.UI_toggle.UseVisualStyleBackColor = true;
             this.UI_toggle.CheckedChanged += new System.EventHandler(this.UI_toggle_CheckedChanged);
             // 
-            // Slope
+            // Theta
             // 
-            this.Slope.Controls.Add(this.MRatioY_Int);
-            this.Slope.Controls.Add(this.MRatioY_Reset);
-            this.Slope.Controls.Add(this.MRatioY_Box);
-            this.Slope.Controls.Add(this.MRatioY);
-            this.Slope.Controls.Add(this.MRatioY_Bar);
-            this.Slope.Controls.Add(this.MRatioX_Int);
-            this.Slope.Controls.Add(this.MRatioX_Reset);
-            this.Slope.Controls.Add(this.MRatioX_Box);
-            this.Slope.Controls.Add(this.MRatioX);
-            this.Slope.Controls.Add(this.MRatioX_Bar);
-            this.Slope.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Slope.Location = new System.Drawing.Point(15, 288);
-            this.Slope.Name = "Slope";
-            this.Slope.Size = new System.Drawing.Size(655, 301);
-            this.Slope.TabIndex = 20;
-            this.Slope.TabStop = false;
-            this.Slope.Text = "Slope";
+            this.Theta.Controls.Add(this.dTheta_Int);
+            this.Theta.Controls.Add(this.dTheta_Bar);
+            this.Theta.Controls.Add(this.dTheta_Reset);
+            this.Theta.Controls.Add(this.dTheta);
+            this.Theta.Controls.Add(this.dTheta_Box);
+            this.Theta.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Theta.Location = new System.Drawing.Point(15, 288);
+            this.Theta.Name = "Theta";
+            this.Theta.Size = new System.Drawing.Size(655, 301);
+            this.Theta.TabIndex = 20;
+            this.Theta.TabStop = false;
+            this.Theta.Text = "Theta";
             // 
-            // MRatioY_Int
+            // dTheta_Int
             // 
-            this.MRatioY_Int.AutoSize = true;
-            this.MRatioY_Int.Location = new System.Drawing.Point(572, 190);
-            this.MRatioY_Int.Name = "MRatioY_Int";
-            this.MRatioY_Int.Size = new System.Drawing.Size(55, 25);
-            this.MRatioY_Int.TabIndex = 9;
-            this.MRatioY_Int.Text = "Int";
-            this.MRatioY_Int.UseVisualStyleBackColor = true;
-            this.MRatioY_Int.CheckedChanged += new System.EventHandler(this.MRatioY_Int_CheckedChanged);
+            this.dTheta_Int.AutoSize = true;
+            this.dTheta_Int.Location = new System.Drawing.Point(572, 148);
+            this.dTheta_Int.Name = "dTheta_Int";
+            this.dTheta_Int.Size = new System.Drawing.Size(55, 25);
+            this.dTheta_Int.TabIndex = 24;
+            this.dTheta_Int.Text = "Int";
+            this.dTheta_Int.UseVisualStyleBackColor = true;
             // 
-            // MRatioY_Reset
+            // dTheta_Reset
             // 
-            this.MRatioY_Reset.Location = new System.Drawing.Point(491, 183);
-            this.MRatioY_Reset.Name = "MRatioY_Reset";
-            this.MRatioY_Reset.Size = new System.Drawing.Size(75, 32);
-            this.MRatioY_Reset.TabIndex = 8;
-            this.MRatioY_Reset.Text = "Reset";
-            this.MRatioY_Reset.UseVisualStyleBackColor = true;
-            this.MRatioY_Reset.Click += new System.EventHandler(this.MRatioY_Reset_Click);
+            this.dTheta_Reset.Location = new System.Drawing.Point(491, 141);
+            this.dTheta_Reset.Name = "dTheta_Reset";
+            this.dTheta_Reset.Size = new System.Drawing.Size(75, 32);
+            this.dTheta_Reset.TabIndex = 23;
+            this.dTheta_Reset.Text = "Reset";
+            this.dTheta_Reset.UseVisualStyleBackColor = true;
+            this.dTheta_Reset.Click += new System.EventHandler(this.dTheta_Reset_Click);
             // 
-            // MRatioY_Box
+            // dTheta_Box
             // 
-            this.MRatioY_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.MRatioY_Box.Location = new System.Drawing.Point(107, 186);
-            this.MRatioY_Box.Name = "MRatioY_Box";
-            this.MRatioY_Box.Size = new System.Drawing.Size(92, 28);
-            this.MRatioY_Box.TabIndex = 7;
+            this.dTheta_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.dTheta_Box.Location = new System.Drawing.Point(107, 144);
+            this.dTheta_Box.Name = "dTheta_Box";
+            this.dTheta_Box.Size = new System.Drawing.Size(92, 28);
+            this.dTheta_Box.TabIndex = 22;
             // 
-            // MRatioY
+            // dTheta
             // 
-            this.MRatioY.AutoSize = true;
-            this.MRatioY.Location = new System.Drawing.Point(16, 189);
-            this.MRatioY.Name = "MRatioY";
-            this.MRatioY.Size = new System.Drawing.Size(90, 21);
-            this.MRatioY.TabIndex = 6;
-            this.MRatioY.Text = "MRatioY";
+            this.dTheta.AutoSize = true;
+            this.dTheta.Location = new System.Drawing.Point(24, 147);
+            this.dTheta.Name = "dTheta";
+            this.dTheta.Size = new System.Drawing.Size(77, 21);
+            this.dTheta.TabIndex = 21;
+            this.dTheta.Text = "dTheta";
             // 
-            // MRatioY_Bar
+            // dTheta_Bar
             // 
-            this.MRatioY_Bar.Location = new System.Drawing.Point(207, 189);
-            this.MRatioY_Bar.Maximum = 300;
-            this.MRatioY_Bar.Name = "MRatioY_Bar";
-            this.MRatioY_Bar.Size = new System.Drawing.Size(278, 45);
-            this.MRatioY_Bar.TabIndex = 5;
-            this.MRatioY_Bar.Scroll += new System.EventHandler(this.MRatioY_Bar_Scroll);
-            // 
-            // MRatioX_Int
-            // 
-            this.MRatioX_Int.AutoSize = true;
-            this.MRatioX_Int.Location = new System.Drawing.Point(572, 87);
-            this.MRatioX_Int.Name = "MRatioX_Int";
-            this.MRatioX_Int.Size = new System.Drawing.Size(55, 25);
-            this.MRatioX_Int.TabIndex = 4;
-            this.MRatioX_Int.Text = "Int";
-            this.MRatioX_Int.UseVisualStyleBackColor = true;
-            this.MRatioX_Int.CheckedChanged += new System.EventHandler(this.MRatioX_Int_CheckedChanged);
-            // 
-            // MRatioX_Reset
-            // 
-            this.MRatioX_Reset.Location = new System.Drawing.Point(491, 80);
-            this.MRatioX_Reset.Name = "MRatioX_Reset";
-            this.MRatioX_Reset.Size = new System.Drawing.Size(75, 32);
-            this.MRatioX_Reset.TabIndex = 3;
-            this.MRatioX_Reset.Text = "Reset";
-            this.MRatioX_Reset.UseVisualStyleBackColor = true;
-            this.MRatioX_Reset.Click += new System.EventHandler(this.MRatioX_Reset_Click);
-            // 
-            // MRatioX_Box
-            // 
-            this.MRatioX_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.MRatioX_Box.Location = new System.Drawing.Point(107, 83);
-            this.MRatioX_Box.Name = "MRatioX_Box";
-            this.MRatioX_Box.Size = new System.Drawing.Size(92, 28);
-            this.MRatioX_Box.TabIndex = 2;
-            // 
-            // MRatioX
-            // 
-            this.MRatioX.AutoSize = true;
-            this.MRatioX.Location = new System.Drawing.Point(16, 86);
-            this.MRatioX.Name = "MRatioX";
-            this.MRatioX.Size = new System.Drawing.Size(91, 21);
-            this.MRatioX.TabIndex = 1;
-            this.MRatioX.Text = "MRatioX";
-            // 
-            // MRatioX_Bar
-            // 
-            this.MRatioX_Bar.Location = new System.Drawing.Point(207, 86);
-            this.MRatioX_Bar.Maximum = 1000000;
-            this.MRatioX_Bar.Minimum = 1;
-            this.MRatioX_Bar.Name = "MRatioX_Bar";
-            this.MRatioX_Bar.Size = new System.Drawing.Size(278, 45);
-            this.MRatioX_Bar.TabIndex = 0;
-            this.MRatioX_Bar.Value = 100000;
-            this.MRatioX_Bar.Scroll += new System.EventHandler(this.MRatioX_Bar_Scroll);
-            // 
-            // BarrierPitch_Int
-            // 
-            this.BarrierPitch_Int.AutoSize = true;
-            this.BarrierPitch_Int.Location = new System.Drawing.Point(586, 237);
-            this.BarrierPitch_Int.Name = "BarrierPitch_Int";
-            this.BarrierPitch_Int.Size = new System.Drawing.Size(55, 25);
-            this.BarrierPitch_Int.TabIndex = 14;
-            this.BarrierPitch_Int.Text = "Int";
-            this.BarrierPitch_Int.UseVisualStyleBackColor = true;
-            // 
-            // BarrierPitch_Reset
-            // 
-            this.BarrierPitch_Reset.Location = new System.Drawing.Point(505, 230);
-            this.BarrierPitch_Reset.Name = "BarrierPitch_Reset";
-            this.BarrierPitch_Reset.Size = new System.Drawing.Size(75, 32);
-            this.BarrierPitch_Reset.TabIndex = 13;
-            this.BarrierPitch_Reset.Text = "Reset";
-            this.BarrierPitch_Reset.UseVisualStyleBackColor = true;
-            this.BarrierPitch_Reset.Click += new System.EventHandler(this.BarrierPitch_Reset_Click);
-            // 
-            // BarrierPitch_Box
-            // 
-            this.BarrierPitch_Box.Font = new System.Drawing.Font("MS UI Gothic", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.BarrierPitch_Box.Location = new System.Drawing.Point(121, 233);
-            this.BarrierPitch_Box.Name = "BarrierPitch_Box";
-            this.BarrierPitch_Box.Size = new System.Drawing.Size(92, 28);
-            this.BarrierPitch_Box.TabIndex = 12;
-            // 
-            // BarrierPitch
-            // 
-            this.BarrierPitch.AutoSize = true;
-            this.BarrierPitch.Location = new System.Drawing.Point(38, 236);
-            this.BarrierPitch.Name = "BarrierPitch";
-            this.BarrierPitch.Size = new System.Drawing.Size(35, 21);
-            this.BarrierPitch.TabIndex = 11;
-            this.BarrierPitch.Text = "Bp";
-            // 
-            // BarrierPitch_Bar
-            // 
-            this.BarrierPitch_Bar.Location = new System.Drawing.Point(221, 236);
-            this.BarrierPitch_Bar.Maximum = 2600000;
-            this.BarrierPitch_Bar.Minimum = 2500000;
-            this.BarrierPitch_Bar.Name = "BarrierPitch_Bar";
-            this.BarrierPitch_Bar.Size = new System.Drawing.Size(278, 45);
-            this.BarrierPitch_Bar.TabIndex = 10;
-            this.BarrierPitch_Bar.Value = 2500000;
-            this.BarrierPitch_Bar.Scroll += new System.EventHandler(this.BarrierPitch_Bar_Scroll);
+            this.dTheta_Bar.Location = new System.Drawing.Point(207, 147);
+            this.dTheta_Bar.Maximum = 2600000;
+            this.dTheta_Bar.Minimum = 2500000;
+            this.dTheta_Bar.Name = "dTheta_Bar";
+            this.dTheta_Bar.Size = new System.Drawing.Size(278, 45);
+            this.dTheta_Bar.TabIndex = 20;
+            this.dTheta_Bar.Value = 2500000;
+            this.dTheta_Bar.Scroll += new System.EventHandler(this.dTheta_Bar_Scroll);
             // 
             // UIctrl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1377, 601);
-            this.Controls.Add(this.Slope);
+            this.Controls.Add(this.Theta);
             this.Controls.Add(this.UI_toggle);
             this.Controls.Add(this.ClientInfo);
             this.Controls.Add(this.Ex);
@@ -889,15 +830,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.Rx_Bar)).EndInit();
             this.Ex.ResumeLayout(false);
             this.Ex.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BarrierPitch_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.OnDotNum_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Origin_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Material_Bar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Picture_Bar)).EndInit();
-            this.Slope.ResumeLayout(false);
-            this.Slope.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MRatioY_Bar)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.MRatioX_Bar)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.BarrierPitch_Bar)).EndInit();
+            this.Theta.ResumeLayout(false);
+            this.Theta.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dTheta_Bar)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -960,21 +900,16 @@
         private System.Windows.Forms.TextBox OnDotNum_Box;
         private System.Windows.Forms.Label OnDotNum;
         private System.Windows.Forms.TrackBar OnDotNum_Bar;
-        private System.Windows.Forms.GroupBox Slope;
-        private System.Windows.Forms.CheckBox MRatioY_Int;
-        private System.Windows.Forms.Button MRatioY_Reset;
-        private System.Windows.Forms.TextBox MRatioY_Box;
-        private System.Windows.Forms.Label MRatioY;
-        private System.Windows.Forms.TrackBar MRatioY_Bar;
-        private System.Windows.Forms.CheckBox MRatioX_Int;
-        private System.Windows.Forms.Button MRatioX_Reset;
-        private System.Windows.Forms.TextBox MRatioX_Box;
-        private System.Windows.Forms.Label MRatioX;
-        private System.Windows.Forms.TrackBar MRatioX_Bar;
+        private System.Windows.Forms.GroupBox Theta;
         private System.Windows.Forms.CheckBox BarrierPitch_Int;
         private System.Windows.Forms.Button BarrierPitch_Reset;
         private System.Windows.Forms.TextBox BarrierPitch_Box;
         private System.Windows.Forms.Label BarrierPitch;
         private System.Windows.Forms.TrackBar BarrierPitch_Bar;
+        private System.Windows.Forms.CheckBox dTheta_Int;
+        private System.Windows.Forms.TrackBar dTheta_Bar;
+        private System.Windows.Forms.Button dTheta_Reset;
+        private System.Windows.Forms.Label dTheta;
+        private System.Windows.Forms.TextBox dTheta_Box;
     }
 }

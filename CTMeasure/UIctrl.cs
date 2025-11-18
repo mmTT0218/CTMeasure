@@ -27,9 +27,8 @@ namespace CTMeasure
         int matVal;
         int oriVal;
         int ondotVal;
-        float MRatioXVal;
-        float MRatioYVal;
         float BarrierPitchVal;
+        float dThetaVal; // ★追加: Thetaの初期値用
 
         // トラックバー値
         public string _Lx_value;
@@ -42,8 +41,6 @@ namespace CTMeasure
         public string _Mat_value;
         public string _Ori_value;
         public string _OnDotNum_value;
-        public string _MRatioX_value;
-        public string _MRatioY_value;
         public string _BarrierPitch_value;
 
         // TextBoxの値反映フラグ
@@ -53,6 +50,9 @@ namespace CTMeasure
         const int BP_SCALE = 10000000; // 1 tick = 0.0000001 mm
         const double BP_MIN = 0.2500000;
         const double BP_MAX = 0.2560000;
+
+        // ★追加: Theta slider scaling (0.01度精度)
+        const int THETA_SCALE = 100;
 
         public UIctrl(string clientInfo,
               string lx, string lx_int,
@@ -65,9 +65,7 @@ namespace CTMeasure
               string mat, string mat_int,
               string ori, string ori_int,
               string ondotNum, string ondotNum_int,
-              string mratioX, string mratioX_int,
-              string mratioY, string mratioY_int,
-              string barrierPitch, string barrierPitch_int
+              string dtheta = "0", string dtheta_int = "0"
             )
         {
             InitializeComponent();
@@ -85,17 +83,24 @@ namespace CTMeasure
             WireTextBoxToBarConfirmOnly(Origin_Box, Origin_Bar, 1, Origin_Int);
             WireTextBoxToBarConfirmOnly(OnDotNum_Box, OnDotNum_Bar, 1, OnDotNum_Int);
 
-            WireTextBoxToBarConfirmOnly(MRatioX_Box, MRatioX_Bar, 100000, MRatioX_Int);
-            WireTextBoxToBarConfirmOnly(MRatioY_Box, MRatioY_Bar, 10, MRatioY_Int);
-
             WireTextBoxToBarConfirmOnly(BarrierPitch_Box, BarrierPitch_Bar, BP_SCALE, null);
+
+            // ★追加: Theta用のTextBox連携 (Scale 100)
+            WireTextBoxToBarConfirmOnly(dTheta_Box, dTheta_Bar, THETA_SCALE, dTheta_Int);
 
             _ClientInfo = clientInfo;
 
+            // Barrier Pitch設定
             BarrierPitch_Bar.Minimum = (int)Math.Round(BP_MIN * BP_SCALE);
             BarrierPitch_Bar.Maximum = (int)Math.Round(BP_MAX * BP_SCALE);
             BarrierPitch_Bar.SmallChange = 1;    // 0.0000001 mm
             BarrierPitch_Bar.LargeChange = 100;  // 0.0000100 mm
+
+            // ★追加: Theta Bar設定 (-2.00度 ～ +2.00度)
+            dTheta_Bar.Minimum = -200;
+            dTheta_Bar.Maximum = 200;
+            dTheta_Bar.SmallChange = 1; // 0.01度
+            dTheta_Bar.LargeChange = 10; // 0.1度
 
             // 実数
             float.TryParse(lx, out lxVal);
@@ -104,9 +109,7 @@ namespace CTMeasure
             float.TryParse(rx, out rxVal);
             float.TryParse(ry, out ryVal);
             float.TryParse(rz, out rzVal);
-            float.TryParse(mratioX, out MRatioXVal);
-            float.TryParse(mratioY, out MRatioYVal);
-            float.TryParse(barrierPitch, out BarrierPitchVal);
+            float.TryParse(dtheta, out dThetaVal); // ★追加
             // 整数
             int.TryParse(pic, out picVal);
             int.TryParse(mat, out matVal);
@@ -123,9 +126,7 @@ namespace CTMeasure
             bool mat_intVal = mat_int == "1";
             bool ori_intVal = ori_int == "1";
             bool ondotNum_intVal = ondotNum_int == "1";
-            bool mratioX_intVal = mratioX_int == "1";
-            bool mratioY_intVal = mratioY_int == "1";
-            bool barrierPitch_intVal = barrierPitch_int == "1";
+            bool dtheta_intVal = dtheta_int == "1"; // ★追加
 
             // ------ UI初期化 ------
             // 左目
@@ -136,9 +137,6 @@ namespace CTMeasure
             Rx_Bar.Value = (int)Math.Round(rxVal * 10);
             Ry_Bar.Value = (int)Math.Round(ryVal * 10);
             Rz_Bar.Value = (int)Math.Round(rzVal * 10);
-            // 傾き
-            MRatioX_Bar.Value = (int)Math.Round(MRatioXVal * 100000);
-            MRatioY_Bar.Value = (int)Math.Round(MRatioYVal * 10);
             // その他
             Picture_Bar.Value = picVal;
             Material_Bar.Value = matVal;
@@ -147,6 +145,10 @@ namespace CTMeasure
             int bpInit = (int)Math.Round(BarrierPitchVal * BP_SCALE);
             bpInit = Math.Max(BarrierPitch_Bar.Minimum, Math.Min(BarrierPitch_Bar.Maximum, bpInit));
             BarrierPitch_Bar.Value = bpInit;
+            // ★追加: Theta Bar初期値
+            int thetaInit = (int)Math.Round(dThetaVal * THETA_SCALE);
+            thetaInit = Math.Max(dTheta_Bar.Minimum, Math.Min(dTheta_Bar.Maximum, thetaInit));
+            dTheta_Bar.Value = thetaInit;
 
             // ------ テキストボックス表示 ------
             // 左目
@@ -157,15 +159,14 @@ namespace CTMeasure
             Rx_Box.Text = ((double)rxVal).ToString();
             Ry_Box.Text = ((double)ryVal).ToString();
             Rz_Box.Text = ((double)rzVal).ToString();
-            // 傾き
-            MRatioX_Box.Text = ((double)MRatioXVal).ToString();
-            MRatioY_Box.Text = ((double)MRatioYVal).ToString();
             // その他
             Picture_Box.Text = picVal.ToString();
             Material_Box.Text = matVal.ToString();
             Origin_Box.Text = oriVal.ToString();
             OnDotNum_Box.Text = ondotVal.ToString();
             BarrierPitch_Box.Text = (BarrierPitch_Bar.Value / (double)BP_SCALE).ToString("F7");
+            // ★追加
+            dTheta_Box.Text = ((double)dThetaVal).ToString("F2");
 
             // ------ チェックボックス代入 ------
             Lx_Int.Checked = lx_intVal;
@@ -178,9 +179,7 @@ namespace CTMeasure
             Material_Int.Checked = mat_intVal;
             Origin_Int.Checked = ori_intVal;
             OnDotNum_Int.Checked = ondotNum_intVal;
-            MRatioX_Int.Checked = mratioX_intVal;
-            MRatioY_Int.Checked = mratioY_intVal;
-            BarrierPitch_Int.Checked = barrierPitch_intVal;
+            dTheta_Int.Checked = dtheta_intVal; // ★追加
         }
 
 
@@ -276,31 +275,11 @@ namespace CTMeasure
             SendToClient();
         }
 
-        // -------------- トラックバーイベント ------------------
-        private void MRatioX_Bar_Scroll(object sender, EventArgs e)
+        // ★追加: Theta Bar スクロールイベント
+        private void dTheta_Bar_Scroll(object sender, EventArgs e)
         {
-            if (MRatioX_Int.Checked)
-            {
-                MRatioX_Box.Text = ((int)MRatioX_Bar.Value / 100000).ToString();
-
-            }
-            else
-            {
-                MRatioX_Box.Text = ((double)MRatioX_Bar.Value / 100000).ToString();
-            }
-            SendToClient();
-        }
-        private void MRatioY_Bar_Scroll(object sender, EventArgs e)
-        {
-            if (MRatioY_Int.Checked)
-            {
-                MRatioY_Box.Text = ((int)MRatioY_Bar.Value / 10).ToString();
-
-            }
-            else
-            {
-                MRatioY_Box.Text = ((double)MRatioY_Bar.Value / 10).ToString();
-            }
+            // 値を更新 (scale 100 なので 0.01単位)
+            dTheta_Box.Text = ((double)dTheta_Bar.Value / (double)THETA_SCALE).ToString("F2");
             SendToClient();
         }
 
@@ -309,7 +288,7 @@ namespace CTMeasure
         {
             Picture_Box.Text = Picture_Bar.Value.ToString();
             SendToClient();
-            
+
         }
 
         private void Material_Bar_Scroll(object sender, EventArgs e)
@@ -336,7 +315,26 @@ namespace CTMeasure
             SendToClient();
         }
 
+        // -------------- トラックバーイベント ------------------
+
         // -------------- トグルイベント --------------
+        // 共通化メソッド
+        private void ToggleIntMode(System.Windows.Forms.TrackBar bar, CheckBox checkBox, int scale)
+        {
+            if (checkBox.Checked)
+            {
+                bar.SmallChange = scale;
+                bar.LargeChange = scale;
+                // 端数丸め
+                bar.Value = (int)(Math.Round((double)bar.Value / scale) * scale);
+            }
+            else
+            {
+                bar.SmallChange = 1;
+                bar.LargeChange = 1;
+            }
+        }
+
         // UI ON/OFF
         private void UI_toggle_CheckedChanged(object sender, EventArgs e)
         {
@@ -346,148 +344,38 @@ namespace CTMeasure
         // 左目
         private void Lx_Int_CheckedChanged(object sender, EventArgs e)
         {
-            if (Lx_Int.Checked)
-            {
-                // 1刻み = 10単位で動かす（10 = 1.0）
-                Lx_Bar.SmallChange = 10;
-                Lx_Bar.LargeChange = 10;
-
-                // 端数がある場合は丸める
-                Lx_Bar.Value = (int)(Math.Round(Lx_Bar.Value / 10.0) * 10);
-            }
-            else
-            {
-                // 0.1刻み = 1単位で動かす（1 = 0.1）
-                Lx_Bar.SmallChange = 1;
-                Lx_Bar.LargeChange = 1;
-            }
+            ToggleIntMode(Lx_Bar, Lx_Int, 10);
             SendToClient();
         }
 
         private void Ly_Int_CheckedChanged(object sender, EventArgs e)
         {
-            if (Ly_Int.Checked)
-            {
-                // 1刻み = 10単位で動かす（10 = 1.0）
-                Ly_Bar.SmallChange = 10;
-                Ly_Bar.LargeChange = 10;
-
-                // 端数がある場合は丸める
-                Ly_Bar.Value = (int)(Math.Round(Ly_Bar.Value / 10.0) * 10);
-            }
-            else
-            {
-                // 0.1刻み = 1単位で動かす（1 = 0.1）
-                Ly_Bar.SmallChange = 1;
-                Ly_Bar.LargeChange = 1;
-            }
+            ToggleIntMode(Ly_Bar, Ly_Int, 10);
             SendToClient();
         }
 
         private void Lz_Int_CheckedChanged(object sender, EventArgs e)
         {
-            if (Lz_Int.Checked)
-            {
-                // 1刻み = 10単位で動かす（10 = 1.0）
-                Lz_Bar.SmallChange = 10;
-                Lz_Bar.LargeChange = 10;
-
-                // 端数がある場合は丸める
-                Lz_Bar.Value = (int)(Math.Round(Lz_Bar.Value / 10.0) * 10);
-            }
-            else
-            {
-                // 0.1刻み = 1単位で動かす（1 = 0.1）
-                Lz_Bar.SmallChange = 1;
-                Lz_Bar.LargeChange = 1;
-            }
+            ToggleIntMode(Lz_Bar, Lz_Int, 10);
             SendToClient();
         }
 
         // 右目
         private void Rx_Int_CheckedChanged(object sender, EventArgs e)
         {
-            if (Rx_Int.Checked)
-            {
-                // 1刻み = 10単位で動かす（10 = 1.0）
-                Rx_Bar.SmallChange = 10;
-                Rx_Bar.LargeChange = 10;
-
-                // 端数がある場合は丸める
-                Rx_Bar.Value = (int)(Math.Round(Rx_Bar.Value / 10.0) * 10);
-            }
-            else
-            {
-                // 0.1刻み = 1単位で動かす（1 = 0.1）
-                Rx_Bar.SmallChange = 1;
-                Rx_Bar.LargeChange = 1;
-            }
+            ToggleIntMode(Rx_Bar, Rx_Int, 10);
             SendToClient();
         }
 
         private void Ry_Int_CheckedChanged(object sender, EventArgs e)
         {
-            if (Ry_Int.Checked)
-            {
-                // 1刻み = 10単位で動かす（10 = 1.0）
-                Ry_Bar.SmallChange = 10;
-                Ry_Bar.LargeChange = 10;
-
-                // 端数がある場合は丸める
-                Ry_Bar.Value = (int)(Math.Round(Ry_Bar.Value / 10.0) * 10);
-            }
-            else
-            {
-                // 0.1刻み = 1単位で動かす（1 = 0.1）
-                Ry_Bar.SmallChange = 1;
-                Ry_Bar.LargeChange = 1;
-            }
+            ToggleIntMode(Ry_Bar, Ry_Int, 10);
             SendToClient();
         }
 
         private void Rz_Int_CheckedChanged(object sender, EventArgs e)
         {
-            if (Rz_Int.Checked)
-            {
-                // 1刻み = 10単位で動かす（10 = 1.0）
-                Rz_Bar.SmallChange = 10;
-                Rz_Bar.LargeChange = 10;
-
-                // 端数がある場合は丸める
-                Rz_Bar.Value = (int)(Math.Round(Rz_Bar.Value / 10.0) * 10);
-            }
-            else
-            {
-                // 0.1刻み = 1単位で動かす（1 = 0.1）
-                Rz_Bar.SmallChange = 1;
-                Rz_Bar.LargeChange = 1;
-            }
-            SendToClient();
-        }
-
-        // 傾き
-        private void MRatioX_Int_CheckedChanged(object sender, EventArgs e)
-        {
-            SendToClient();
-        }
-
-        private void MRatioY_Int_CheckedChanged(object sender, EventArgs e)
-        {
-            if (MRatioY_Int.Checked)
-            {
-                // 1刻み = 10単位で動かす（10 = 1.0）
-                MRatioY_Bar.SmallChange = 10;
-                MRatioY_Bar.LargeChange = 10;
-
-                // 端数がある場合は丸める
-                MRatioY_Bar.Value = (int)(Math.Round(MRatioY_Bar.Value / 10.0) * 10);
-            }
-            else
-            {
-                // 0.1刻み = 1単位で動かす（1 = 0.1）
-                MRatioY_Bar.SmallChange = 1;
-                MRatioY_Bar.LargeChange = 1;
-            }
+            ToggleIntMode(Rz_Bar, Rz_Int, 10);
             SendToClient();
         }
 
@@ -561,22 +449,7 @@ namespace CTMeasure
 
             SendToClient();
         }
-        // 傾き
-        private void MRatioX_Reset_Click(object sender, EventArgs e)
-        {
-            float clampedVal = Math.Max(1.0f, Math.Min(10.0f, MRatioXVal));
-            int resetValue = (int)Math.Round(clampedVal * 100000.0);
-            MRatioX_Bar.Value = resetValue;
-            SendToClient();
-        }
 
-        private void MRatioY_Reset_Click(object sender, EventArgs e)
-        {
-            MRatioY_Bar.Value = (int)Math.Round(MRatioYVal * 10);
-            MRatioY_Box.Text = ((double)MRatioYVal).ToString();
-
-            SendToClient();
-        }
         // その他
         private void Picture_Reset_Click(object sender, EventArgs e)
         {
@@ -616,6 +489,17 @@ namespace CTMeasure
             v = Math.Max(BarrierPitch_Bar.Minimum, Math.Min(BarrierPitch_Bar.Maximum, v));
             BarrierPitch_Bar.Value = v;
             BarrierPitch_Box.Text = (v / (double)BP_SCALE).ToString("F7");
+            SendToClient();
+        }
+
+        // ★追加: Theta Reset
+        private void dTheta_Reset_Click(object sender, EventArgs e)
+        {
+            int v = (int)Math.Round(dThetaVal * THETA_SCALE);
+            v = Math.Max(dTheta_Bar.Minimum, Math.Min(dTheta_Bar.Maximum, v));
+            dTheta_Bar.Value = v;
+            dTheta_Box.Text = ((double)dThetaVal).ToString("F2");
+
             SendToClient();
         }
 
@@ -677,9 +561,7 @@ namespace CTMeasure
                     + Material_Box.Text + "/" + (Material_Int.Checked ? "1" : "0") + "/"
                     + Origin_Box.Text + "/" + (Origin_Int.Checked ? "1" : "0") + "/"
                     + OnDotNum_Box.Text + "/" + (OnDotNum_Int.Checked ? "1" : "0") + "/"
-                    + MRatioX_Box.Text + "/" + (MRatioX_Int.Checked ? "1" : "0") + "/"
-                    + MRatioY_Box.Text + "/" + (MRatioY_Int.Checked ? "1" : "0") + "/"
-                    + BarrierPitch_Box.Text + "/" + (BarrierPitch_Int.Checked ? "1" : "0") + "/"
+                    + dTheta_Box.Text + "/"
                     + (UI_toggle.Checked ? "1" : "0") + "\n";
 
                 CrossTalkMeasure.lastClient.ReplyLine(message);
