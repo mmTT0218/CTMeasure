@@ -97,8 +97,8 @@ namespace CTMeasure
             BarrierPitch_Bar.LargeChange = 100;  // 0.0000100 mm
 
             // ★追加: Theta Bar設定 (-2.00度 ～ +2.00度)
-            dTheta_Bar.Minimum = -200;
-            dTheta_Bar.Maximum = 200;
+            dTheta_Bar.Minimum = -500;
+            dTheta_Bar.Maximum = 500;
             dTheta_Bar.SmallChange = 1; // 0.01度
             dTheta_Bar.LargeChange = 10; // 0.1度
 
